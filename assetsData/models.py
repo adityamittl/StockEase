@@ -27,7 +27,9 @@ class Asset_Type(models.Model):
     name = models.CharField(max_length=500)
     code = models.IntegerField()
     Final_Code = models.CharField(max_length=200)
+    remark = models.TextField(null = True, blank = True)
     Last_Assigned_serial_Number = models.IntegerField(default=0)
+    quantity = models.IntegerField(default=0)
 
     def __self__(self):
         return self.name
