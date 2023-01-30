@@ -2,8 +2,13 @@ from django.db import models
 
 # Database schema for the initial populated data 
 
+class Finantial_Year(models.Model):
+    yearName = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.yearName
 # ------------------ Item anem --------------------
-# specifing the asset super catagory
+# specifing the asset super catagory (Main catagory)
 class Main_Catagory(models.Model):
     Consumable_type = models.CharField(max_length=200)
     name = models.CharField(max_length=100)
@@ -13,15 +18,15 @@ class Main_Catagory(models.Model):
         return self.name
 
 
-# To specify the subcatagory of the asset type
+# To specify the subcatagory of the asset type (Sub catagory)
 class Sub_Catagory(models.Model):
     name = models.CharField(max_length=100)
     code = models.IntegerField()
 
-    def __self__(self):
+    def __str__(self):
         return self.name
 
-# to specify the asset type
+# to specify the asset type (Assery Type)
 class Asset_Type(models.Model):
 
     name = models.CharField(max_length=500)
@@ -31,7 +36,7 @@ class Asset_Type(models.Model):
     Last_Assigned_serial_Number = models.IntegerField(default=0)
     quantity = models.IntegerField(default=0)
 
-    def __self__(self):
+    def __str__(self):
         return self.name
 
 
@@ -64,7 +69,7 @@ class Location_Description(models.Model):
         return self.name
 
 # ------------ Departments and labs name --------------
-class Departments(models.model):
+class Departments(models.Model):
     name = models.CharField(max_length=300)
 
 
@@ -84,7 +89,7 @@ class Vendor(models.Model):
     address = models.TextField(null=True, blank=True)
     GST_No = models.CharField(max_length=100, null=True, blank=True)
     contact_No = models.CharField(max_length=100, null=True, blank=True)
-    services = models.ManyToManyField(Service_Type, null=True, blank=True)
+    services = models.ManyToManyField(Service_Type, blank=True)
 
     def __str__(self):
         return self.name
