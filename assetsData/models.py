@@ -28,7 +28,8 @@ class Sub_Catagory(models.Model):
 
 # to specify the asset type (Assery Type)
 class Asset_Type(models.Model):
-
+    mc = models.ForeignKey(Main_Catagory, on_delete=models.CASCADE, null=True)
+    sc = models.ForeignKey(Sub_Catagory, on_delete=models.CASCADE, null=True)
     name = models.CharField(max_length=500)
     code = models.IntegerField()
     Final_Code = models.CharField(max_length=200)
@@ -89,7 +90,9 @@ class Vendor(models.Model):
     address = models.TextField(null=True, blank=True)
     GST_No = models.CharField(max_length=100, null=True, blank=True)
     contact_No = models.CharField(max_length=100, null=True, blank=True)
+    Email = models.CharField(max_length=100, null=True, blank=True)
     services = models.ManyToManyField(Service_Type, blank=True)
+    attach = models.ManyToManyField(Vendor_Attachments, blank=True)
 
     def __str__(self):
         return self.name

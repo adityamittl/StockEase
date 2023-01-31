@@ -42,8 +42,8 @@
         <div class="px-3 py-4 overflow-y-auto rounded bg-gray-50 dark:bg-gray-800 h-full">
             <ul class="space-y-2">
                 <li>
-                    <a href="/"
-                        class="flex itemster p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <a href="#"
+                        class="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
                         <svg aria-hidden="true"
                             class="w-6 h-6 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                             fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -146,7 +146,7 @@
                     </ul>
                 <li>
                     <button type="button"
-                        class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 dark:bg-gray-600 bg-gray-200"
+                        class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
                         aria-controls="dropdown-store" data-collapse-toggle="dropdown-store">
                         <svg aria-hidden="true"
                             class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
@@ -178,7 +178,7 @@
                                 Items</a>
                         </li>
                         <li>
-                            <a href="/locations"
+                            <a href="/location"
                                 class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Locations</a>
                         </li>
                         <li>
@@ -192,8 +192,8 @@
                                 Items</a>
                         </li>
                         <li>
-                            <a href="#"
-                                class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 dark:bg-gray-600 bg-gray-200">Departments</a>
+                            <a href="/departments"
+                                class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Departments</a>
                         </li>
                         <li>
                             <a href="#"
@@ -203,7 +203,7 @@
                     </ul>
                 </li>
                 <li>
-                    <a href="/vendors"
+                    <a href="#"
                         class="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
                         <svg class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                             viewBox="0 0 1024 1024" fill="currentColor" version="1.1"
@@ -274,9 +274,10 @@
                         <span class="flex-1 ml-3 whitespace-nowrap">Shift Item</span>
                     </a>
                 </li>
+                
                 <li>
                     <button type="button"
-                        class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+                        class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 dark:bg-gray-600 bg-gray-200"
                         aria-controls="dropdown-codes" data-collapse-toggle="dropdown-codes">
                         <svg aria-hidden="true"
                             class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
@@ -295,13 +296,12 @@
                     <ul id="dropdown-codes" class="hidden py-2 space-y-2">
                         <li>
                             <a href="#"
-                                class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Main Catagory</a>
+                                class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 dark:bg-gray-600 bg-gray-200">Main Catagory</a>
                         </li>
                         <li>
                             <a href="#"
                                 class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Sub Catagory</a>
                         </li>
-                        
                         <li>
                             <a href="#"
                                 class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Location
@@ -326,7 +326,7 @@
         </div>
     </aside>
 
-    <div style="padding-left: 5%; width: 83%; padding-right: 5%; padding-top: 70px;" class="dark:bg-gray-900">
+    <div style="padding-left: 10%; width: 83%; padding-right: 5%; padding-top: 70px;" class="dark:bg-gray-900">
         <div class="absolute" style="right: 50px; top: 10px;">
 
             <button id="theme-toggle" type="button"
@@ -356,9 +356,8 @@
                 </div>
                 <input type="text" id="search"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    placeholder="Search" onkeyup="search()" autocomplete="off">
+                    placeholder="Search" onkeyup="search()">
             </div>
-
             <button id="dropdownDefaultButton" data-dropdown-toggle="dropdown" style="margin-left: 25px;"
             class=" flex text-green-700 hover:text-white border border-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 p-2.5 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 dark:border-green-500 dark:text-green-500 dark:hover:text-white dark:hover:bg-green-600 dark:focus:ring-green-800"
                 type="button"> More <svg class="w-4 h-4 ml-2" aria-hidden="true" fill="none"
@@ -370,11 +369,15 @@
                 class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700" style="margin-left: 25px;">
                 <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownDefaultButton" style="cursor: pointer;">
                     <li>
-                        <a onclick="window.open('/vendor/new', 
+                        <a onclick="window.open('/maincategory/new', 
                         'newwindow', 
                         'width=800,height=800'); 
              return false;"
-                            class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"> Add new Location</a>
+                            class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"> Add new main category</a>
+                    </li>
+                    <li>
+                        <a href="#"
+                            class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white" data-modal-target="staticModal" data-modal-toggle="staticModal">Import bulk data</a>
                     </li>
                     <li>
                         <a href="#"
@@ -382,13 +385,6 @@
                     </li>
                 </ul>
             </div>
-
-            <!-- <button type="button"
-                class="text-green-700 hover:text-white border border-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 dark:border-green-500 dark:text-green-500 dark:hover:text-white dark:hover:bg-green-600 dark:focus:ring-green-800"
-                style="margin-left: 25px;" onclick="window.open('/vendor/new', 
-            'newwindow', 
-            'width=1000,height=1000'); 
- return false;">Add New Location</button> -->
         </div>
 
         <div class="relative overflow-x-auto shadow-md sm:rounded-lg" style="margin-top: 70px; max-height: 72vh;">
@@ -397,144 +393,87 @@
                     class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 sticky top-0"">
                     <tr>
                         <th scope=" col" class="px-6 py-3">
-                    Department Name
+                    Main Category
                     </th>
-                    <th scope=" col" class="px-6 py-3">
-                        Department Code
+                    <th scope="col" class="px-6 py-3">
+                        Code
                     </th>
                     <th scope="col" class="px-6 py-3">
                         Edit
                     </th>
                     </tr>
                 </thead>
-                <tbody id="vendorDetails" class="overflow-y-scroll" style="max-height: 20vh;">
-                    <tr class="bg-white border-b dark:bg-gray-900 dark:border-gray-700">
-                        <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                            Repair & Maintenance
-                        </th>
-                        <td class="px-6 py-4">
-                            Ground
-                        </td>
-                        <td class="px-6 py-4">
-                            <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
-                        </td>
-                    </tr>
+                <tbody id="vendorDetails" class="overflow-y-scroll" style="max-height: 65vh;">
+                    {% for val in data %}
+                    {% if val.id|divisibleby:"2" %}
                     <tr class="border-b bg-gray-50 dark:bg-gray-800 dark:border-gray-700">
                         <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                            CSE Department
-
+                            {{val.name}}
                         </th>
                         <td class="px-6 py-4">
-                            First
+                            {{val.code}}
                         </td>
                         <td class="px-6 py-4">
-                            <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
+                            <a href="/subcategory/edit/{{val.id}}" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
                         </td>
                     </tr>
+                    
+                    {%else%}
                     <tr class="bg-white border-b dark:bg-gray-900 dark:border-gray-700">
                         <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                            Maths Department
-
+                           {{val.name}}
                         </th>
                         <td class="px-6 py-4">
-                            First
+                            {{val.code}}
                         </td>
                         <td class="px-6 py-4">
-                            <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
+                            <a href="/subcategory/edit/{{val.id}}" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
                         </td>
                     </tr>
-                    <tr class="border-b bg-gray-50 dark:bg-gray-800 dark:border-gray-700">
-                        <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                            HSS Department
+                    {%endif%}
+                    {%endfor%}
 
-                        </th>
-                        <td class="px-6 py-4">
-                            First
-                        </td>
-                        <td class="px-6 py-4">
-                            <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
-                        </td>
-                    </tr>
-                    <tr class="bg-white border-b dark:bg-gray-900 dark:border-gray-700">
-                        <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                            Admistration
-
-                        </th>
-                        <td class="px-6 py-4">
-                            First
-                        </td>
-                        <td class="px-6 py-4">
-                            <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
-                        </td>
-                    </tr>
-                    <tr class="border-b bg-gray-50 dark:bg-gray-800 dark:border-gray-700">
-                        <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                            Admission Cell
-
-                        </th>
-                        <td class="px-6 py-4">
-                            First
-                        </td>
-                        <td class="px-6 py-4">
-                            <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
-                        </td>
-                    </tr>
-                    <tr class="bg-white border-b dark:bg-gray-900 dark:border-gray-700">
-                        <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                            Finance Department
-
-                        </th>
-                        <td class="px-6 py-4">
-                            First
-                        </td>
-                        <td class="px-6 py-4">
-                            <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
-                        </td>
-                    </tr>
-                    <tr class="border-b bg-gray-50 dark:bg-gray-800 dark:border-gray-700">
-                        <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                            MME Department
-
-                        </th>
-                        <td class="px-6 py-4">
-                            First
-                        </td>
-                        <td class="px-6 py-4">
-                            <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
-                        </td>
-                    </tr>
-                    <tr class="bg-white border-b dark:bg-gray-900 dark:border-gray-700">
-                        <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                            Physics Deparment
-
-                        </th>
-                        <td class="px-6 py-4">
-                            First
-                        </td>
-                        <td class="px-6 py-4">
-                            <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
-                        </td>
-                    </tr>
-                    <tr class="border-b bg-gray-50 dark:bg-gray-800 dark:border-gray-700">
-                        <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                            IT Deparment
-
-                        </th>
-                        <td class="px-6 py-4">
-                            First
-                        </td>
-                        <td class="px-6 py-4">
-                            <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
-                        </td>
-                    </tr>
                 </tbody>
             </table>
         </div>
 
-
-
     </div>
+    <div id="staticModal" data-modal-backdrop="static" tabindex="-1" aria-hidden="true"
+        class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-modal md:h-full">
+        <div class="relative w-full h-full max-w-2xl md:h-auto">
+            <!-- Modal content -->
+            <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                <!-- Modal header -->
+                <div class="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+                        Import Data
+                    </h3>
+                </div>
+                <!-- Modal body -->
+                <form action="" method="post" enctype="multipart/form-data">
+                    <div class="p-6 space-y-6">
+                        {%csrf_token%}
+                        <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                            for="file_input">Upload
+                            file</label>
+                        <input required
+                            class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+                            id="file_input" type="file" accept=".csv" name="dataCSV">
 
+                    </div>
+                    <!-- Modal footer -->
+                    <div
+                        class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600">
+                        <button data-modal-hide="staticModal" type="submit"
+                            class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                            Submit</button>
+                        <button data-modal-hide="staticModal" type="button"
+                            class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
     <script>
         var themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
         var themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');

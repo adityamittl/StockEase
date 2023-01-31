@@ -14,40 +14,49 @@
 <body>
 
     <form method="post" style="padding-left: 10%; width: 83%; padding-right: 5%; padding-top: 30px;"
-        class="dark:bg-gray-900">
+        class="dark:bg-gray-900" enctype="multipart/form-data">
         {%csrf_token%}
         <div style="padding-left: 10%; width: 83%; padding-right: 5%;" class="dark:bg-gray-900">
             <div class="mb-6">
                 <label for="default-input" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Vendor
                     Name *</label>
-                <input type="text" id="default-input" required
+                <input type="text" required name="vendorName"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
             </div>
 
             <label for="message" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Vendor
                 Address</label>
-            <textarea id="message" rows="4"
+            <textarea name="vendorAddress" rows="4"
                 class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 placeholder="Write your thoughts here..."></textarea>
 
             <div class="mb-6">
                 <label for="default-input" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white mt-3">GST
                     Number</label>
-                <input type="text" id="default-input"
+                <input type="text" name="gstNo"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
             </div>
             <div class="mb-6">
                 <label for="default-input"
                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-white mt-3">Email</label>
-                <input type="email" id="default-input"
+                <input type="email" name="email"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
             </div>
             <div class="mb-6">
                 <label for="default-input"
                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-white mt-3">Contact
                     Number</label>
-                <input type="tel" id="default-input"
+                <input type="tel" name="contactNo"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+            </div>
+            <div class="mb-6" id="services">
+                <label for="default-input"
+                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white mt-3">Vendor Services</label>
+                <div class="flex">
+                    <input type="text" name="services" style="height: 43px;"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                        <button type="button" id="amButton" class="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-600 dark:focus:ring-blue-800" style="margin-left: 10px;" onclick="addMore()">more</button>
+                </div>
             </div>
             <div class="mb-6">
                 <label for="default-input"
@@ -55,12 +64,39 @@
 
                 <input
                     class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
-                    id="multiple_files" type="file" multiple>
+                    name="attachments" type="file" multiple>
 
             </div>
             <button type="submit" class="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-600 dark:focus:ring-blue-800">Submit</button>
         </div>
     </form>
+
+    <script>
+        function addMore(){
+            let wrap = document.getElementById('services');
+            let divWrap = document.createElement('div');
+            divWrap.setAttribute('class','flex');
+            let inpt = document.createElement('input');
+            inpt.setAttribute('name','services');
+            inpt.setAttribute('style','height: 43px;');
+            inpt.setAttribute('class','bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500');
+            let btn = document.createElement('button');
+            btn.setAttribute('id','amButton');
+            btn.setAttribute('class','text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-600 dark:focus:ring-blue-800" style="margin-left: 10px;');
+            btn.setAttribute('onclick','addMore()');
+            btn.innerHTML = 'more';
+            divWrap.append(inpt);
+            document.getElementById('amButton').remove();
+            divWrap.append(btn);
+            wrap.append(divWrap)
+        }
+    </script>
+
+    {%if close%}
+    <script>
+        window.open('','_self').close()
+    </script>
+    {%endif%}
 </body>
 
 </html>
