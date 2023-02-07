@@ -257,7 +257,7 @@
                                 class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Departments</a>
                         </li>
                         <li>
-                            <a href="#"
+                            <a href="/itemanem"
                                 class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Item
                                 anem</a>
                         </li>
@@ -356,12 +356,12 @@
                     </button>
                     <ul id="dropdown-codes" class="hidden py-2 space-y-2">
                         <li>
-                            <a href="#"
+                            <a href="/maincategory"
                                 class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Main
                                 Catagory</a>
                         </li>
                         <li>
-                            <a href="#"
+                            <a href="/subcategory"
                                 class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Sub
                                 Catagory</a>
                         </li>
@@ -409,7 +409,7 @@
         </div>
 
         <form method="POST" id="formControl">
-            <select id="AssetType" name="AssetType" tabindex="1"
+            <select id="AssetType" name="AssetType" tabindex="1" autofocus
                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 w-48"
                 style=" margin-top: 60px; margin-bottom: 20px;">
                 <option selected>Choose Asset Type</option>
@@ -418,17 +418,17 @@
             </select>
             {%csrf_token%}
             <div class="grid gap-6 mb-6 md:grid-cols-2">
-                <div>
+                <!-- <div>
                     <label for="first_name"
                         class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Financial Year</label>
-                    <select id="fYears" name="fYear"
+                    <select id="fYears" name="fYear" 
                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                         <option selected>Financial Year</option>
                         <option value="20-21">2020-2021</option>
                         <option value="21-22">2021-2022</option>
                         <option value="22-23">2021-2023</option>
                     </select>
-                </div>
+                </div> -->
                 <div>
                     <label for="last_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Date of
                         Entry</label>
@@ -444,7 +444,7 @@
                         <input autocomplete="off" datepicker datepicker-buttons datepicker-format="dd/mm/yyyy"
                             type="text" name="EntryDate"
                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                            placeholder="Select date">
+                            placeholder="Select date" id="entryDate">
                     </div>
                 </div>
                 <div>
@@ -864,6 +864,11 @@
                 },
             });
         }
+        let date = new Date()
+        date = date.toJSON().split('T')[0].split('-')
+        res = date[2]+"/"+date[1]+"/"+date[0];
+
+        document.getElementById('entryDate').value = res;
     </script>
 </body>
 

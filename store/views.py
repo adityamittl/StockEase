@@ -6,15 +6,21 @@ from django.contrib.auth.decorators import login_required
 from django.core.files.storage import FileSystemStorage
 import pandas as pd
 import csv
-
+from datetime import date, datetime
 from assetsData.models import *
 
 
 def entry(request):
-    print(len(Asset_Type.objects.get(name = "KINETIC NOVA").name))
-    # print(request.body.decode('utf-8').split("&"))
-    # print(request.POST)
-    return render(request, 'entry.html')
+    date = str(datetime.now()).split(' ')[0].split('-')
+    month = int(date[1])
+    year = int(date[0])
+    fy = str()
+    if month<4:
+        fy = str(year-1)+"-" +str(year)
+    else:
+        fy = str(year)+"-" +str(year+1)
+    print(fy)
+    return render(request, 'entry.html', context={'fy': fy})
 
 def vendor_details(request):
     vendors = Vendor.objects.all()
@@ -149,7 +155,7 @@ def findItem(request):
         vs = request.body.decode('utf-8')
         y = vs.split("=")[1].replace("+"," ")
         res = Asset_Type.objects.filter(name__icontains = y.upper())
-        print(res)
+        # print(res)
         data = []
         for i in res:
             data.append(i.name)
