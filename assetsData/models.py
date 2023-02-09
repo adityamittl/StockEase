@@ -72,6 +72,10 @@ class Location_Description(models.Model):
 # ------------ Departments and labs name --------------
 class Departments(models.Model):
     name = models.CharField(max_length=300)
+    code = models.CharField(max_length=100, default=" ")
+
+    def __str__(self):
+        return self.name
 
 
 # -------------- Vendor Database -----------------
@@ -93,6 +97,12 @@ class Vendor(models.Model):
     Email = models.CharField(max_length=100, null=True, blank=True)
     services = models.ManyToManyField(Service_Type, blank=True)
     attach = models.ManyToManyField(Vendor_Attachments, blank=True)
+
+    def __str__(self):
+        return self.name
+
+class stock_register(models.Model):
+    name= models.CharField(max_length=100)
 
     def __str__(self):
         return self.name

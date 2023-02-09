@@ -4,23 +4,61 @@ from django.http import JsonResponse, HttpResponse
 from django.db import transaction
 from django.contrib.auth.decorators import login_required
 from django.core.files.storage import FileSystemStorage
-import pandas as pd
 import csv
-from datetime import date, datetime
+from datetime import datetime
 from assetsData.models import *
+from .models import *
+import json
 
-
+@transaction.atomic
 def entry(request):
-    date = str(datetime.now()).split(' ')[0].split('-')
-    month = int(date[1])
-    year = int(date[0])
-    fy = str()
-    if month<4:
-        fy = str(year-1)+"-" +str(year)
-    else:
-        fy = str(year)+"-" +str(year+1)
-    print(fy)
-    return render(request, 'entry.html', context={'fy': fy})
+    if request.method == 'POST':
+        quantity= int(request.POST.get("stockQuantity"))
+        result = dict(request.POST)
+        billNO = request.POST.get('invoiceNumber')
+        doe = request.POST.get('EntryDate')
+        doi = request.POST.get('DOI')
+        item = Asset_Type.objects.get(Final_Code = result['ACN'][0].replace("&amp;", "&"))
+        vendor = Vendor.objects.get(name = result['vendorName'][0].replace("&amp;", "&"))
+        
+        dte = [int(doe.split("/")[1]), int(doe.split("/")[2])]
+        fy = str()
+        fy = str(dte[1]-1)+"-" +str(dte[1]) if dte[0]<4 else str(dte[1])+"-" +str(dte[1]+1)
+        
+        print(fy)
+        finantialYear = None
+
+        try:
+            finantialYear = Finantial_Year.objects.get(yearName = fy)
+        except:
+            finantialYear = Finantial_Year.objects.create(yearName = fy)
+        for i in range(quantity):
+            finalCode = result.get('ACN')[0]+ " "+ "{:04d}".format(int(result.get(f'item_{i}')[0]))
+            inner = result.get(f'item_{i}')
+            print(inner[7].upper().replace("&AMP;", "&"))
+            Ledger.objects.create(
+                Vendor = vendor,
+                bill_No = billNO,
+                Date_Of_Entry = datetime.strptime(doe, '%d/%m/%Y').strftime('%Y-%m-%d'),
+                Date_Of_Invoice = datetime.strptime(doi, '%d/%m/%Y').strftime('%Y-%m-%d'),
+                Purchase_Item = item,
+                Rate = inner[3],
+                Discount = inner[4],
+                Tax = inner[5],
+                Ammount = inner[6],
+                buy_for = Departments.objects.get(name = inner[8].upper().replace("&AMP;", "&")),
+                stock_register = stock_register.objects.get(name = inner[7].upper().replace("&AMP;", "&")),
+                Item_Code = finalCode,
+                make = inner[1].replace("&amp;", "&"),
+                sno = inner[2].replace("&amp;", "&"),
+                Finantial_Year = finantialYear
+            )
+        
+        return redirect('entry')
+
+    departments = Departments.objects.all()
+    sr = stock_register.objects.all()
+    return render(request, 'entry.html', context={'departments': departments, "stockRegister": sr})
 
 def vendor_details(request):
     vendors = Vendor.objects.all()
@@ -77,7 +115,24 @@ def new_location(request):
     return render(request,'newLocation.html')
 
 def departments(request):
-    return render(request,'departments.html')
+    if request.method == 'POST':
+        file = request.FILES.get('dataCSV')
+        data = file.read().decode('utf-8')
+        newData = data.split('\r\n')
+        x = csv.DictReader(newData)
+        try:
+            for row in x:
+                try:
+                    Departments.objects.get(name = row['Department Name'])
+                except:
+                    Departments.objects.create(name = row['Department Name'].upper(), code = row['CODE'])
+
+            return redirect('departments') 
+        except:
+            return render(render, 'departments.html', context={'error': "Use the correct formatted csv file to import the data, Headers must be in the format "})
+
+    data = Departments.objects.all()
+    return render(request,'departments.html', context={'data':data})
 
 @transaction.atomic
 def itemAnem(request):
@@ -86,18 +141,22 @@ def itemAnem(request):
         data = file.read().decode('utf-8')
         newData = data.split('\r\n')
         x = csv.DictReader(newData)
-        for row in x:
-            mc = Main_Catagory.objects.get(name = row['MAIN CATEGORY'].upper(), code = row['MC CODE'])
-            sc = Sub_Catagory.objects.get(name = row['SUB CATEGORY'].upper(), code = int(row['SC CODE']))
-            las = row['last serial no assigned']
-            if las == '':
-                las = 0
-            else:
-                las = int(las)
-            try:
-                Asset_Type.objects.get(Final_Code = row['FINAL CODE'])
-            except:
-                Asset_Type.objects.create(mc = mc, sc = sc,name = row['ASSET TYPE'].upper(), code = row['AT CODE'], Final_Code = row['FINAL CODE'], Last_Assigned_serial_Number = las)
+        try:
+            for row in x:
+                mc = Main_Catagory.objects.get(name = row['MAIN CATEGORY'].upper(), code = row['MC CODE'])
+                sc = Sub_Catagory.objects.get(name = row['SUB CATEGORY'].upper(), code = int(row['SC CODE']))
+                las = row['last serial no assigned']
+                if las == '':
+                    las = 0
+                else:
+                    las = int(las)
+                try:
+                    Asset_Type.objects.get(Final_Code = row['FINAL CODE'])
+                except:
+                    Asset_Type.objects.create(mc = mc, sc = sc,name = row['ASSET TYPE'].upper(), code = row['AT CODE'], Final_Code = row['FINAL CODE'], Last_Assigned_serial_Number = las)
+                
+        except:
+            return render(render, 'itemAnem.html', context={'error': "Use the correct formatted csv file to import the data, Headers must be in the format "})
 
         return redirect('itemAnem')
     data = Asset_Type.objects.all()
@@ -170,15 +229,18 @@ def FetchDetails(request):
     return JsonResponse({'code':res.Final_Code, 'lsn' : res.Last_Assigned_serial_Number})
 
 def itemAnem_download(request):
-    response = HttpResponse(
-        content_type='text/csv',
-        headers={'Content-Disposition': 'attachment; filename="itemAnem.csv"'},
-    )
-    writer = csv.writer(response)
-    val = Asset_Type.objects.all()
-    writer.writerow(['S.NO','Item Category',' MAIN CATEGORY',' MC CODE',' SUB CATEGORY', 'SC CODE', 'ASSET TYPE', 'AT CODE', 'FINAL CODE', 'last serial no assigned'])
-    i = 1
-    for data in val:
-        writer.writerow([i,data.mc.Consumable_type, data.mc.name, data.mc.code, data.sc.name, data.sc.code, data.name, data.code, data.Final_Code, data.Last_Assigned_serial_Number])
+    try:
+        response = HttpResponse(
+            content_type='text/csv',
+            headers={'Content-Disposition': 'attachment; filename="itemAnem.csv"'},
+        )
+        writer = csv.writer(response)
+        val = Asset_Type.objects.all()
+        writer.writerow(['S.NO','Item Category',' MAIN CATEGORY',' MC CODE',' SUB CATEGORY', 'SC CODE', 'ASSET TYPE', 'AT CODE', 'FINAL CODE', 'last serial no assigned'])
+        i = 1
+        for data in val:
+            writer.writerow([i,data.mc.Consumable_type, data.mc.name, data.mc.code, data.sc.name, data.sc.code, data.name, data.code, data.Final_Code, data.Last_Assigned_serial_Number])
 
-    return response
+        return response
+    except:
+        return HttpResponse(request,"Try again later, encountered unexpacted error")
