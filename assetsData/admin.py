@@ -13,4 +13,4 @@ admin.site.register(Vendor_Attachments)
 admin.site.register(Service_Type)
 admin.site.register(Departments)
 admin.site.register(stock_register)
-# Register your models here.
+admin.site.register(profile)

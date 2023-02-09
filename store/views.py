@@ -8,7 +8,11 @@ import csv
 from datetime import datetime
 from assetsData.models import *
 from .models import *
+from django.contrib.auth.models import User
 import json
+import secrets
+
+password_length = 8
 
 @transaction.atomic
 def entry(request):
@@ -244,3 +248,37 @@ def itemAnem_download(request):
         return response
     except:
         return HttpResponse(request,"Try again later, encountered unexpacted error")
+
+@transaction.atomic
+def users(request):
+    if request.method == 'POST':
+        file = request.FILES.get('dataCSV')
+        data = file.read().decode('utf-8')
+        newData = data.split('\r\n')
+        x = csv.DictReader(newData)
+        try:
+            for row in x:
+                name = row['Name']
+                email = row['Email']
+                department = row['Department']
+                designation = row['Designation']
+                pswd = secrets.token_urlsafe(password_length)
+                print(pswd)
+                # try:
+                usr = User.objects.create(username = email.split("@")[0], email = email, password = pswd, first_name = name)
+                profile.objects.create(department = Departments.objects.get(code = department), designation = designation, user = usr)
+                print("Okay")
+                # except:
+                #     print("OOpssss")
+        
+            return redirect('users')
+                
+        except:
+            return render(render, 'users.html', context={'error': "Use the correct formatted csv file to import the data, Headers must be in the format "})
+
+    data = profile.objects.all()
+    return render(request, "users.html", context={'data':data})
+
+
+def edit_user(request, uname):
+    return HttpResponse(request, uname)

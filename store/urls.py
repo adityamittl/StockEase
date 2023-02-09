@@ -16,6 +16,8 @@ urlpatterns = [
     path('maincategory',main_category, name='main_category'),
     path('findItem',findItem, name='findItem'),
     path('FetchDetails',FetchDetails, name='FetchDetails'),
+    path('users',users, name='users'),
+    path('user/<str:uname>',edit_user, name='editusers'),
 ]
 
 

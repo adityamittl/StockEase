@@ -3,7 +3,7 @@
 ## Remaining Task-
 
 1. Front End pages
-    - [ ] Entry Module
+    - [x] Entry Module
     - [ ] Dump Entry Module
     - [ ] Sell Entry Module
     - [ ] Issue Module
@@ -11,4 +11,5 @@
         - [ ] Issue
     - [ ] Shift Items
     - [ ] Complaint Module
+    - [x] User
 
