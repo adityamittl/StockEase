@@ -1,13 +1,16 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-# Database schema for the initial populated data 
+# Database schema for the initial populated data
+
 
 class Finantial_Year(models.Model):
     yearName = models.CharField(max_length=100)
 
     def __str__(self):
         return self.yearName
+
+
 # ------------------ Item anem --------------------
 # specifing the asset super catagory (Main catagory)
 class Main_Catagory(models.Model):
@@ -27,6 +30,7 @@ class Sub_Catagory(models.Model):
     def __str__(self):
         return self.name
 
+
 # to specify the asset type (Assery Type)
 class Asset_Type(models.Model):
     mc = models.ForeignKey(Main_Catagory, on_delete=models.CASCADE, null=True)
@@ -34,7 +38,7 @@ class Asset_Type(models.Model):
     name = models.CharField(max_length=500)
     code = models.IntegerField()
     Final_Code = models.CharField(max_length=200)
-    remark = models.TextField(null = True, blank = True)
+    remark = models.TextField(null=True, blank=True)
     Last_Assigned_serial_Number = models.IntegerField(default=0)
     quantity = models.IntegerField(default=0)
 
@@ -45,6 +49,7 @@ class Asset_Type(models.Model):
 # ------------ Location Master ---------------------
 
 # Floor and its corrosponding code
+
 
 class Floor_Code(models.Model):
     name = models.CharField(max_length=100)
@@ -61,14 +66,17 @@ class Building_Name(models.Model):
     def __str__(self):
         return self.name
 
+
 class Location_Description(models.Model):
-    name = models.CharField(max_length=500)
+    description = models.CharField(max_length=500)
     code = models.CharField(max_length=100)
     floor = models.ForeignKey(Floor_Code, on_delete=models.CASCADE)
+    building = models.ForeignKey(Building_Name, on_delete=models.CASCADE, blank=True, null=True)
     Final_Code = models.CharField(max_length=200)
 
     def __str__(self):
         return self.name
+
 
 # ------------ Departments and labs name --------------
 class Departments(models.Model):
@@ -90,6 +98,7 @@ class Service_Type(models.Model):
 class Vendor_Attachments(models.Model):
     File_Name = models.CharField(max_length=500)
 
+
 class Vendor(models.Model):
     name = models.CharField(max_length=200)
     address = models.TextField(null=True, blank=True)
@@ -102,8 +111,9 @@ class Vendor(models.Model):
     def __str__(self):
         return self.name
 
+
 class stock_register(models.Model):
-    name= models.CharField(max_length=100)
+    name = models.CharField(max_length=100)
 
     def __str__(self):
         return self.name
@@ -111,12 +121,15 @@ class stock_register(models.Model):
 
 # ------------------ User Information -------------------
 
+
 class profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    # name = models.CharField(max_length=100)
-    # email = models.CharField(max_length=100)
     department = models.ForeignKey(Departments, on_delete=models.CASCADE, blank=True)
-    designation = models.CharField(max_length=100, blank = True)
+    designation = models.CharField(max_length=100, blank=True)
 
     def __str__(self):
         return self.name
+
+
+class backupDate(models.Model):
+    date = models.DateField(auto_now=True)
