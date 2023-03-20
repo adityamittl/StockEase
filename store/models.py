@@ -71,7 +71,7 @@ class Dump(models.Model):
 
 
 class assign(models.Model):
-    user = models.OneToOneField(profile, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     item = models.ForeignKey(Ledger, on_delete=models.CASCADE)
     pickedUp = models.BooleanField(default=False)
     assigned_to_pickup = models.CharField(max_length=100)

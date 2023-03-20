@@ -10,6 +10,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.3/datepicker.min.js"></script>
   <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script src="/static/index.js"></script>
   <title>IMS | LNMIIT</title>
   <style>
     ::-webkit-scrollbar {
@@ -345,7 +346,12 @@
                 class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Sub
                 Catagory</a>
             </li>
-
+            <li>
+              <a href="/locationMaster"
+                class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Location
+                Master
+              </a>
+            </li>
             <li>
               <a href="/location"
                 class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Location
@@ -358,7 +364,7 @@
           </ul>
         </li>
         <li class="mt-96">
-          <a href="#"
+          <a href="/users"
             class="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
             <svg aria-hidden="true"
               class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
@@ -370,24 +376,24 @@
           </a>
         </li>
         <li class="mt-96">
-          <a href="#"
-              class="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
-              <svg aria-hidden="true"
-                  class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-                  fill="currentColor" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
-                  <rect class="clr-i-outline clr-i-outline-path-1" x="6" y="22" width="24" height="2"></rect>
-                  <path class="clr-i-outline clr-i-outline-path-2"
-                      d="M30.84,13.37A1.94,1.94,0,0,0,28.93,12H26.55a3,3,0,0,1-.14,2h2.54C30,16.94,31.72,21.65,32,22.48V30H4V22.48C4.28,21.65,7.05,14,7.05,14H9.58a3,3,0,0,1-.14-2H7.07a1.92,1.92,0,0,0-1.9,1.32C2,22,2,22.1,2,22.33V30a2,2,0,0,0,2,2H32a2,2,0,0,0,2-2V22.33C34,22.1,34,22,30.84,13.37Z">
-                  </path>
-                  <path class="clr-i-outline clr-i-outline-path-3"
-                      d="M18,19.84l6.38-6.35A1,1,0,1,0,23,12.08L19,16V4a1,1,0,1,0-2,0V16l-4-3.95a1,1,0,0,0-1.41,1.42Z">
-                  </path>
-                  <rect x="0" y="0" width="36" height="36" fill-opacity="0" />
-              </svg>
-              
-              <span class="flex-1 ml-3 whitespace-nowrap">Backup</span>
+          <a href="/backup"
+            class="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+            <svg aria-hidden="true"
+              class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+              fill="currentColor" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+              <rect class="clr-i-outline clr-i-outline-path-1" x="6" y="22" width="24" height="2"></rect>
+              <path class="clr-i-outline clr-i-outline-path-2"
+                d="M30.84,13.37A1.94,1.94,0,0,0,28.93,12H26.55a3,3,0,0,1-.14,2h2.54C30,16.94,31.72,21.65,32,22.48V30H4V22.48C4.28,21.65,7.05,14,7.05,14H9.58a3,3,0,0,1-.14-2H7.07a1.92,1.92,0,0,0-1.9,1.32C2,22,2,22.1,2,22.33V30a2,2,0,0,0,2,2H32a2,2,0,0,0,2-2V22.33C34,22.1,34,22,30.84,13.37Z">
+              </path>
+              <path class="clr-i-outline clr-i-outline-path-3"
+                d="M18,19.84l6.38-6.35A1,1,0,1,0,23,12.08L19,16V4a1,1,0,1,0-2,0V16l-4-3.95a1,1,0,0,0-1.41,1.42Z">
+              </path>
+              <rect x="0" y="0" width="36" height="36" fill-opacity="0" />
+            </svg>
+
+            <span class="flex-1 ml-3 whitespace-nowrap">Backup</span>
           </a>
-      </li>
+        </li>
         <li class="mt-96">
           <a href="#"
             class="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
@@ -432,17 +438,6 @@
             </select> -->
       {%csrf_token%}
       <div class="grid gap-6 mb-6 md:grid-cols-2">
-        <!-- <div>
-                    <label for="first_name"
-                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Financial Year</label>
-                    <select id="fYears" name="fYear" 
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                        <option selected>Financial Year</option>
-                        <option value="20-21">2020-2021</option>
-                        <option value="21-22">2021-2022</option>
-                        <option value="22-23">2021-2023</option>
-                    </select>
-                </div> -->
         <div>
           <label for="last_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Date of
             Entry</label>
@@ -899,6 +894,8 @@
 
     document.getElementById("entryDate").value = res;
   </script>
+  
+
 </body>
 
 </html>

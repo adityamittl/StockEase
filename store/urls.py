@@ -19,8 +19,12 @@ urlpatterns = [
     path('FetchDetails',FetchDetails, name='FetchDetails'),
     path('users',users, name='users'),
     path('user/<str:uname>',edit_user, name='editusers'),
-    path('assign',assign, name='assign'),
-    path('downloadBackup', backup.as_view())
+    path('assign',assign_func, name='assign'),
+    path('backup', backup.as_view()),
+    path('backup_reminder', backupreminder),
+    path('getDepartmentUsers/<str:dpt>', getDepartmentUsers),
+    path('getDepartmentItems/<str:dpt>', getDepartmentItems),
+    path('', home),
 ]
 
 

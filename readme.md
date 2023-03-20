@@ -7,9 +7,17 @@
     - [ ] Dump Entry Module
     - [ ] Sell Entry Module
     - [ ] Issue Module
-        - [ ] Assign 
+        - [ ] Assign (working)
         - [ ] Issue
     - [ ] Shift Items
     - [ ] Complaint Module
     - [x] User
+    - [x] Backup make zip files
+    - [ ] Backup populate data by backup
 
+
+2. User Side
+    - Dashboard
+    - Available items
+    - complaint
+    - Complaint status

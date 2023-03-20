@@ -127,9 +127,16 @@ class profile(models.Model):
     department = models.ForeignKey(Departments, on_delete=models.CASCADE, blank=True)
     designation = models.CharField(max_length=100, blank=True)
 
-    def __str__(self):
-        return self.name
-
 
 class backupDate(models.Model):
     date = models.DateField(auto_now=True)
+    backup_user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
+    user_ip = models.CharField(max_length=20, null=True, blank=True)
+
+    def __str__(self):
+        return str(self.date)
+
+
+class complaints(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    description = models.TextField()

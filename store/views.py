@@ -17,7 +17,7 @@ from django.core.files.base import ContentFile
 from datetime import datetime, date
 from django.views import View
 import concurrent.futures
-
+from django.contrib import messages
 password_length = 8
 
 
@@ -309,6 +309,8 @@ def sub_category(request):
 
 
 def main_category(request):
+    if request.method == "POST":
+        pass
     data = Main_Catagory.objects.all()
     return render(request, "maincategory.html", context={"data": data})
 
@@ -429,9 +431,21 @@ def edit_user(request, uname):
 
 # ---------------- Assign and issue module -----------------
 
-
-def assign(request):
-    return render(request, "assign.html")
+@transaction.atomic
+def assign_func(request):
+    print(request.POST)
+    if request.method == "POST":
+        user_profile = User.objects.get(username=  request.POST.get('PersonToAssign'))
+        items = dict(request.POST)['selected_items']
+        for i in items:
+            temp =  Ledger.objects.get(Item_Code = i)
+            assign.objects.create(item = temp, user = user_profile)
+            temp.isIssued = True
+            temp.save()
+        messages.success(request, 'Item has been assigned')
+        return redirect('assign')
+    department = Departments.objects.all()
+    return render(request, "assign.html", context={"data":department})
 
 
 # ------------ Backup data ----------------
@@ -527,15 +541,134 @@ class backup(View):
             i += 1
         return [usrs, "users.csv"]
 
+    def get_mainCode(self):
+        temp = StringIO()
+        writer = csv.writer(temp)
+        pfs = Main_Catagory.objects.all()
+        i = 0
+        writer.writerow(["Sno", "CONSUMABLE_TYPE", "NAME", "CODE"])
+
+        for data in pfs:
+            writer.writerow([i, data.Consumable_type, data.name, data.code])
+            i += 1
+        return [temp, "main_catagory.csv"]
+
     def get_subCatagory(self):
         temp = StringIO()
         writer = csv.writer(temp)
         sc = Sub_Catagory.objects.all()
-        writer.writerow(["SUB CATEGORY", "CODE"])
-        # for data in sc:
+        writer.writerow(["S.NO", "SUB CATEGORY", "CODE"])
+        i = 1
+        for data in sc:
+            writer.writerow([i, data.name, data.code])
+            i += 1
+        return [temp, "sub_catagory.csv"]
+    
+    def get_ledger(self):
+        temp = StringIO()
+        writer = csv.writer(temp)
+        sc = Ledger.objects.all()
+        writer.writerow([
+            "S.NO", 
+            "FINANTIAL YEAR", 
+            "VENDOR", 
+            "BILL NO",
+            "DATE OF ENTRY", 
+            "DATE OF INVOICE",
+            "PURCHASE ITEM CODE",
+            "RATE",
+            "DISCOUNT",
+            "TAX",
+            "AMMOUNT",
+            "MAKE",
+            "BUY FOR",
+            "STOCK REGISTER",
+            "LOCATION CODE",
+            "ITEM CODE",
+            "FINAL CODE",
+            "REMARK",
+            "SHIFT HISTORY",
+            "IS DUMP",
+            "IS ISSUED"
+            ])
+        i = 1
+        for data in sc:
+            writer.writerow([
+                i, 
+                data.Finantial_Year.yearName, 
+                data.Vendor.name,
+                data.bill_No,
+                data.Date_Of_Entry,
+                data.Date_Of_Invoice,
+                data.Purchase_Item.Final_Code,
+                data.Rate,
+                data.Discount,
+                data.Tax,
+                data.Ammount,
+                data.make,
+                data.buy_for.code,
+                data.stock_register.name,
+                data.Location_Code,
+                data.Item_Code,
+                data.Final_Code,
+                data.remark,
+                "pending",
+                data.Is_Dump,
+                data.isIssued
+                ])
+            i += 1
+        return [temp, "ledger.csv"]
 
+    def get_vendors(self):
+        temp = StringIO()
+        writer = csv.writer(temp)
+        sc = Vendor.objects.all()
+        writer.writerow(
+            [
+                "S.NO",
+                "NAME",
+                "ADDRESS",
+                "GST_NO",
+                "CONTACT_NO",
+                "EMAIL",
+                "SERVICES",
+                "ATTACHMENTS",
+            ]
+        )
+        i = 1
+        for data in sc:
+            services = list()
+            attachments = list()
+
+            for j in data.services.all():
+                services.append(j.name)
+
+            for j in data.attach.all():
+                attachments.append(j.File_Name)
+
+            writer.writerow(
+                [
+                    i,
+                    data.name,
+                    data.address,
+                    data.GST_No,
+                    data.contact_No,
+                    data.Email,
+                    services,
+                    attachments,
+                ]
+            )
+            i += 1
+        return [temp, "vendors.csv"]
+
+    def save_backup(self, request):
+        pass
 
     def post(self, request):
+        # If the request is to upload zip file containing the data, function overhead to save_backup
+        if request.FILES:
+            return self.save_backup(request)
+
         s = ContentFile(b"", f"BackupFiles_{str(date.today())}.zip")
         files = []
 
@@ -545,6 +678,10 @@ class backup(View):
                 tpe.submit(self.get_itemAnem),
                 tpe.submit(self.get_location),
                 tpe.submit(self.get_users),
+                tpe.submit(self.get_mainCode),
+                tpe.submit(self.get_subCatagory),
+                tpe.submit(self.get_vendors),
+                tpe.submit(self.get_ledger),
             ]
             for f in concurrent.futures.as_completed(results):
                 files.append((f.result()[0], f.result()[1]))
@@ -561,4 +698,49 @@ class backup(View):
             "Content-Disposition"
         ] = f"attachment; filename=BackupFiles_{str(date.today())}.zip"
         resp["Content-Length"] = file_size
+        client_ip = request.META.get("REMOTE_ADDR")
+        try:
+            temp = backupDate.objects.get(id=1)
+            temp.date = datetime.now()
+            temp.user_ip = client_ip
+            temp.save()
+        except:
+            backupDate.objects.create(id=1, user_ip=client_ip)
+
         return resp
+
+    def get(self, request):
+        try:
+            val = backupDate.objects.get(id=1)
+        except:
+            val = None
+        return render(request, "backup.html", context={"data": val})
+
+
+def backupreminder(request):
+    backup_date = backupDate.objects.get(id=1)
+    dateDiff = (date.today() - backup_date.date).days
+    if dateDiff >= 10:
+        return JsonResponse({"date": dateDiff, "status": "show"})
+    return JsonResponse({"date": dateDiff, "status": "None"})
+def home(request):
+    return render(request, "dashboard_admin.html")
+
+def getDepartmentUsers(request, dpt):
+    dept = Departments.objects.get(code = dpt)
+    users = profile.objects.filter(department = dept)
+    res = dict()
+    for i in users:
+        res[i.user.username] = i.user.first_name+" "+i.user.last_name
+    
+    return JsonResponse(res)
+
+def getDepartmentItems(request, dpt):
+    dept = Departments.objects.get(code = dpt)
+    users = Ledger.objects.filter(buy_for = dept, isIssued = False, Is_Dump = False)
+    res = dict()
+    for i in users:
+        res[i.Item_Code] = i.Purchase_Item.name
+    print(res)
+    return JsonResponse(res)
+
