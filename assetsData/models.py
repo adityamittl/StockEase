@@ -75,7 +75,7 @@ class Location_Description(models.Model):
     Final_Code = models.CharField(max_length=200)
 
     def __str__(self):
-        return self.name
+        return self.Final_Code
 
 
 # ------------ Departments and labs name --------------
@@ -121,11 +121,23 @@ class stock_register(models.Model):
 
 # ------------------ User Information -------------------
 
+# Designations in the institute
+
+class designation(models.Model):
+    designation_name = models.CharField(max_length=100)
+    designation_id = models.CharField(max_length=30, null=True, blank = True)
+
+    def __str__(self):
+        return self.designation_name
 
 class profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     department = models.ForeignKey(Departments, on_delete=models.CASCADE, blank=True)
-    designation = models.CharField(max_length=100, blank=True)
+    designation = models.ForeignKey(designation, on_delete=models.CASCADE)
+    location = models.ForeignKey(Location_Description, on_delete=models.CASCADE, null=True, blank=True) # Location of the employee cabin, so that the item can be easily assigned to them! Filled by the user itself
+    
+    def __str__(self):
+        return self.user.username
 
 
 class backupDate(models.Model):
@@ -135,8 +147,3 @@ class backupDate(models.Model):
 
     def __str__(self):
         return str(self.date)
-
-
-class complaints(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    description = models.TextField()

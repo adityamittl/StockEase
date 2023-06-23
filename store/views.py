@@ -74,7 +74,7 @@ def entry(request):
                 Item_Code=finalCode,
                 make=inner[1].replace("&amp;", "&"),
                 sno=inner[2].replace("&amp;", "&"),
-                Finantial_Year=finantialYear,
+                Financial_Year=finantialYear,
             )
 
         return redirect("entry")
@@ -104,18 +104,20 @@ def new_vendor(request):
         vendor = Vendor.objects.create(
             name=name, address=address, GST_No=gst, contact_No=contact, Email=email
         )
-        for x in attachments:
-            fs = FileSystemStorage(location="media/vendors/")
-            filename = fs.save(x.name, x)
-            attach = Vendor_Attachments.objects.create(File_Name=filename)
-            vendor.add(attach)
+        
+        if attachments:
+            for x in attachments:
+                fs = FileSystemStorage(location="media/vendors/")
+                filename = fs.save(x.name, x)
+                attach = Vendor_Attachments.objects.create(File_Name=filename)
+                vendor.add(attach)
 
         for y in service:
             try:
                 Service_Type.objects.get(name=y.upper())
             except:
                 vendor.services.add(Service_Type.objects.create(name=y.upper()))
-        vendor.attach.save()
+        vendor.save()
 
         return render(request, "newVendor.html", context={"close": True})
 
@@ -188,6 +190,28 @@ def new_location(request):
 
 
 def locationmaster(request):
+    if request.method == 'POST':
+        file = request.FILES.get("dataCSV")
+        data = file.read().decode("utf-8").split("\r\n")
+        x = csv.DictReader(data)
+        try:
+            for row in x:
+                try:
+                    Building_Name.objects.get(name=row["BUILDING NAME"])
+                except:
+                    Building_Name.objects.create(
+                        name=row["BUILDING NAME"].upper(), code=row["CODE"]
+                    )
+
+            return redirect("locationMaster")
+        except:
+            return render(
+                render,
+                "locationMaster.html",
+                context={
+                    "error": "Use the correct formatted csv file to import the data, Headers must be in the format "
+                },
+            )
     data = Building_Name.objects.all()
     return render(request, "locationMaster.html", context={"data": data})
 
@@ -285,32 +309,39 @@ def findVendor(request):
 def sub_category(request):
     if request.method == "POST":
         file = request.FILES.get("dataCSV")
-        print(str(file))
-        data = file.read().decode("utf-8")
-        newData = data.split("\r\n")
-        Number_of_entry = len(newData)
-        count = 0
-        for i in range(1, Number_of_entry):
-            key = ""
-            val = ""
-            temp = newData[i].split(",")
-            if len(temp) > 2:
-                key = ",".join(temp[: len(temp) - 1]).replace('"', "")
-                val = temp[len(temp) - 1]
-            elif len(temp) == 2:
-                key = temp[0]
-                val = temp[1]
-            if key:
-                Sub_Catagory.objects.create(name=key.upper(), code=int(val))
+        data = file.read().decode("utf-8").split("\r\n")
+        newData = data
+        x = csv.DictReader(data)
+        try:
+            for i in x:
+                try:
+                    Sub_Catagory.objects.get(code=int(i['CODE']))
+                except:
+                    Sub_Catagory.objects.create(name=i['SUB CATEGORY'].upper(), code=int(i['CODE']))
+        except:
+            return HttpResponse("Data must be in prescribed format")
+        
         return redirect("sub_category")
 
     data = Sub_Catagory.objects.all()
     return render(request, "subcatagory.html", context={"data": data})
 
-
+@transaction.atomic
 def main_category(request):
     if request.method == "POST":
-        pass
+        file = request.FILES.get("dataCSV")
+        print(str(file))
+        data = file.read().decode("utf-8").split("\r\n")
+        newData = data
+        x = csv.DictReader(data)
+        try:
+            for i in x:
+                try:
+                    Main_Catagory.objects.get(code = i['CODE'])
+                except:
+                    Main_Catagory.objects.create(Consumable_type = i['CONSUMABLE TYPE'], name= i['MAIN CATEGORY'], code = i['CODE'])
+        except:
+            return HttpResponse("Data must be in prescribed format")
     data = Main_Catagory.objects.all()
     return render(request, "maincategory.html", context={"data": data})
 
@@ -435,15 +466,27 @@ def edit_user(request, uname):
 def assign_func(request):
     print(request.POST)
     if request.method == "POST":
-        user_profile = User.objects.get(username=  request.POST.get('PersonToAssign'))
-        items = dict(request.POST)['selected_items']
+        items = json.loads(request.POST.get("selected_items_data")) #Items is a JSON that has selected items to assign and user's information such as username and department id
+        uname = items['User_data']["name"]
+        department_id = items['User_data']["department"]
+        del items["User_data"] # Removeing the user's information object from the items dictionary such that only selected items is present!
+        comment = request.POST.get("message") # Use This in the mail to the person! 
+
+        user_profile = User.objects.get(username=  uname)
+
         for i in items:
-            temp =  Ledger.objects.get(Item_Code = i)
+            print(items[i]["item_id"])
+            temp =  Ledger.objects.get(Item_Code = items[i]["item_id"])
             assign.objects.create(item = temp, user = user_profile)
             temp.isIssued = True
             temp.save()
-        messages.success(request, 'Item has been assigned')
+
+        # Now we need to send emails to two persons- 
+        # 1. Department HOD
+        # 2. Respective assigning person.
+        messages.success(request, f'/issue/{uname}?type=user')
         return redirect('assign')
+    
     department = Departments.objects.all()
     return render(request, "assign.html", context={"data":department})
 
@@ -718,11 +761,17 @@ class backup(View):
 
 
 def backupreminder(request):
-    backup_date = backupDate.objects.get(id=1)
-    dateDiff = (date.today() - backup_date.date).days
-    if dateDiff >= 10:
-        return JsonResponse({"date": dateDiff, "status": "show"})
-    return JsonResponse({"date": dateDiff, "status": "None"})
+    try:
+        backup_date = backupDate.objects.get(id=1)
+        dateDiff = (date.today() - backup_date.date).days
+        if dateDiff >= 80:
+            return JsonResponse({"date": dateDiff, "status": "show"})
+        return JsonResponse({"date": dateDiff, "status": "None"})
+    except:
+        return JsonResponse({"status": "None"})
+
+
+
 def home(request):
     return render(request, "dashboard_admin.html")
 
@@ -743,4 +792,93 @@ def getDepartmentItems(request, dpt):
         res[i.Item_Code] = i.Purchase_Item.name
     print(res)
     return JsonResponse(res)
+
+def itemAnem_edit(request,itemId):
+    pass
+
+def searchItems(request):
+    if request.method == 'POST':
+        search_query = request.POST.get('item')
+        it4 = Ledger.objects.filter(Final_Code__icontains=search_query)
+        it2 = User.objects.filter(username__icontains = search_query)
+        it3 = Location_Description.objects.filter(Final_Code__icontains = search_query)
+        res = dict()
+        temp = []
+        for i in it4:
+            temp.append(i.Final_Code)
+        for i in it2:
+            temp.append(i.username)
+        for i in it3:
+            temp.append(i.Final_Code)
+            
+        return JsonResponse({"Data":temp})
+
+
+#Dashboard of admin where they can search for item and fire this query on search, this is an AJAX call
+def findDetailed(request):
+    item = request.POST.get('item')
+    data = Ledger.objects.filter(Location_Code = Location_Description.objects.get(Final_Code = item))
+    innerStr = ""
+    sno = 1
+    for i in data:
+        print(i.Final_Code)
+        innerStr+= f"""<tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                    {sno}
+                                </th>
+                                <td class="px-6 py-4">
+                                    {i.Purchase_Item.name}
+                                </td>
+                                <td class="px-6 py-4">
+                                    {i.Final_Code}
+                                </td>
+                                <td class="px-6 py-4">
+                                    {i.Ammount}
+                                </td>
+                            </tr>"""
+        sno+=1
+    print(innerStr)
+    res = f"""
+    <div class="relative overflow-x-auto" style="border-radius: 0.5rem;">
+                    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                            <tr>
+                                <th scope="col" class="px-6 py-3">
+                                    S.No
+                                </th>
+                                <th scope="col" class="px-6 py-3">
+                                    Item Name
+                                </th>
+                                <th scope="col" class="px-6 py-3">
+                                    Item Code
+                                </th>
+                                <th scope="col" class="px-6 py-3">
+                                    Ammount
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {innerStr}
+                        </tbody>
+                    </table>
+                </div>
+    """
+    # print(item, request.POST)
+    return JsonResponse({'data': res})
+
+#codes' stock register page
+
+def stockRegister(request):
+    if request.method == 'POST':
+        try:
+            stock_register.objects.get(name = request.POST.get("stockEntry").upper())
+            return HttpResponse("Entry Already exists")
+        except:
+            stock_register.objects.create(name= request.POST.get("stockEntry").upper())
+        
+        return redirect(stockRegister)
+        
+    data = stock_register.objects.all()
+
+    return render(request,"stockRegister.html", context={"data":data})
 

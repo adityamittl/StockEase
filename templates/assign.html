@@ -5,9 +5,9 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.3/flowbite.min.css" rel="stylesheet" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.3/flowbite.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.3/datepicker.min.js"></script>
+    <link href="/static/style.css" rel="stylesheet" />
+    <script src="/static/main.js"></script>
+    <script src="/static/date.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"
         integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
     <title>IMS | LNMIIT</title>
@@ -40,6 +40,8 @@
 </head>
 
 <body class="flex">
+
+    <!-- Start of the side navigation bar  -->
     <aside class="w-64 h-screen" aria-label="Sidebar ">
         <div class="px-3 py-4 overflow-y-auto rounded bg-gray-50 dark:bg-gray-800 h-full">
             <ul class="space-y-2">
@@ -178,10 +180,6 @@
                             <a href="#"
                                 class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Available
                                 Items</a>
-                        </li>
-                        <li>
-                            <a href="/locations"
-                                class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Locations</a>
                         </li>
                         <li>
                             <a href="#"
@@ -371,7 +369,9 @@
             </ul>
         </div>
     </aside>
+    <!-- navigation Bar Ends!  -->
 
+    <!-- Indicator strip starts -->
     <div style="padding-left: 5%; width: 83%; padding-right: 5%; padding-top: 70px;" class="dark:bg-gray-900">
 
         <ol class="items-center w-full space-y-4 sm:flex sm:space-x-8 sm:space-y-0"
@@ -406,11 +406,24 @@
                     <p class="text-sm">Select Item to Assign</p>
                 </span>
             </li>
+            <li class="flex items-center text-gray-500 dark:text-gray-400 space-x-2.5" id="review_tab">
+                <span
+                    class="flex items-center justify-center w-8 h-8 border border-gray-500 rounded-full shrink-0 dark:border-gray-400">
+                    4
+                </span>
+                <span>
+                    <h3 class="font-medium leading-tight">Review</h3>
+                    <p class="text-sm">Add Comment</p>
+                </span>
+            </li>
         </ol>
+        <!-- Indicator strip ends -->
 
 
         <div class="w-full bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
             style="margin-top:15px; width: 72vw; height: 80vh;">
+
+            <!-- Department Tab Starts -->
             <div style="width:60%; margin-left: 20%; margin-top: 20vh" id="department_content" class="">
                 <label for="department_select"
                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select Department</label>
@@ -425,8 +438,9 @@
                     data-tabs-target="#services"
                     class="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800">Next</button>
             </div>
+            <!-- Department Tab Ends -->
 
-
+            <!-- Assignee Name selection Start -->
             <div class="hidden p-4 bg-whiddenhite rounded-lg md:p-8 dark:bg-gray-800" role="tabpanel"
                 style="width:60%; margin-left: 20%; margin-top: 20vh" id="assign_content"
                 aria-labelledby="services-tab">
@@ -444,14 +458,24 @@
                         class="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800">Next</button>
                 </div>
             </div>
+            <!-- Assignee Name Selection Ends -->
 
-
+            <!-- Last Two Module tabs -->
             <div class="hidden p-4 bg-whiddenhite rounded-lg md:p-8 dark:bg-gray-800" role="tabpanel"
-                style="width:60%; margin-left: 10px; margin-top: 10px" id="item_content">
-                <form action="" method="post" onsubmit="return validate(this)">
-                    {%csrf_token%}
+                style="width:98%; margin-left: 10px; margin-top: 10px; padding-top: 10px;" id="item_content">
+
+
+
+                <!-- Block for selecting items which are to be assigned to the Assignee (Specified above) -->
+                <div id="itemSelection">
+                    <div class="relative w-full" style="margin-bottom: 5px;width: 98.5%;">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <svg aria-hidden="true" class="w-5 h-5 text-gray-500 dark:text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path></svg>
+                        </div>
+                        <input type="text" id="search" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search"  onkeyup="search()">
+                    </div>
                     <input type="text" name="PersonToAssign" id="PersonToAssign" style="display:none;">
-                    <div class="relative overflow-x-auto shadow-md sm:rounded-lg" style="width:65vw; height: 63vh;">
+                    <div class="relative overflow-x-auto shadow-md sm:rounded-lg" style="width:65vw; height: 61vh;">
                         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                             <thead
                                 class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 sticky top-0">
@@ -477,9 +501,71 @@
                             class="text-red-700 hover:text-white border border-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900">previous</button>
                         <button style="float:right; margin-top:10vh; width: 100%;""
                             type=" button"
-                            class="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800">Next</button>
+                            class="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800"
+                            onclick="ReviewItem()">Next</button>
                     </div>
+                </div>
+                <form action="" method="post" onsubmit="return validate(this)">
+                    {%csrf_token%}
+                    <!-- Hidden field to store selected items data -->
+                    <input type="text" name="selected_items_data" style="display: none;">
+                    <!-- This block contains review and comments, these comments are sent to the respective user also make a review page for the store admin -->
+                    <div id="reviewBlock" style="width:100%; display: none;">
+                        <!-- name of the Assignee Person! -->
+                        <p class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"> Name of the Assignee:
+                        </p>
+                        <div class="max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
+                            style="display:inline-flex; padding:7px 10px 0 13px">
+                            <span class="flex w-3 h-3 bg-blue-600 rounded-full"
+                                style="margin-top:6px; margin-left:8px;margin-right: 10px;"></span>
+                            <p class="mb-3 font-normal text-gray-500 dark:text-gray-400" id="AssigneeName"
+                                style="font-weight:600;"></p>
+                        </div>
+                        <!-- Review Block, showing all the items selected for the selected person! -->
+                        <div class="selectedItemsWrapper" style="margin-top: 20px;">
+                            <p class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Items Selected</p>
 
+                            <div class="relative overflow-x-auto">
+                                <div class="relative overflow-x-auto shadow-md sm:rounded-lg" style="max-height: 30vh;">
+                                    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                                        <thead
+                                            class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 sticky top-0"">
+                                            <tr>
+                                                <th scope=" col" class="px-6 py-3">
+                                            Item Name
+                                            </th>
+                                            <th scope=" col" class="px-6 py-3">
+                                                Item Code
+                                            </th>
+                                        </thead>
+                                        <tbody id="vendorDetails" class="overflow-y-scroll" style="max-height: 30vh;">
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Block fof the comment -->
+                        <div style="margin-top:20px;">
+                            <label for="message"
+                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your
+                                message (Reflected in the Email only)</label>
+                            <textarea name="message" rows="4"
+                                class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                placeholder="Leave a comment..."></textarea>
+                        </div>
+
+                        <!-- Call for action Buttons, Submit or cancel -->
+                        <div style="display:flex; margin-top:15px; justify-content: flex-end;">
+                            <button type="button" onclick="backtoItemstab()"
+                                class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700">Cancel</button>
+                            <button type="submit"
+                                class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Submit</button>
+
+                        </div>
+                    </div>
                 </form>
             </div>
         </div>
@@ -487,15 +573,30 @@
     </div>
     {%if messages%}
     {% for message in messages %}
-    <div id="toast-success" class="flex items-center w-full max-w-xs p-4 mb-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800" role="alert" style="position: absolute; right: 10px; top: 10px;">
-        <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-green-500 bg-green-100 rounded-lg dark:bg-green-800 dark:text-green-200">
-            <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+    <div id="toast-success"
+        class="flex items-center w-full max-w-xs p-4 mb-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800"
+        role="alert" style="position: absolute; right: 10px; top: 10px;">
+        <div
+            class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-green-500 bg-green-100 rounded-lg dark:bg-green-800 dark:text-green-200">
+            <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clip-rule="evenodd"></path>
+            </svg>
             <span class="sr-only">Check icon</span>
         </div>
-        <div class="ml-3 text-sm font-normal">{{ message }}</div>
-        <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex h-8 w-8 dark:text-gray-500 dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700" data-dismiss-target="#toast-success" aria-label="Close">
+        <div class="ml-3 text-sm font-normal">Item has been successfully assigned, <a style="text-decoration: underline;" href="{{message}}">Issue Now</a> </div>
+        <button type="button"
+            class="ml-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex h-8 w-8 dark:text-gray-500 dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700"
+            data-dismiss-target="#toast-success" aria-label="Close">
             <span class="sr-only">Close</span>
-            <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+            <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd"
+                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                    clip-rule="evenodd"></path>
+            </svg>
         </button>
     </div>
     {%endfor%}
@@ -546,12 +647,11 @@
         });
 
         // Search bar 
-
         function search() {
             var input, filter, ul, li, a, i, txtValue;
             input = document.getElementById("search");
             filter = input.value.toUpperCase();
-            ul = document.getElementById("vendorDetails");
+            ul = document.getElementById("items_table");
             li = ul.getElementsByTagName("tr");
             console.log(li)
             for (i = 0; i < li.length; i++) {
@@ -568,9 +668,10 @@
     <script src="/static/index.js"></script>
 
     <script>
+        // Tab switching colour handle function of the top indicator strip
         function fromToTab(source, dest, swindow, dwindow) {
-            document.getElementById(dwindow).classList.remove("hidden")
-            document.getElementById(swindow).classList.add("hidden")
+            if (swindow != null) document.getElementById(dwindow).classList.remove("hidden")
+            if (dwindow != null) document.getElementById(swindow).classList.add("hidden")
 
             document.getElementById(dest).classList.add("dark:text-blue-500");
             document.getElementById(dest).classList.add("text-blue-600");
@@ -593,6 +694,7 @@
         }
 
         let tempdata;
+        // AJAX request to fetch all the member of that perticular department
         function getUsers(url, dpt) {
             return new Promise((resolve, reject) => {
                 let xhr = new XMLHttpRequest()
@@ -626,6 +728,8 @@
                 fromToTab("department_tab", "assign_tab", "department_content", "assign_content")
             });
         }
+
+        // function to switch back to the department tab.
         function backToDepartment() {
             fromToTab("assign_tab", "department_tab", "assign_content", "department_content")
             optns = document.getElementById("assignment_select").children;
@@ -635,6 +739,7 @@
             }
         }
 
+        // Function called when the assignee selected now, all the items to that perticular dipartment are to be displayed.
         function selected_person() {
             if (document.getElementById("assignment_select").value == "null") {
                 alert("Select an Assignee");
@@ -654,14 +759,14 @@
                     let tr = document.createElement('tr')
                     tr.setAttribute("class", "bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600")
                     tr.innerHTML = `
-                    <th scope="row"
-                                    class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                    <input id="bordered-checkbox-1" type="checkbox" name="selected_items" value = "${keys[i]}"
+                    <td scope="row"
+                                    class="px-6 py-4">
+                                    <input type="checkbox" name="selected_items" value = "${keys[i]}"
                                     class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-                                    </th>
-                                    <td class="px-6 py-4">
+                                    </td>
+                                    <th class="px-6 py-4">
                                         ${data[keys[i]]}
-                                        </td>
+                                        </th>
                                         <td class="px-6 py-4">
                                             ${keys[i]}
                                             </td>
@@ -672,25 +777,13 @@
             });
         }
         let info;
+
+        // to velidate if the store admin has actually pressed the button or it was just a mistake!
         function validate(form) {
-            let vals = form.getElementsByTagName("input");
-            let selected_items = "";
-            for (let i = 0; i < vals.length; i++) {
-                console.log(vals[i])
-                if (vals[i].getAttribute("name") == "selected_items")
-                    if (vals[i].checked)
-                        selected_items += `${vals[i].value}\n`
-            }
-
-            let pname = document.getElementById("assignment_select").value;
-
-            if (selected_items == "") {
-                alert("Select Item to assign")
-                return false;
-            }
-            return confirm(`Do you really want to assign \n${selected_items}------------------------\nTo: ${pname}`);
+            return confirm(`Sure want to submit?`);
         }
 
+        // Function to revert back to the assignee tab
         function backToAssignee() {
 
             fromToTab("item_tab", "assign_tab", "item_content", "assign_content");
@@ -701,6 +794,72 @@
             for (let i = optns.length - 1; i >= 0; i--) {
                 document.getElementById("items_table").children[i].remove();
             }
+        }
+
+        // Function to create review tab and build JSON.
+        function ReviewItem() {
+            let selectedItems = {};
+
+            let checkBoxes = document.getElementsByName('selected_items');
+            let counter = 0;
+            let cl_count = checkBoxes.length;
+            let reviewTable = document.getElementById("vendorDetails");
+            let flag = 0; // To check if any item is selected or not!
+            selectedItems["User_data"] = {
+                "name": document.getElementById("assignment_select").value,
+                "department": document.getElementById("department_select").value
+            }
+            for (let i = 0; i < cl_count; i++) {
+
+                // Checking if the item is selected or not
+                if (checkBoxes[i].checked) {
+                    flag = 1;
+                    // Creating JSON of the selected items.
+                    let iid = checkBoxes[i].value;
+                    let iname = checkBoxes[i].parentElement.parentElement.children[1].innerHTML.trim();
+
+                    selectedItems[counter++] = {
+                        "item_id": iid,
+                        "item_name": iname
+                    }
+                    // Parsing the data into the next tab!
+
+                    reviewTable.innerHTML += `
+                    <tr class="border-b bg-gray-50 dark:bg-gray-800 dark:border-gray-700">
+                                            <td scope="row"
+                                                class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                                ${iname}
+                                            </td>
+                                            <th class="px-6 py-4">
+                                                ${iid}
+                                            </th>
+                                        </tr>
+                    `
+                }
+
+            }
+
+            if (flag == 0) alert("Select atleast one item to assign!");
+            else {
+                document.getElementById("AssigneeName").innerHTML = document.getElementById("assignment_select").value.toUpperCase();
+                document.getElementsByName("selected_items_data")[0].value = JSON.stringify(selectedItems);
+                document.getElementById("reviewBlock").style.display = "block";
+                document.getElementById("itemSelection").style.display = "none";
+                fromToTab("item_tab", "review_tab", null, null)
+            }
+        }
+
+        function backtoItemstab() {
+            document.getElementById("reviewBlock").style.display = "none";
+            document.getElementById("itemSelection").style.display = "block";
+            fromToTab("review_tab","item_tab", null, null)
+
+            // Cleaning the input field and the table content!
+            let reviewTable = document.getElementById("vendorDetails").children;
+            for(let i=reviewTable.length-1;i>=0;i--){
+                document.getElementById("vendorDetails").children[i].remove();
+            }
+            document.getElementsByName("selected_items_data")[0].value = "";
         }
     </script>
 </body>

@@ -29,7 +29,7 @@ class Shift_History(models.Model):
 # Contains all the data that store has!
 class Ledger(models.Model):
     # Main_Catagory = models.ForeignKey(Main_Catagory,on_delete=models.CASCADE)
-    Finantial_Year = models.ForeignKey(Finantial_Year, on_delete=models.CASCADE)
+    Financial_Year = models.ForeignKey(Finantial_Year, on_delete=models.CASCADE)
     # Sub_Catagory = models.ForeignKey(Sub_Catagory, on_delete=models.CASCADE)
     Vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE)
     bill_No = models.CharField(max_length=500)
@@ -49,7 +49,7 @@ class Ledger(models.Model):
         stock_register, on_delete=models.CASCADE, null=True, blank=True
     )
     # Make_No = models.CharField(max_length=200)
-    Location_Code = models.CharField(max_length=200, null=True, blank=True)
+    Location_Code = models.ForeignKey(Location_Description, on_delete=models.CASCADE, null=True, blank=True)
     Item_Code = models.CharField(max_length=200)
     Final_Code = models.CharField(max_length=500, null=True, blank=True)
     remark = models.TextField(null=True, blank=True)
@@ -73,6 +73,17 @@ class Dump(models.Model):
 class assign(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     item = models.ForeignKey(Ledger, on_delete=models.CASCADE)
+    pickupDate = models.DateField(null=True, blank=True)
     pickedUp = models.BooleanField(default=False)
     assigned_to_pickup = models.CharField(max_length=100)
     assigned_person = models.BooleanField(default=False)
+
+class complaints(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    complaint_item = models.ForeignKey(assign, on_delete=models.CASCADE, null=True, blank=True)
+    description = models.TextField()
+    store_replied = models.BooleanField(default=False)
+    store_comment = models.TextField(null = True)
+    complaint_status = models.CharField(max_length=40, null=True)
+    time_registered = models.DateTimeField(auto_now_add=True, null=True)
+    time_closed = models.DateTimeField(null=True)

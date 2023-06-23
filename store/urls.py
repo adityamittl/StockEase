@@ -1,6 +1,7 @@
-from django.urls import path
+from django.urls import path, include
 from .views import *
 
+# Urls for store Administrator
 
 urlpatterns = [
     path('entry',entry, name='entry'),
@@ -11,6 +12,7 @@ urlpatterns = [
     path('location/new',new_location, name='new_location'),
     path('departments',departments, name='departments'),
     path('itemanem',itemAnem, name='itemAnem'),
+    path('itemanem/edit/<str:itemId>',itemAnem_edit, name='itemAnem_edit'),
     path('itemanem/download',itemAnem_download, name='itemAnem_download'),
     path('findVendor',findVendor, name='findVendor'),
     path('subcategory',sub_category, name='sub_category'),
@@ -25,6 +27,9 @@ urlpatterns = [
     path('getDepartmentUsers/<str:dpt>', getDepartmentUsers),
     path('getDepartmentItems/<str:dpt>', getDepartmentItems),
     path('', home),
+    path('searchItems', searchItems),
+    path('findDetailed', findDetailed),
+    path('stockRegister', stockRegister, name="stockRegister"),
 ]
 
 

@@ -3,3 +3,4 @@ from .models import *
 # Register your models here.
 admin.site.register(Ledger)
 admin.site.register(assign)
+admin.site.register(complaints)
