@@ -4,3 +4,4 @@ from .models import *
 admin.site.register(Ledger)
 admin.site.register(assign)
 admin.site.register(complaints)
+admin.site.register(Dump)

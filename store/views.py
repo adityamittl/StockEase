@@ -54,7 +54,7 @@ def entry(request):
                 + "{:04d}".format(int(result.get(f"item_{i}")[0]))
             )
             inner = result.get(f"item_{i}")
-            print(inner[7].upper().replace("&AMP;", "&"))
+            # print(inner[7].upper().replace("&AMP;", "&"))
             Ledger.objects.create(
                 Vendor=vendor,
                 bill_No=billNO,
@@ -206,7 +206,7 @@ def locationmaster(request):
             return redirect("locationMaster")
         except:
             return render(
-                render,
+                request,
                 "locationMaster.html",
                 context={
                     "error": "Use the correct formatted csv file to import the data, Headers must be in the format "
@@ -234,7 +234,7 @@ def departments(request):
             return redirect("departments")
         except:
             return render(
-                render,
+                request,
                 "departments.html",
                 context={
                     "error": "Use the correct formatted csv file to import the data, Headers must be in the format "
@@ -445,7 +445,7 @@ def users(request):
 
         except:
             return render(
-                render,
+                request,
                 "users.html",
                 context={
                     "error": "Use the correct formatted csv file to import the data, Headers must be in the format "
@@ -799,11 +799,14 @@ def itemAnem_edit(request,itemId):
 def searchItems(request):
     if request.method == 'POST':
         search_query = request.POST.get('item')
+        it1 = Ledger.objects.filter(Item_Code__icontains=search_query)
         it4 = Ledger.objects.filter(Final_Code__icontains=search_query)
         it2 = User.objects.filter(username__icontains = search_query)
         it3 = Location_Description.objects.filter(Final_Code__icontains = search_query)
-        res = dict()
+
         temp = []
+        for i in it1:
+            temp.append(i.Item_Code)
         for i in it4:
             temp.append(i.Final_Code)
         for i in it2:
@@ -817,27 +820,62 @@ def searchItems(request):
 #Dashboard of admin where they can search for item and fire this query on search, this is an AJAX call
 def findDetailed(request):
     item = request.POST.get('item')
-    data = Ledger.objects.filter(Location_Code = Location_Description.objects.get(Final_Code = item))
+    try:
+        data = Ledger.objects.filter(Location_Code = Location_Description.objects.get(Final_Code = item))
+    except:
+        data = Ledger.objects.filter(Item_Code = item)
     innerStr = ""
     sno = 1
     for i in data:
-        print(i.Final_Code)
-        innerStr+= f"""<tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                    {sno}
-                                </th>
-                                <td class="px-6 py-4">
-                                    {i.Purchase_Item.name}
-                                </td>
-                                <td class="px-6 py-4">
-                                    {i.Final_Code}
-                                </td>
-                                <td class="px-6 py-4">
-                                    {i.Ammount}
-                                </td>
-                            </tr>"""
-        sno+=1
-    print(innerStr)
+        try:
+            innerStr+= f"""<tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                        {sno}
+                                    </th>
+                                    <td class="px-6 py-4">
+                                        {i.Purchase_Item.name}
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        {i.Final_Code}
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        {i.Ammount}
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        {i.buy_for}
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        {assign.objects.get(item = i).user.first_name} {assign.objects.get(item = i).user.last_name}
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        issued
+                                    </td>
+                                </tr>"""
+            sno+=1
+        except:
+            innerStr+= f"""<tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                        {sno}
+                                    </th>
+                                    <td class="px-6 py-4">
+                                        {i.Purchase_Item.name}
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        {i.Final_Code}
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        {i.Ammount}
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        {i.buy_for}
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        -
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        {"Dumped" if i.Is_Dump else "not issued yet"}
+                                    </td>
+                                </tr>"""
     res = f"""
     <div class="relative overflow-x-auto" style="border-radius: 0.5rem;">
                     <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -854,6 +892,15 @@ def findDetailed(request):
                                 </th>
                                 <th scope="col" class="px-6 py-3">
                                     Ammount
+                                </th>
+                                <th scope="col" class="px-6 py-3">
+                                    Bought For
+                                </th>
+                                <th scope="col" class="px-6 py-3">
+                                    Assigned to
+                                </th>
+                                <th scope="col" class="px-6 py-3">
+                                    Issued or Dumped
                                 </th>
                             </tr>
                         </thead>
@@ -882,3 +929,86 @@ def stockRegister(request):
 
     return render(request,"stockRegister.html", context={"data":data})
 
+@transaction.atomic
+def dump(request):
+    if request.method == 'POST':
+        item_code = request.POST.get("itemcode_final")
+        dump_date = request.POST.get('dumpdate')
+        remark = request.POST.get('remark')
+        item = Ledger.objects.get(Item_Code = item_code)
+        item.Is_Dump = True;
+
+        # Uncheck the 
+        if item.isIssued :
+            item.isIssued = False
+
+        item.save()
+
+        Dump.objects.create(Item = item, Dump_Date = datetime.strptime(dump_date, "%d/%m/%Y").strftime("%Y-%m-%d"), Remark = remark)
+
+        # Removing relationship with the assigned person and the item..
+
+        assign.objects.get(item = item).delete()
+        messages.success(request, f'Successfully Dumped Item {item_code}')
+        return redirect("dump")
+    return render(request, "dump.html")
+
+def find_dump_item(request):
+    if request.method == 'POST':
+        res = []
+        items = Ledger.objects.filter(Item_Code__icontains = request.POST.get('item').upper(), Is_Dump = False)
+        for item in items:
+            res.append(item.Item_Code)
+        return JsonResponse({'data':res})
+    
+def get_item_details(request):
+    if request.method == 'POST':
+        res = dict()
+        try:
+            item_details = Ledger.objects.get(Item_Code = request.POST.get('item').upper())
+        except:
+            return JsonResponse({'data':'<p class="mb-3 text-gray-500 dark:text-gray-400">Item not Found</p>'})
+        res['Item Code'] = item_details.Item_Code
+        res['Name'] = item_details.Purchase_Item.name
+        res['Buy for'] = item_details.buy_for
+        res['Make'] = item_details.make
+        res['Date of Entry'] = item_details.Date_Of_Entry
+        res['Code with Location'] = item_details.Final_Code
+        
+        # Details of the responsible person of that item.
+
+        person = assign.objects.get(item = item_details)
+
+        res['Assigned to'] = person.user.first_name + " " + person.user.last_name
+
+        itemList = ""
+
+        for key, value in res.items():
+            itemList+= f"""
+            <tr class="bg-white dark:bg-gray-800">
+                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                    {key}
+                </th>
+                <td class="px-6 py-4">
+                    {value}
+                </td>
+            </tr>
+            """
+
+        htmlWrap = f"""
+        
+        <div class="relative overflow-x-auto" style="border-radius: 10px;">
+            <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                <tbody>
+                    {itemList}
+                </tbody>
+            </table>
+        </div>
+        <input type="text" style="visibility: hidden; position: absolute" name="itemcode_final" value = "{res['Item Code']}">
+        """
+
+        return JsonResponse({'data' : htmlWrap})
+    
+
+def dump2(request):
+    return render(request, 'dump2.html')

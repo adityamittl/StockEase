@@ -30,6 +30,10 @@ urlpatterns = [
     path('searchItems', searchItems),
     path('findDetailed', findDetailed),
     path('stockRegister', stockRegister, name="stockRegister"),
+    path("dump", dump, name="dump"),
+    path("dump2", dump2, name="dump2"),
+    path("dump/finditem", find_dump_item),
+    path('dump/search',get_item_details),
 ]
 
 
