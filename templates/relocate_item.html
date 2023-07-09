@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{%block main%}
+<div>
+    {%csrf_token%}
+    <div class="flex" style="align-items: center; justify-content: space-between; width: 100%;">
+        <h1 class="mb-4 text-3xl font-extrabold text-gray-900 dark:text-white md:text-5xl lg:text-6xl"><span
+                class="text-transparent bg-clip-text bg-gradient-to-r to-emerald-600 from-sky-400">Relocate</span>
+            Items.
+        </h1>
+
+        <button type="button" onclick="relocateAll()"
+            class="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800">Relocate
+            All Items once</button>
+    </div>
+    <div class="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+        <p class="mb-3 font-normal text-gray-700 dark:text-gray-400"><span style="font-weight: 700;">Old Location:
+            </span> {{old}}</p>
+        <p class="mb-3 font-normal text-gray-700 dark:text-gray-400"><span style="font-weight: 700;">New Location:
+            </span> {{new}}</p>
+        <p class="mb-3 font-normal text-gray-700 dark:text-gray-400"><span style="font-weight: 700;">Assignee User:
+            </span> {{user.user.first_name}} {{user.user.last_name}}</p>
+        <p class="mb-3 font-normal text-gray-700 dark:text-gray-400"><span style="font-weight: 700;">Department: </span>
+            {{user.department.name}}</p>
+    </div>
+    <div class="relative overflow-x-auto shadow-md sm:rounded-lg" style="margin-top: 40px; max-height: 72vh;">
+        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 sticky top-0">
+                <tr>
+                    <th scope="col" class="px-6 py-3">
+                        S.No
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        Item name
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        Item Code
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        Category
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        Action
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="overflow-y-scroll" style="max-height: 65vh;">
+                {%for i in items%}
+                {% if i.item.Location_Code.Final_Code != new %}
+                <tr name="changableItem"
+                    class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                        {{forloop.counter}}
+                    </th>
+                    <td class="px-6 py-4">
+                        {{i.item.Purchase_Item.name}}
+                    </td>
+                    <td class="px-6 py-4">
+                        {{i.item.Item_Code}}
+                    </td>
+                    <td class="px-6 py-4">
+                        {{i.item.Purchase_Item.mc}}
+                    </td>
+                    <td class="px-6 py-4">
+                        <button type="button"
+                            class="text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
+                            onclick="relocateItem('{{i.id}}',event)">Change</button>
+                    </td>
+                </tr>
+                {%endif%}
+                {%endfor%}
+
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+    document.getElementById("dataWrapper").style.display = 'block';
+    const urlParams = new URLSearchParams(window.location.search);
+
+    function ajaxPOST(bid, url) {
+        return new Promise((resolve, reject) => {
+            let xhr = new XMLHttpRequest();
+            xhr.open('POST', url);
+            xhr.setRequestHeader('X-CSRFToken', document.getElementsByName("csrfmiddlewaretoken")[0].value);
+            xhr.send(JSON.stringify(bid));
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    console.log(JSON.parse(this.responseText)['data']);
+                    resolve(JSON.parse(this.responseText));
+                }
+            };
+        })
+    }
+
+    function relocateItem(item_id, event) {
+        let p = event.srcElement
+        event.srcElement.disabled = true;
+        console.log(item_id);
+        let confirm_data = confirm(`Do you really want to relocate \n\n - Item Name: ${p.parentElement.parentElement.getElementsByTagName('td')[0].innerHTML.trim()}\n - Item Code: ${p.parentElement.parentElement.getElementsByTagName('td')[1].innerHTML.trim()}\n\n - Old Location: ${urlParams.get('old')}\n - new Location: ${urlParams.get('new')}`)
+
+        if (confirm_data) {
+            ajaxPOST({ "data": item_id, 'old': urlParams.get('old'), 'new': urlParams.get('new'), 'user': urlParams.get('user') }, '/relocateItem').then(data => {
+                alert(`Item has been successfully relocated, \n\nnew item code is: ${data['data']}`);
+
+                // Refreshing the page
+                location.reload();
+            });
+        }
+    }
+
+
+    function relocateAll() {
+        let items = document.getElementsByName("changableItem");
+        data = {}
+        let count = 0;
+        for (let i = 0; i < items.length; i++) {
+            let values = document.getElementsByName("changableItem")[i].getElementsByTagName("td");
+            id = values[3].getElementsByTagName("button")[0].getAttribute("onclick").split(",")[0].split("(")[1].replace("'", "").split("'")[0]
+            name = values[0].innerHTML.trim()
+            code = values[1].innerHTML.trim()
+
+            data[id] = {
+                'old': urlParams.get('old'),
+                'new': urlParams.get('new')
+            }
+            count += 1;
+        }
+        if(count == 0){
+            alert("No item to relocate");
+            return;
+        }
+        let validate = confirm(`Do you wish to relocate ${count} items all at once`);
+        if (validate) {
+            ajaxPOST({ "data": data }, '/relocateItem').then(data => {
+                if(data['success']){
+                    alert("Items has been relocated with new item code as\n"+data['data'])
+                    window.location.href("/users")
+                }
+            });
+        }
+    }
+</script>
+{%endblock%}

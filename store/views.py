@@ -18,6 +18,7 @@ from datetime import datetime, date
 from django.views import View
 import concurrent.futures
 from django.contrib import messages
+from django.http import HttpResponseRedirect
 password_length = 8
 
 
@@ -457,7 +458,57 @@ def users(request):
 
 
 def edit_user(request, uname):
-    return HttpResponse(request, uname)
+    if request.method == 'POST':
+        # Updating basic usesr information (user matadata)
+        usr = User.objects.get(username = uname)
+        usr.first_name = request.POST.get("first_name")
+        usr.last_name = request.POST.get("last_name")
+        usr.email = request.POST.get("email")
+        usr.save()
+
+        is_location_change = False
+        old_location = ""
+        pfile = profile.objects.get(user = usr)
+
+        # Updating locationin information
+        if request.POST.get('room'):
+            is_location_change = True
+            old_location = pfile.location.Final_Code
+            new_location = Location_Description.objects.get(Final_Code = request.POST.get("room"))
+            pfile.location = new_location
+        
+        # Updating user designation data
+        if(pfile.department.code != request.POST.get('department')):
+            # Shifting all the item of that person to new department
+
+            items_user = assign.objects.filter(user = usr)
+            department_new = Departments.objects.get(code = request.POST.get('department'))
+            for i in items_user:
+                print(i.item)
+                new_shift = Shift_History.objects.create(From = pfile.department.name, To = department_new.name, remarks = "Changing Department")
+                i.item.Shift_History.add(new_shift)
+                i.item.current_department = department_new
+                i.item.save()
+            
+            pfile.department = department_new
+            
+        pfile.designation = designation.objects.get(designation_id = request.POST.get('designation'))
+
+        pfile.save()
+
+
+        if is_location_change : 
+            return redirect(f"/items/relocate?old={old_location}&new={request.POST.get('room')}&user={uname}")
+
+
+        return HttpResponseRedirect(request.path_info)
+            
+    items = assign.objects.filter(user = User.objects.get(username = uname))
+    profile_data =  profile.objects.get(user = User.objects.get(username = uname))
+    data = Building_Name.objects.all()
+    departments = Departments.objects.all()
+    designations = designation.objects.all()
+    return render(request, 'userdata.html', context={'data':items, "profile": profile_data, "bd" : data, 'departments':departments, "designations" : designations})
 
 
 # ---------------- Assign and issue module -----------------
@@ -796,30 +847,44 @@ def getDepartmentItems(request, dpt):
 def itemAnem_edit(request,itemId):
     pass
 
+def fetchData(typeFetch, val):
+    res = []
+    if(typeFetch == 'finalcode'):
+        for i in Ledger.objects.filter(Final_Code__icontains = val):
+            res.append(i.Final_Code)
+    elif(typeFetch == 'itemcode'):
+        for i in Ledger.objects.filter(Item_Code__icontains = val):
+            res.append(i.Item_Code)
+    elif(typeFetch == 'user'):
+        for i in User.objects.filter(first_name__icontains = val) | User.objects.filter(last_name__icontains = val):
+            res.append(i.first_name+" "+i.last_name)
+    elif(typeFetch == 'location'):
+        for i in Location_Description.objects.filter(Final_Code__icontains = val):
+            res.append(i.Final_Code)
+    elif(typeFetch == 'department'):
+        for i in Departments.objects.filter(name__icontains =val) | Departments.objects.filter(code__icontains =val):
+            res.append(i.name)
+    elif(typeFetch == 'sr'):
+        for i in stock_register.objects.filter(name__icontains = val):
+            res.append(i.name)
+    elif(typeFetch == 'mc'):
+        for i in Main_Catagory.objects.filter(name__icontains = val):
+            res.append(i.name)
+    return res
+
 def searchItems(request):
     if request.method == 'POST':
-        search_query = request.POST.get('item')
-        it1 = Ledger.objects.filter(Item_Code__icontains=search_query)
-        it4 = Ledger.objects.filter(Final_Code__icontains=search_query)
-        it2 = User.objects.filter(username__icontains = search_query)
-        it3 = Location_Description.objects.filter(Final_Code__icontains = search_query)
-
-        temp = []
-        for i in it1:
-            temp.append(i.Item_Code)
-        for i in it4:
-            temp.append(i.Final_Code)
-        for i in it2:
-            temp.append(i.username)
-        for i in it3:
-            temp.append(i.Final_Code)
-            
-        return JsonResponse({"Data":temp})
+        return JsonResponse({"Data":fetchData(request.POST.get('catagory'), request.POST.get('item'))})
 
 
 #Dashboard of admin where they can search for item and fire this query on search, this is an AJAX call
+def create_AJAX_html():
+    pass
+
 def findDetailed(request):
     item = request.POST.get('item')
+    catagory = request.POST.get('catagory')
+
     try:
         data = Ledger.objects.filter(Location_Code = Location_Description.objects.get(Final_Code = item))
     except:
@@ -1009,6 +1074,53 @@ def get_item_details(request):
 
         return JsonResponse({'data' : htmlWrap})
     
+def item_relocate(request):
+    if(list(request.GET.keys()) == ['old', 'new', 'user']):
+        old_location = request.GET['old']
+        new_location = request.GET['new']
+        assignee_user = User.objects.get(username = request.GET['user'])
+        items = assign.objects.filter(user = assignee_user)
 
-def dump2(request):
-    return render(request, 'dump2.html')
+        return render(request, "relocate_item.html", context={'old': old_location, "new" : new_location, "user": profile.objects.get(user = assignee_user), 'items': items})
+    
+def relocateFunction(item_id, old_loc, new_loc):
+    item = assign.objects.get(id = item_id)
+        
+    # Changing item code to the new one
+    item_code = " ".join(str(item.item.Final_Code).split(" ")[4::])
+    new_code = f"LNM {new_loc} {item_code}"
+    
+    # Shifting Item
+    new_shift = Shift_History.objects.create(From = old_loc, To = new_loc, remarks= "Location changes when the employee's location is changed.")
+    item.item.Shift_History.add(new_shift)
+
+    # changing it's location
+    [building, floor, room] = new_loc.split(" ")
+    location_new = Location_Description.objects.get(Final_Code = new_loc)
+    item.item.Location_Code = location_new
+
+    # Give Item a new code
+    item.item.Final_Code = new_code
+
+    # Finally saving everything
+
+    item.item.save()
+
+    return new_code
+
+def relocateItem(request):
+    if request.method == 'POST':
+        post_data = json.loads(request.body.decode('utf-8'))
+        new_code = ''
+        try:
+            item_ids = post_data['data'].keys() #Flush data for the verification
+
+            for ids in item_ids:
+                item_id = ids
+                old_loc = post_data['data'][ids]['old']
+                new_loc = post_data['data'][ids]['new']
+                new_code += relocateFunction(item_id, old_loc, new_loc) +"\n"
+
+        except:
+            new_code = relocateFunction(post_data['data'], post_data['old'], post_data['new'])
+        return JsonResponse({'data': new_code,"success":True})

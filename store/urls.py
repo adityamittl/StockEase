@@ -26,12 +26,19 @@ urlpatterns = [
     path('backup_reminder', backupreminder),
     path('getDepartmentUsers/<str:dpt>', getDepartmentUsers),
     path('getDepartmentItems/<str:dpt>', getDepartmentItems),
+
+    # Dashbiard
     path('', home),
     path('searchItems', searchItems),
     path('findDetailed', findDetailed),
     path('stockRegister', stockRegister, name="stockRegister"),
+    
+    # Item relocation
+    path("items/relocate", item_relocate),
+    path("relocateItem", relocateItem),
+
+    # Dump item module
     path("dump", dump, name="dump"),
-    path("dump2", dump2, name="dump2"),
     path("dump/finditem", find_dump_item),
     path('dump/search',get_item_details),
 ]

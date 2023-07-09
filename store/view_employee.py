@@ -3,8 +3,10 @@ from django.http import HttpResponse,JsonResponse
 from .models import assign,complaints
 from datetime import datetime
 from assetsData.models import *
+from django.contrib.auth.decorators import login_required
 import json
 
+@login_required()
 def employeeHome(request):
     return render(request, "employee/dashboard.html", context={'data':assign.objects.filter(user = request.user, pickedUp = True)})
 

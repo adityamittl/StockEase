@@ -1,0 +1,287 @@
+{% extends 'base.html' %}
+{% block main %}
+<div class="relative overflow-x-auto shadow-md sm:rounded-lg" style="height: 80vh; width: 80vw;">
+    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 sticky top-0"">
+            <tr>
+                <th scope=" col" class="px-6 py-3">
+            S.no
+            </th>
+            <th scope=" col" class="px-6 py-3">
+                Item Name
+            </th>
+            <th scope="col" class="px-6 py-3">
+                Item Code
+            </th>
+            <th scope=" col" class="px-6 py-3">
+                Location
+            </th>
+            <th scope=" col" class="px-6 py-3">
+                Asset Code
+            </th>
+            <th scope="col" class="px-6 py-3">
+                Issue Date
+            </th>
+            <th scope="col" class="px-6 py-3">
+                Invoice Number
+            </th>
+            </tr>
+        </thead>
+        <tbody id="vendorDetails" class="overflow-y-scroll" style="max-height: 65vh;">
+            {% for val in data %}
+            <tr
+                class="{% if forloop.counter|divisibleby:'2' %} border-b bg-gray-50 dark:bg-gray-800 {%else%}bg-white border-b dark:bg-gray-900{%endif%} dark:border-gray-700">
+                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                    {{forloop.counter}}
+                </th>
+                <td class="px-6 py-4">
+                    {{val.item.Purchase_Item.name}}
+                </td>
+                <td class="px-6 py-4">
+                    {{val.item.Item_Code}}
+                </td>
+                <td class="px-6 py-4">
+                    {{val.item.Location_Code.Final_Code}}
+                </td>
+                <td class="px-6 py-4">
+                    {{val.item.Final_Code}}
+                </td>
+                <td class="px-6 py-4">
+                    {{val.pickupDate}}
+                </td>
+                <th class="px-6 py-4">
+                    {{val.item.bill_No}}
+                </th>
+            </tr>
+            {%endfor%}
+        </tbody>
+    </table>
+</div>
+<button type="button" data-modal-target="edituser" data-modal-toggle="edituser"
+    class="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800">Edit
+    User</button>
+
+
+<!-- Edit user modal  -->
+<div id="edituser" data-modal-backdrop="static" tabindex="-1" aria-hidden="true"
+    class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative w-full max-w-7xl max-h-full">
+        <!-- Modal content -->
+        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+            <!-- Modal header -->
+            <div class="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+                    Edit User Info
+                </h3>
+                <button type="button"
+                    class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                    data-modal-hide="edituser">
+                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                        viewBox="0 0 14 14">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                    </svg>
+                    <span class="sr-only">Close modal</span>
+                </button>
+            </div>
+            <!-- Modal body -->
+            <div class="p-6 space-y-6" style="height: 85vh; overflow-y: auto;">
+
+                <form method="post" onsubmit="return validate()">
+                    {%csrf_token%}
+                    <div class="grid gap-6 mb-6 md:grid-cols-2">
+                        <div>
+                            <label for="first_name"
+                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">First name</label>
+                            <input type="text" id="first_name" name="first_name"
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                value="{{profile.user.first_name}}" required autocomplete="none">
+                        </div>
+                        <div>
+                            <label for="last_name"
+                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Last name</label>
+                            <input type="text" id="last_name" name="last_name"
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                value="{{profile.user.last_name}}" required autocomplete="none">
+                        </div>
+                        <div>
+                            <label for="email"
+                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email</label>
+                            <input type="text" id="email" name="email"
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                value="{{profile.user.email}}" required autocomplete="none">
+                        </div>
+                        <div>
+                            <label for="username"
+                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Username</label>
+                            <input type="text" id="username"
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                value="{{profile.user.username}}" disabled autocomplete="none">
+                        </div>
+                    </div>
+                    <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Location
+                        Data</label>
+                    <div class="p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
+                        style="display: flex; flex-direction: column; gap: 6px; justify-content: space-evenly; padding-right: 25%;">
+                        <label for="building"
+                            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select
+                            Building Name</label>
+                        <select id="building" onchange="selectBuilding()" name="building"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                            <option value="none">Choose Building</option>
+                            {%for i in bd%}
+                            <option {% if profile.location.building.code == i.code %} selected {%endif%}
+                                value="{{i.code}}">
+                                {{i.name}}</option>
+                            {%endfor%}
+                        </select>
+
+                        <label for="floor" name="floor"
+                            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select
+                            Floor</label>
+                        <select id="floor" disabled onchange="getRooms()" name="floor"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                            <option value="none">Choose floor</option>
+                            <option selected value="{{profile.location.floor.code}}">{{profile.location.floor.name}}
+                            </option>
+                        </select>
+
+                        <label for="room" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select
+                            Room
+                            Number</label>
+                        <select id="room" disabled name="room"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                            <option selected>Choose Room</option>
+                            <option selected value="{{profile.location.Final_Code}}">{{profile.location.code}}
+                            </option>
+                        </select>
+                    </div>
+                    <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                        style="margin-top: 10px;">Department</label>
+                    <div class="p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
+                        style="display: flex; flex-direction: row; justify-content: space-evenly; gap: 10px;">
+                        <select id="department" name="department" onchange="getdesignations"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                            <option value="none">Choose Department</option>
+                            {%for i in departments%}
+                            <option {% if profile.department.code == i.code %} selected {%endif%}
+                                value="{{i.code}}">
+                                {{i.name}}</option>
+                            
+                            {%endfor%}
+                        </select>
+                        <select id="designation" name="designation"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                            <option value="none">Choose Designation</option>
+                            {%for i in designations%}
+                            <option {% if profile.designation.designation_id == i.designation_id %} selected {%endif%}
+                                value="{{i.designation_id}}">
+                                {{i.designation_name}}</option>
+                            
+                            {%endfor%}
+                        </select>
+                    </div>
+                    <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" style="margin-top: 10px; margin-bottom: 10px;">Submit</button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    
+    function ajaxPOST(bid, url) {
+        return new Promise((resolve, reject) => {
+            let xhr = new XMLHttpRequest();
+            xhr.open('POST', url);
+            xhr.setRequestHeader('X-CSRFToken', document.getElementsByName("csrfmiddlewaretoken")[0].value);
+            xhr.send(JSON.stringify(bid));
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    console.log(JSON.parse(this.responseText)['data']);
+                    resolve(JSON.parse(this.responseText));
+                }
+            };
+        })
+    }
+    function cleanSelect(tagid) {
+        let floors_options = document.getElementById(tagid);
+        for (let i = floors_options.children.length - 1; i > 0; i--) {
+            floors_options.children[i].remove();
+        }
+    }
+    function selectBuilding() {
+        let data = document.getElementById("building");
+        if (data.value == 'none') {
+            cleanSelect("floor");
+            document.getElementById("floor").disabled = true;
+        }
+        ajaxPOST({ "data": data.value }, '/getFloors').then(data => {
+            let x = data['data'];
+            floor_count = x.length;
+
+            //clearing current floor options
+
+            cleanSelect("floor");
+
+            let floors_options = document.getElementById("floor");
+            for (let i = 0; i < floor_count; i++) {
+                code = Object.keys(x[i])[0]
+                name = x[i][code]
+                floors_options.innerHTML += `
+                <option value="${code}">${name}</option>
+                `
+            }
+            document.getElementById("floor").disabled = false;
+
+
+        });
+    }
+    function getRooms() {
+        let building = document.getElementById("building");
+        let floor = document.getElementById("floor");
+
+        if (floor.value == 'none') {
+            cleanSelect("room");
+            document.getElementById("room").disabled = true;
+        }
+
+        ajaxPOST({ "building": building.value, "floor": floor.value }, '/getRooms').then(data => {
+            let x = data['data'];
+            floor_count = x.length;
+
+            //clearing current floor options
+
+            cleanSelect("room");
+            let floors_options = document.getElementById("room");
+            for (let i = 0; i < floor_count; i++) {
+                code = Object.keys(x[i])[0]
+                name = x[i][code]
+                floors_options.innerHTML += `
+                <option value="${code}">${name}</option>
+                `
+            }
+            document.getElementById("room").disabled = false;
+        });
+
+    }
+</script>
+
+<script>
+    let department = "{{profile.department.code}}";
+    let room_location = "{{profile.location.Final_Code}}"
+    function validate(){
+        if(document.getElementById("department").value != department){
+            return confirm("Changing department leads to shifting the item to the new department, this will inform the HOD about all their items...\n\n Do you wish to continue?");
+        }
+        else if(document.getElementById("room").value != room_location){
+            return confirm("Changing Employee's location will ask for the item location change prompt");
+        }
+        else{
+            return confirm("Do you realy want to change user's information");
+        }
+    }
+</script>
+{% endblock %}

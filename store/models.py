@@ -6,7 +6,8 @@ from django.contrib.auth.models import User
 
 
 class Shift_History(models.Model):
-    From_Location = models.CharField(max_length=200)
+    From = models.CharField(max_length=200, null=True, blank=True)
+    To = models.CharField(max_length=200, null=True, blank=True)
     from_User = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -21,7 +22,6 @@ class Shift_History(models.Model):
         blank=True,
         related_name="shift_to_user",
     )
-    To_Location = models.CharField(max_length=200)
     Date = models.DateField(auto_now=True)
     remarks = models.TextField(null=True, blank=True)
 
@@ -45,6 +45,7 @@ class Ledger(models.Model):
     buy_for = models.ForeignKey(
         Departments, on_delete=models.CASCADE, null=True, blank=True
     )
+    current_department = models.ForeignKey(Departments, on_delete=models.CASCADE, null=True, blank=True, related_name= "new_department")
     stock_register = models.ForeignKey(
         stock_register, on_delete=models.CASCADE, null=True, blank=True
     )
@@ -57,6 +58,8 @@ class Ledger(models.Model):
     Is_Dump = models.BooleanField(default=False)
     isIssued = models.BooleanField(default=False)
 
+    def __str__(self):
+        return self.Item_Code
 
 # Contains the data of dump of item
 
