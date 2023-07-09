@@ -90,6 +90,14 @@ def complaint_status(request):
 
 
 def profile_dash(request):
+    if(request.method == 'POST'):
+        if not request.POST.get('room'):
+            return redirect('profile')
+        
+        usr = profile.objects.get(user = request.user)
+        usr.location = Location_Description.objects.get(Final_Code = request.POST.get('room'))
+        # usr.save()
+        return redirect('profile')
     data = Building_Name.objects.all()
     prof = profile.objects.get(user = request.user)
     return render(request,"employee/profile.html", context={"data":data, 'prof':prof})
@@ -104,4 +112,19 @@ def getfloors(request):
             floors.add(location.floor.code)
         for i in floors:
             res.append({i:Floor_Code.objects.get(code = i).name})
+            
+        return JsonResponse({"data":res})
+    
+
+def getRooms(request):
+    if request.method == 'POST':
+        building = json.loads(request.body.decode('utf-8'))['building']
+        floor = json.loads(request.body.decode('utf-8'))['floor']
+        locations = Location_Description.objects.filter(building = Building_Name.objects.get(code = building), floor = Floor_Code.objects.get(code = floor))
+        rooms = set()
+        res = []
+        for location in locations:
+            rooms.add(location.Final_Code)
+        for i in rooms:
+            res.append({i:i.split(" ")[2]})
         return JsonResponse({"data":res})

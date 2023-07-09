@@ -12,4 +12,5 @@ urlpatterns = [
 
     # Ajax call endpoints for the location selection
     path("getFloors",getfloors),
+    path("getRooms",getRooms),
 ]
