@@ -21,7 +21,13 @@ urlpatterns = [
     path('FetchDetails',FetchDetails, name='FetchDetails'),
     path('users',users, name='users'),
     path('user/<str:uname>',edit_user, name='editusers'),
+
+    # Assign ans issue module
     path('assign',assign_func, name='assign'),
+    path('issue', issue),
+    path('issue/item',issueItem),
+  
+
     path('backup', backup.as_view()),
     path('backup_reminder', backupreminder),
     path('getDepartmentUsers/<str:dpt>', getDepartmentUsers),
@@ -41,6 +47,11 @@ urlpatterns = [
     path("dump", dump, name="dump"),
     path("dump/finditem", find_dump_item),
     path('dump/search',get_item_details),
+
+    # AJAX calls
+
+    path("getUnassigned", getUnassigned), # to get the json of items that are issued but not assigned
+    path("issue/searchItems", searchItemByNo), # for the autocomplete of search in assign by item number
 ]
 
 

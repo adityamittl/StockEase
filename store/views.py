@@ -69,6 +69,9 @@ def entry(request):
                 buy_for=Departments.objects.get(
                     name=inner[8].upper().replace("&AMP;", "&")
                 ),
+                current_department=Departments.objects.get(
+                    name=inner[8].upper().replace("&AMP;", "&")
+                ),
                 stock_register=stock_register.objects.get(
                     name=inner[7].upper().replace("&AMP;", "&")
                 ),
@@ -540,6 +543,54 @@ def assign_func(request):
     
     department = Departments.objects.all()
     return render(request, "assign.html", context={"data":department})
+
+def issue(request):
+    return render(request, 'issue.html')
+
+@transaction.atomic()
+def issueItem(request):
+    # print(request.GET)
+    if(request.method == 'POST'):
+        # When the item is assigning by the item code
+        if request.GET['type'] == 'item':
+            item = assign.objects.get(item__Item_Code = request.GET['code'])
+            item.pickedUp = True
+            item.item.remark = request.POST['remarks']
+            locationCode = ""
+
+            # Assigning location
+            if("room" in request.POST.keys()):
+                item.item.Location_Code = Location_Description.objects.get(Final_Code = request.POST['room'])
+                locationCode = request.POST['room']
+            else:
+
+                # Admin didn't changed the user's Location, hence getting it.
+
+                location_item = profile.objects.get(user = item.user).location
+                item.item.Location_Code = location_item
+                locationCode = location_item.Final_Code
+
+            # Creating the item number with location 
+
+            item_code = f"LNM {locationCode} {item.item.Item_Code}"
+            item.item.Final_Code = item_code
+            item.item.save()
+            item.save()
+        
+        # when the user is assigning item by the user. 
+        return HttpResponse("Done")
+    if(request.method == 'GET'):
+        if request.GET['type'] == 'item':
+            code = request.GET['code']
+            try:
+                item_dets = assign.objects.get(item__Item_Code = code, pickedUp = False)
+            except:
+                return HttpResponse("Item has been already assigned, you can shift item to realocate to someone")
+            location_info = Building_Name.objects.all()
+            prof = profile.objects.get(user = item_dets.user)
+            return render(request, 'issue_in.html', context={'data':item_dets, 'loc':location_info,'prof':prof})
+    else:
+        return JsonResponse({"Status": "Prohibited"})
 
 
 # ------------ Backup data ----------------
@@ -1124,3 +1175,28 @@ def relocateItem(request):
         except:
             new_code = relocateFunction(post_data['data'], post_data['old'], post_data['new'])
         return JsonResponse({'data': new_code,"success":True})
+    
+
+def getUnassigned(request):
+    items = assign.objects.filter(pickedUp = False)
+    res = {}
+    cnt = 1
+    for i in items:
+        res[f"{cnt}"] = {
+            "item code" : i.item.Item_Code,
+            "item name" : i.item.Purchase_Item.name,
+            "department" : i.item.current_department.name,
+            "issued to" : i.user.first_name + " " + i.user.last_name,
+            'id' : i.id
+        }
+        cnt+=1
+    return JsonResponse({'data':res})
+
+def searchItemByNo(request):
+    ino = request.POST.get('item')
+    items = assign.objects.filter(item__Item_Code__icontains = ino, pickedUp = False)
+    res = list()
+    for i in items:
+        res.append(i.item.Item_Code)
+
+    return JsonResponse({'data': res})
