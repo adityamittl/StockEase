@@ -467,10 +467,10 @@
               d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
           </svg>
         </div>
-        <input type="search" id="ItemSearch"
+        <input type="search" id="search_username"
           class="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
           placeholder="Search by Username" required>
-        <button type="button"
+        <button type="button" onclick="search_by_username(event)"
           class="text-white absolute right-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Proceed</button>
       </div>
     </form>
@@ -637,18 +637,51 @@
             )[0].value,
           },
           success: function (data) {
-            console.log(data)
             response(data['data']);
           },
         });
       },
     });
   });
+
+
+  $(function () {
+    $("#search_username").autocomplete({
+      delay: 300,
+      source: function (request, response) {
+        var itemName = request.term;
+        $.ajax({
+          url: "/issue/searchItems?username=true",
+          data: {
+            item: itemName,
+          },
+          method: "POST",
+          headers: {
+            "X-CSRFToken": document.getElementsByName(
+              "csrfmiddlewaretoken"
+            )[0].value,
+          },
+          success: function (data) {
+            response(data['data']);
+          },
+        });
+      },
+    });
+  });
+
+
   let val;
   function searchButton(event){
     let ino = event.srcElement.parentElement.children[1].value;
     if(event.srcElement.parentElement.children[1].id == 'ItemSearch_in'){
       window.location.href = '/issue/item?type=item&code='+ino
+    }
+  }
+
+  function search_by_username(event){
+    let username = event.srcElement.parentElement.children[1].value;
+    if(event.srcElement.parentElement.children[1].id == 'search_username'){
+      window.location.href = '/issue/item?type=user&uname='+username
     }
   }
 </script>

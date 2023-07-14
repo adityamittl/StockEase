@@ -19,6 +19,9 @@ from django.views import View
 import concurrent.futures
 from django.contrib import messages
 from django.http import HttpResponseRedirect
+from .label import create_label
+from django.http import FileResponse
+
 password_length = 8
 
 
@@ -31,6 +34,8 @@ def entry(request):
         doe = request.POST.get("EntryDate")
         doi = request.POST.get("DOI")
         item = Asset_Type.objects.get(Final_Code=result["ACN"][0].replace("&amp;", "&"))
+        item.Last_Assigned_serial_Number += 1
+        item.save()
         vendor = Vendor.objects.get(name=result["vendorName"][0].replace("&amp;", "&"))
 
         dte = [int(doe.split("/")[1]), int(doe.split("/")[2])]
@@ -108,7 +113,7 @@ def new_vendor(request):
         vendor = Vendor.objects.create(
             name=name, address=address, GST_No=gst, contact_No=contact, Email=email
         )
-        
+
         if attachments:
             for x in attachments:
                 fs = FileSystemStorage(location="media/vendors/")
@@ -194,7 +199,7 @@ def new_location(request):
 
 
 def locationmaster(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         file = request.FILES.get("dataCSV")
         data = file.read().decode("utf-8").split("\r\n")
         x = csv.DictReader(data)
@@ -319,16 +324,19 @@ def sub_category(request):
         try:
             for i in x:
                 try:
-                    Sub_Catagory.objects.get(code=int(i['CODE']))
+                    Sub_Catagory.objects.get(code=int(i["CODE"]))
                 except:
-                    Sub_Catagory.objects.create(name=i['SUB CATEGORY'].upper(), code=int(i['CODE']))
+                    Sub_Catagory.objects.create(
+                        name=i["SUB CATEGORY"].upper(), code=int(i["CODE"])
+                    )
         except:
             return HttpResponse("Data must be in prescribed format")
-        
+
         return redirect("sub_category")
 
     data = Sub_Catagory.objects.all()
     return render(request, "subcatagory.html", context={"data": data})
+
 
 @transaction.atomic
 def main_category(request):
@@ -341,9 +349,13 @@ def main_category(request):
         try:
             for i in x:
                 try:
-                    Main_Catagory.objects.get(code = i['CODE'])
+                    Main_Catagory.objects.get(code=i["CODE"])
                 except:
-                    Main_Catagory.objects.create(Consumable_type = i['CONSUMABLE TYPE'], name= i['MAIN CATEGORY'], code = i['CODE'])
+                    Main_Catagory.objects.create(
+                        Consumable_type=i["CONSUMABLE TYPE"],
+                        name=i["MAIN CATEGORY"],
+                        code=i["CODE"],
+                    )
         except:
             return HttpResponse("Data must be in prescribed format")
     data = Main_Catagory.objects.all()
@@ -461,9 +473,9 @@ def users(request):
 
 
 def edit_user(request, uname):
-    if request.method == 'POST':
+    if request.method == "POST":
         # Updating basic usesr information (user matadata)
-        usr = User.objects.get(username = uname)
+        usr = User.objects.get(username=uname)
         usr.first_name = request.POST.get("first_name")
         usr.last_name = request.POST.get("last_name")
         usr.email = request.POST.get("email")
@@ -471,124 +483,215 @@ def edit_user(request, uname):
 
         is_location_change = False
         old_location = ""
-        pfile = profile.objects.get(user = usr)
+        pfile = profile.objects.get(user=usr)
 
         # Updating locationin information
-        if request.POST.get('room'):
+        if request.POST.get("room"):
             is_location_change = True
             old_location = pfile.location.Final_Code
-            new_location = Location_Description.objects.get(Final_Code = request.POST.get("room"))
+            new_location = Location_Description.objects.get(
+                Final_Code=request.POST.get("room")
+            )
             pfile.location = new_location
-        
+
         # Updating user designation data
-        if(pfile.department.code != request.POST.get('department')):
+        if pfile.department.code != request.POST.get("department"):
             # Shifting all the item of that person to new department
 
-            items_user = assign.objects.filter(user = usr)
-            department_new = Departments.objects.get(code = request.POST.get('department'))
+            items_user = assign.objects.filter(user=usr)
+            department_new = Departments.objects.get(
+                code=request.POST.get("department")
+            )
             for i in items_user:
                 print(i.item)
-                new_shift = Shift_History.objects.create(From = pfile.department.name, To = department_new.name, remarks = "Changing Department")
+                new_shift = Shift_History.objects.create(
+                    From=pfile.department.name,
+                    To=department_new.name,
+                    remarks="Changing Department",
+                )
                 i.item.Shift_History.add(new_shift)
                 i.item.current_department = department_new
                 i.item.save()
-            
+
             pfile.department = department_new
-            
-        pfile.designation = designation.objects.get(designation_id = request.POST.get('designation'))
+
+        pfile.designation = designation.objects.get(
+            designation_id=request.POST.get("designation")
+        )
 
         pfile.save()
 
-
-        if is_location_change : 
-            return redirect(f"/items/relocate?old={old_location}&new={request.POST.get('room')}&user={uname}")
-
+        if is_location_change:
+            return redirect(
+                f"/items/relocate?old={old_location}&new={request.POST.get('room')}&user={uname}"
+            )
 
         return HttpResponseRedirect(request.path_info)
-            
-    items = assign.objects.filter(user = User.objects.get(username = uname))
-    profile_data =  profile.objects.get(user = User.objects.get(username = uname))
+
+    items = assign.objects.filter(user=User.objects.get(username=uname))
+    profile_data = profile.objects.get(user=User.objects.get(username=uname))
     data = Building_Name.objects.all()
     departments = Departments.objects.all()
     designations = designation.objects.all()
-    return render(request, 'userdata.html', context={'data':items, "profile": profile_data, "bd" : data, 'departments':departments, "designations" : designations})
+    return render(
+        request,
+        "userdata.html",
+        context={
+            "data": items,
+            "profile": profile_data,
+            "bd": data,
+            "departments": departments,
+            "designations": designations,
+        },
+    )
 
 
 # ---------------- Assign and issue module -----------------
+
 
 @transaction.atomic
 def assign_func(request):
     print(request.POST)
     if request.method == "POST":
-        items = json.loads(request.POST.get("selected_items_data")) #Items is a JSON that has selected items to assign and user's information such as username and department id
-        uname = items['User_data']["name"]
-        department_id = items['User_data']["department"]
-        del items["User_data"] # Removeing the user's information object from the items dictionary such that only selected items is present!
-        comment = request.POST.get("message") # Use This in the mail to the person! 
+        items = json.loads(
+            request.POST.get("selected_items_data")
+        )  # Items is a JSON that has selected items to assign and user's information such as username and department id
+        uname = items["User_data"]["name"]
+        department_id = items["User_data"]["department"]
+        del items[
+            "User_data"
+        ]  # Removeing the user's information object from the items dictionary such that only selected items is present!
+        comment = request.POST.get("message")  # Use This in the mail to the person!
 
-        user_profile = User.objects.get(username=  uname)
+        user_profile = User.objects.get(username=uname)
 
         for i in items:
             print(items[i]["item_id"])
-            temp =  Ledger.objects.get(Item_Code = items[i]["item_id"])
-            assign.objects.create(item = temp, user = user_profile)
+            temp = Ledger.objects.get(Item_Code=items[i]["item_id"])
+            assign.objects.create(item=temp, user=user_profile)
             temp.isIssued = True
             temp.save()
 
-        # Now we need to send emails to two persons- 
+        # Now we need to send emails to two persons-
         # 1. Department HOD
         # 2. Respective assigning person.
-        messages.success(request, f'/issue/{uname}?type=user')
-        return redirect('assign')
-    
+        
+        messages.success(request, f"/issue/item?type=user&uname={uname}")
+        return redirect("assign")
+
     department = Departments.objects.all()
-    return render(request, "assign.html", context={"data":department})
+    return render(request, "assign.html", context={"data": department})
+
 
 def issue(request):
-    return render(request, 'issue.html')
+    return render(request, "issue.html")
 
-@transaction.atomic()
-def issueItem(request):
-    # print(request.GET)
-    if(request.method == 'POST'):
-        # When the item is assigning by the item code
-        if request.GET['type'] == 'item':
-            item = assign.objects.get(item__Item_Code = request.GET['code'])
+@transaction.atomic
+def issue_all_username(request):
+    if request.method == 'POST':
+        items = assign.objects.filter(user__username=request.GET["uname"], pickedUp = False)
+        inos = []
+        for item in items:
             item.pickedUp = True
-            item.item.remark = request.POST['remarks']
+            item.item.remark = request.POST["remarks"]
             locationCode = ""
 
             # Assigning location
-            if("room" in request.POST.keys()):
-                item.item.Location_Code = Location_Description.objects.get(Final_Code = request.POST['room'])
-                locationCode = request.POST['room']
+            if "room" in request.POST.keys():
+                item.item.Location_Code = Location_Description.objects.get(
+                    Final_Code=request.POST["room"]
+                )
+                locationCode = request.POST["room"]
             else:
-
                 # Admin didn't changed the user's Location, hence getting it.
 
-                location_item = profile.objects.get(user = item.user).location
+                location_item = profile.objects.get(user=item.user).location
                 item.item.Location_Code = location_item
                 locationCode = location_item.Final_Code
 
-            # Creating the item number with location 
+            # Creating the item number with location
 
             item_code = f"LNM {locationCode} {item.item.Item_Code}"
+            inos.append(item_code)
             item.item.Final_Code = item_code
             item.item.save()
             item.save()
         
-        # when the user is assigning item by the user. 
-        return HttpResponse("Done")
-    if(request.method == 'GET'):
-        if request.GET['type'] == 'item':
-            code = request.GET['code']
+        return redirect(f"/done?code={inos}")
+
+    uname = request.GET["uname"]
+    items = assign.objects.filter(user__username=uname, pickedUp=False)
+    if not items:
+        return HttpResponse("No Items are available for the user")
+    return render(
+        request,
+        "issue_all_once.html",
+        context={
+            "data": items,
+            "prof": profile.objects.get(user__username=uname),
+            "loc": Building_Name.objects.all(),
+        },
+    )
+
+
+@transaction.atomic()
+def issueItem(request):
+    # print(request.GET)
+    if request.method == "POST":
+        # When the item is assigning by the item code
+        item = assign.objects.get(item__Item_Code=request.GET["code"])
+        item.pickedUp = True
+        item.item.remark = request.POST["remarks"]
+        locationCode = ""
+
+        # Assigning location
+        if "room" in request.POST.keys():
+            item.item.Location_Code = Location_Description.objects.get(
+                Final_Code=request.POST["room"]
+            )
+            locationCode = request.POST["room"]
+        else:
+            # Admin didn't changed the user's Location, hence getting it.
+
+            location_item = profile.objects.get(user=item.user).location
+            item.item.Location_Code = location_item
+            locationCode = location_item.Final_Code
+
+        # Creating the item number with location
+
+        item_code = f"LNM {locationCode} {item.item.Item_Code}"
+        item.item.Final_Code = item_code
+        item.item.save()
+        item.save()
+
+        # when the user is assigning item by the user.
+        # return the label
+        return redirect(f"/done?codes={[item_code]}")
+        
+
+
+    if request.method == "GET":
+        if request.GET["type"] == "item":
+            code = request.GET["code"]
             try:
-                item_dets = assign.objects.get(item__Item_Code = code, pickedUp = False)
+                item_dets = assign.objects.get(item__Item_Code=code, pickedUp=False)
             except:
-                return HttpResponse("Item has been already assigned, you can shift item to realocate to someone")
+                return HttpResponse(
+                    "Item has been already assigned, you can shift item to realocate to someone"
+                )
             location_info = Building_Name.objects.all()
-            prof = profile.objects.get(user = item_dets.user)
-            return render(request, 'issue_in.html', context={'data':item_dets, 'loc':location_info,'prof':prof})
+            prof = profile.objects.get(user=item_dets.user)
+            return render(
+                request,
+                "issue_in.html",
+                context={"data": item_dets, "loc": location_info, "prof": prof},
+            )
+        if request.GET["type"] == "user":
+            uname = request.GET["uname"]
+            items = assign.objects.filter(
+                user=User.objects.get(username=uname), pickedUp=False
+            )
+            return render(request, "issue_un.html", context={"data": items, 'uname':uname})
     else:
         return JsonResponse({"Status": "Prohibited"})
 
@@ -708,59 +811,63 @@ class backup(View):
             writer.writerow([i, data.name, data.code])
             i += 1
         return [temp, "sub_catagory.csv"]
-    
+
     def get_ledger(self):
         temp = StringIO()
         writer = csv.writer(temp)
         sc = Ledger.objects.all()
-        writer.writerow([
-            "S.NO", 
-            "FINANTIAL YEAR", 
-            "VENDOR", 
-            "BILL NO",
-            "DATE OF ENTRY", 
-            "DATE OF INVOICE",
-            "PURCHASE ITEM CODE",
-            "RATE",
-            "DISCOUNT",
-            "TAX",
-            "AMMOUNT",
-            "MAKE",
-            "BUY FOR",
-            "STOCK REGISTER",
-            "LOCATION CODE",
-            "ITEM CODE",
-            "FINAL CODE",
-            "REMARK",
-            "SHIFT HISTORY",
-            "IS DUMP",
-            "IS ISSUED"
-            ])
+        writer.writerow(
+            [
+                "S.NO",
+                "FINANTIAL YEAR",
+                "VENDOR",
+                "BILL NO",
+                "DATE OF ENTRY",
+                "DATE OF INVOICE",
+                "PURCHASE ITEM CODE",
+                "RATE",
+                "DISCOUNT",
+                "TAX",
+                "AMMOUNT",
+                "MAKE",
+                "BUY FOR",
+                "STOCK REGISTER",
+                "LOCATION CODE",
+                "ITEM CODE",
+                "FINAL CODE",
+                "REMARK",
+                "SHIFT HISTORY",
+                "IS DUMP",
+                "IS ISSUED",
+            ]
+        )
         i = 1
         for data in sc:
-            writer.writerow([
-                i, 
-                data.Finantial_Year.yearName, 
-                data.Vendor.name,
-                data.bill_No,
-                data.Date_Of_Entry,
-                data.Date_Of_Invoice,
-                data.Purchase_Item.Final_Code,
-                data.Rate,
-                data.Discount,
-                data.Tax,
-                data.Ammount,
-                data.make,
-                data.buy_for.code,
-                data.stock_register.name,
-                data.Location_Code,
-                data.Item_Code,
-                data.Final_Code,
-                data.remark,
-                "pending",
-                data.Is_Dump,
-                data.isIssued
-                ])
+            writer.writerow(
+                [
+                    i,
+                    data.Finantial_Year.yearName,
+                    data.Vendor.name,
+                    data.bill_No,
+                    data.Date_Of_Entry,
+                    data.Date_Of_Invoice,
+                    data.Purchase_Item.Final_Code,
+                    data.Rate,
+                    data.Discount,
+                    data.Tax,
+                    data.Ammount,
+                    data.make,
+                    data.buy_for.code,
+                    data.stock_register.name,
+                    data.Location_Code,
+                    data.Item_Code,
+                    data.Final_Code,
+                    data.remark,
+                    "pending",
+                    data.Is_Dump,
+                    data.isIssued,
+                ]
+            )
             i += 1
         return [temp, "ledger.csv"]
 
@@ -873,78 +980,91 @@ def backupreminder(request):
         return JsonResponse({"status": "None"})
 
 
-
 def home(request):
     return render(request, "dashboard_admin.html")
 
+
 def getDepartmentUsers(request, dpt):
-    dept = Departments.objects.get(code = dpt)
-    users = profile.objects.filter(department = dept)
+    dept = Departments.objects.get(code=dpt)
+    users = profile.objects.filter(department=dept)
     res = dict()
     for i in users:
-        res[i.user.username] = i.user.first_name+" "+i.user.last_name
-    
+        res[i.user.username] = i.user.first_name + " " + i.user.last_name
+
     return JsonResponse(res)
 
+
 def getDepartmentItems(request, dpt):
-    dept = Departments.objects.get(code = dpt)
-    users = Ledger.objects.filter(buy_for = dept, isIssued = False, Is_Dump = False)
+    dept = Departments.objects.get(code=dpt)
+    users = Ledger.objects.filter(buy_for=dept, isIssued=False, Is_Dump=False)
     res = dict()
     for i in users:
         res[i.Item_Code] = i.Purchase_Item.name
     print(res)
     return JsonResponse(res)
 
-def itemAnem_edit(request,itemId):
+
+def itemAnem_edit(request, itemId):
     pass
+
 
 def fetchData(typeFetch, val):
     res = []
-    if(typeFetch == 'finalcode'):
-        for i in Ledger.objects.filter(Final_Code__icontains = val):
+    if typeFetch == "finalcode":
+        for i in Ledger.objects.filter(Final_Code__icontains=val):
             res.append(i.Final_Code)
-    elif(typeFetch == 'itemcode'):
-        for i in Ledger.objects.filter(Item_Code__icontains = val):
+    elif typeFetch == "itemcode":
+        for i in Ledger.objects.filter(Item_Code__icontains=val):
             res.append(i.Item_Code)
-    elif(typeFetch == 'user'):
-        for i in User.objects.filter(first_name__icontains = val) | User.objects.filter(last_name__icontains = val):
-            res.append(i.first_name+" "+i.last_name)
-    elif(typeFetch == 'location'):
-        for i in Location_Description.objects.filter(Final_Code__icontains = val):
+    elif typeFetch == "user":
+        for i in User.objects.filter(first_name__icontains=val) | User.objects.filter(
+            last_name__icontains=val
+        ):
+            res.append(i.first_name + " " + i.last_name)
+    elif typeFetch == "location":
+        for i in Location_Description.objects.filter(Final_Code__icontains=val):
             res.append(i.Final_Code)
-    elif(typeFetch == 'department'):
-        for i in Departments.objects.filter(name__icontains =val) | Departments.objects.filter(code__icontains =val):
+    elif typeFetch == "department":
+        for i in Departments.objects.filter(
+            name__icontains=val
+        ) | Departments.objects.filter(code__icontains=val):
             res.append(i.name)
-    elif(typeFetch == 'sr'):
-        for i in stock_register.objects.filter(name__icontains = val):
+    elif typeFetch == "sr":
+        for i in stock_register.objects.filter(name__icontains=val):
             res.append(i.name)
-    elif(typeFetch == 'mc'):
-        for i in Main_Catagory.objects.filter(name__icontains = val):
+    elif typeFetch == "mc":
+        for i in Main_Catagory.objects.filter(name__icontains=val):
             res.append(i.name)
     return res
 
+
 def searchItems(request):
-    if request.method == 'POST':
-        return JsonResponse({"Data":fetchData(request.POST.get('catagory'), request.POST.get('item'))})
+    if request.method == "POST":
+        return JsonResponse(
+            {"Data": fetchData(request.POST.get("catagory"), request.POST.get("item"))}
+        )
 
 
-#Dashboard of admin where they can search for item and fire this query on search, this is an AJAX call
+# Dashboard of admin where they can search for item and fire this query on search, this is an AJAX call
 def create_AJAX_html():
     pass
 
+
 def findDetailed(request):
-    item = request.POST.get('item')
-    catagory = request.POST.get('catagory')
+    item = request.POST.get("item")
+    catagory = request.POST.get("catagory")
 
     try:
-        data = Ledger.objects.filter(Location_Code = Location_Description.objects.get(Final_Code = item))
+        data = Ledger.objects.filter(
+            Location_Code=Location_Description.objects.get(Final_Code=item)
+        )
     except:
-        data = Ledger.objects.filter(Item_Code = item)
+        data = Ledger.objects.filter(Item_Code=item)
     innerStr = ""
     sno = 1
     for i in data:
         try:
-            innerStr+= f"""<tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+            innerStr += f"""<tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
                                     <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                         {sno}
                                     </th>
@@ -967,9 +1087,9 @@ def findDetailed(request):
                                         issued
                                     </td>
                                 </tr>"""
-            sno+=1
+            sno += 1
         except:
-            innerStr+= f"""<tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+            innerStr += f"""<tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
                                     <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                         {sno}
                                     </th>
@@ -1027,80 +1147,97 @@ def findDetailed(request):
                 </div>
     """
     # print(item, request.POST)
-    return JsonResponse({'data': res})
+    return JsonResponse({"data": res})
 
-#codes' stock register page
+
+# codes' stock register page
+
 
 def stockRegister(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         try:
-            stock_register.objects.get(name = request.POST.get("stockEntry").upper())
+            stock_register.objects.get(name=request.POST.get("stockEntry").upper())
             return HttpResponse("Entry Already exists")
         except:
-            stock_register.objects.create(name= request.POST.get("stockEntry").upper())
-        
+            stock_register.objects.create(name=request.POST.get("stockEntry").upper())
+
         return redirect(stockRegister)
-        
+
     data = stock_register.objects.all()
 
-    return render(request,"stockRegister.html", context={"data":data})
+    return render(request, "stockRegister.html", context={"data": data})
+
 
 @transaction.atomic
 def dump(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         item_code = request.POST.get("itemcode_final")
-        dump_date = request.POST.get('dumpdate')
-        remark = request.POST.get('remark')
-        item = Ledger.objects.get(Item_Code = item_code)
-        item.Is_Dump = True;
+        dump_date = request.POST.get("dumpdate")
+        remark = request.POST.get("remark")
+        item = Ledger.objects.get(Item_Code=item_code)
+        item.Is_Dump = True
 
-        # Uncheck the 
-        if item.isIssued :
+        # Uncheck the
+        if item.isIssued:
             item.isIssued = False
 
         item.save()
 
-        Dump.objects.create(Item = item, Dump_Date = datetime.strptime(dump_date, "%d/%m/%Y").strftime("%Y-%m-%d"), Remark = remark)
+        Dump.objects.create(
+            Item=item,
+            Dump_Date=datetime.strptime(dump_date, "%d/%m/%Y").strftime("%Y-%m-%d"),
+            Remark=remark,
+        )
 
         # Removing relationship with the assigned person and the item..
 
-        assign.objects.get(item = item).delete()
-        messages.success(request, f'Successfully Dumped Item {item_code}')
+        assign.objects.get(item=item).delete()
+        messages.success(request, f"Successfully Dumped Item {item_code}")
         return redirect("dump")
     return render(request, "dump.html")
 
+
 def find_dump_item(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         res = []
-        items = Ledger.objects.filter(Item_Code__icontains = request.POST.get('item').upper(), Is_Dump = False)
+        items = Ledger.objects.filter(
+            Item_Code__icontains=request.POST.get("item").upper(), Is_Dump=False
+        )
         for item in items:
             res.append(item.Item_Code)
-        return JsonResponse({'data':res})
-    
+        return JsonResponse({"data": res})
+
+
 def get_item_details(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         res = dict()
         try:
-            item_details = Ledger.objects.get(Item_Code = request.POST.get('item').upper())
+            item_details = Ledger.objects.get(
+                Item_Code=request.POST.get("item").upper()
+            )
         except:
-            return JsonResponse({'data':'<p class="mb-3 text-gray-500 dark:text-gray-400">Item not Found</p>'})
-        res['Item Code'] = item_details.Item_Code
-        res['Name'] = item_details.Purchase_Item.name
-        res['Buy for'] = item_details.buy_for
-        res['Make'] = item_details.make
-        res['Date of Entry'] = item_details.Date_Of_Entry
-        res['Code with Location'] = item_details.Final_Code
-        
+            return JsonResponse(
+                {
+                    "data": '<p class="mb-3 text-gray-500 dark:text-gray-400">Item not Found</p>'
+                }
+            )
+        res["Item Code"] = item_details.Item_Code
+        res["Name"] = item_details.Purchase_Item.name
+        res["Buy for"] = item_details.buy_for
+        res["Make"] = item_details.make
+        res["Date of Entry"] = item_details.Date_Of_Entry
+        res["Code with Location"] = item_details.Final_Code
+
         # Details of the responsible person of that item.
 
-        person = assign.objects.get(item = item_details)
+        person = assign.objects.get(item=item_details)
 
-        res['Assigned to'] = person.user.first_name + " " + person.user.last_name
+        res["Assigned to"] = person.user.first_name + " " + person.user.last_name
 
         itemList = ""
 
         for key, value in res.items():
-            itemList+= f"""
+            itemList += f"""
             <tr class="bg-white dark:bg-gray-800">
                 <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                     {key}
@@ -1123,31 +1260,46 @@ def get_item_details(request):
         <input type="text" style="visibility: hidden; position: absolute" name="itemcode_final" value = "{res['Item Code']}">
         """
 
-        return JsonResponse({'data' : htmlWrap})
-    
-def item_relocate(request):
-    if(list(request.GET.keys()) == ['old', 'new', 'user']):
-        old_location = request.GET['old']
-        new_location = request.GET['new']
-        assignee_user = User.objects.get(username = request.GET['user'])
-        items = assign.objects.filter(user = assignee_user)
+        return JsonResponse({"data": htmlWrap})
 
-        return render(request, "relocate_item.html", context={'old': old_location, "new" : new_location, "user": profile.objects.get(user = assignee_user), 'items': items})
-    
+
+def item_relocate(request):
+    if list(request.GET.keys()) == ["old", "new", "user"]:
+        old_location = request.GET["old"]
+        new_location = request.GET["new"]
+        assignee_user = User.objects.get(username=request.GET["user"])
+        items = assign.objects.filter(user=assignee_user)
+
+        return render(
+            request,
+            "relocate_item.html",
+            context={
+                "old": old_location,
+                "new": new_location,
+                "user": profile.objects.get(user=assignee_user),
+                "items": items,
+            },
+        )
+
+
 def relocateFunction(item_id, old_loc, new_loc):
-    item = assign.objects.get(id = item_id)
-        
+    item = assign.objects.get(id=item_id)
+
     # Changing item code to the new one
     item_code = " ".join(str(item.item.Final_Code).split(" ")[4::])
     new_code = f"LNM {new_loc} {item_code}"
-    
+
     # Shifting Item
-    new_shift = Shift_History.objects.create(From = old_loc, To = new_loc, remarks= "Location changes when the employee's location is changed.")
+    new_shift = Shift_History.objects.create(
+        From=old_loc,
+        To=new_loc,
+        remarks="Location changes when the employee's location is changed.",
+    )
     item.item.Shift_History.add(new_shift)
 
     # changing it's location
     [building, floor, room] = new_loc.split(" ")
-    location_new = Location_Description.objects.get(Final_Code = new_loc)
+    location_new = Location_Description.objects.get(Final_Code=new_loc)
     item.item.Location_Code = location_new
 
     # Give Item a new code
@@ -1159,44 +1311,76 @@ def relocateFunction(item_id, old_loc, new_loc):
 
     return new_code
 
+
 def relocateItem(request):
-    if request.method == 'POST':
-        post_data = json.loads(request.body.decode('utf-8'))
-        new_code = ''
+    if request.method == "POST":
+        post_data = json.loads(request.body.decode("utf-8"))
+        new_code = ""
         try:
-            item_ids = post_data['data'].keys() #Flush data for the verification
+            item_ids = post_data["data"].keys()  # Flush data for the verification
 
             for ids in item_ids:
                 item_id = ids
-                old_loc = post_data['data'][ids]['old']
-                new_loc = post_data['data'][ids]['new']
-                new_code += relocateFunction(item_id, old_loc, new_loc) +"\n"
+                old_loc = post_data["data"][ids]["old"]
+                new_loc = post_data["data"][ids]["new"]
+                new_code += relocateFunction(item_id, old_loc, new_loc) + "\n"
 
         except:
-            new_code = relocateFunction(post_data['data'], post_data['old'], post_data['new'])
-        return JsonResponse({'data': new_code,"success":True})
-    
+            new_code = relocateFunction(
+                post_data["data"], post_data["old"], post_data["new"]
+            )
+        return JsonResponse({"data": new_code, "success": True})
+
 
 def getUnassigned(request):
-    items = assign.objects.filter(pickedUp = False)
+    items = assign.objects.filter(pickedUp=False)
     res = {}
     cnt = 1
     for i in items:
         res[f"{cnt}"] = {
-            "item code" : i.item.Item_Code,
-            "item name" : i.item.Purchase_Item.name,
-            "department" : i.item.current_department.name,
-            "issued to" : i.user.first_name + " " + i.user.last_name,
-            'id' : i.id
+            "item code": i.item.Item_Code,
+            "item name": i.item.Purchase_Item.name,
+            "department": i.item.current_department.name,
+            "issued to": i.user.first_name + " " + i.user.last_name,
+            "id": i.id,
         }
-        cnt+=1
-    return JsonResponse({'data':res})
+        cnt += 1
+    return JsonResponse({"data": res})
+
 
 def searchItemByNo(request):
-    ino = request.POST.get('item')
-    items = assign.objects.filter(item__Item_Code__icontains = ino, pickedUp = False)
+    try:
+        request.GET.get("username")
+        uname = request.POST.get("item")
+        items = assign.objects.filter(
+            user__username__icontains=uname, pickedUp=False
+        ) | assign.objects.filter(user__first_name__icontains=uname, pickedUp=False)
+
+        res = set()
+        for i in items:
+            res.add(i.user.username)
+
+        return JsonResponse({"data": list(res)})
+    except:
+        pass
+
+    ino = request.POST.get("item")
+    items = assign.objects.filter(item__Item_Code__icontains=ino, pickedUp=False)
     res = list()
     for i in items:
         res.append(i.item.Item_Code)
 
-    return JsonResponse({'data': res})
+    return JsonResponse({"data": res})
+
+
+def done(request):
+    if request.method == 'POST':
+        x = request.GET['code']
+        res = []
+        for i in x.split(","):
+            res.append(i.replace("['","").replace("']","").replace("'","").replace("'",""))
+
+        return FileResponse(
+            create_label(res), as_attachment=True, filename="label.pdf"
+        )
+    return render(request, "done.html")

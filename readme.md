@@ -9,15 +9,19 @@
     - [ ] Issue Module
         - [x] Assign
         - [ ] Issue
+            - [x] Issue by item code
     - [ ] Shift Items
-    - [x] Complaint Module
+    - [ ] Complaint Module
     - [x] User
+        - [x] Edit user
+        - [x] Shift item when location or department changes
     - [x] Backup make zip files
     - [ ] Backup populate data by backup
 
 
 2. User Side
-    [x] Dashboard
-    [x] Available items
-    [x] complaint
-    [ ] Complaint status
+
+    - [x] Dashboard
+    - [x] Available items
+    - [x] complaint
+    - [ ] Complaint status

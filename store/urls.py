@@ -26,6 +26,7 @@ urlpatterns = [
     path('assign',assign_func, name='assign'),
     path('issue', issue),
     path('issue/item',issueItem),
+    path('issue/all',issue_all_username),
   
 
     path('backup', backup.as_view()),
@@ -52,6 +53,7 @@ urlpatterns = [
 
     path("getUnassigned", getUnassigned), # to get the json of items that are issued but not assigned
     path("issue/searchItems", searchItemByNo), # for the autocomplete of search in assign by item number
+    path("done", done)
 ]
 
 
