@@ -11,7 +11,7 @@
   <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
   <script src="/static/index.js"></script>
-  <title>IMS | LNMIIT</title>
+  <title>IMS LNMIIT</title>
   <style>
     ::-webkit-scrollbar {
       width: 3px;
@@ -148,7 +148,7 @@
         </li>
         <li>
           <a href="/sell"
-            class="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+            class="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-600 bg-gray-200">
             <svg aria-hidden="true"
               class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
               fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -169,7 +169,7 @@
         </li>
         <li>
           <button type="button"
-            class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 dark:bg-gray-600 bg-gray-200"
+            class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
             aria-controls="dropdown-issue" data-collapse-toggle="dropdown-issue">
             <svg aria-hidden="true"
               class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
@@ -194,7 +194,7 @@
             </li>
             <li>
               <a href="/issue"
-                class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 dark:bg-gray-600 bg-gray-200">
+                class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
                 Issue</a>
             </li>
           </ul>
@@ -414,189 +414,228 @@
     </div>
   </aside>
 
-  <div style="padding-left: 5%; width: 83%; padding-right: 5%; padding-top: 70px;" class="dark:bg-gray-900">
-    <form method="post">
+  <div style="padding-left: 10%; width: 83%; padding-right: 5%" class="dark:bg-gray-900">
+    <div class="absolute" style="right: 50px; top: 10px">
+      <button id="theme-toggle" type="button"
+        class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5">
+        <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"
+          xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+        </svg>
+        <svg id="theme-toggle-light-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"
+          xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
+            fill-rule="evenodd" clip-rule="evenodd"></path>
+        </svg>
+      </button>
+    </div>
+    <h1 class="mb-4 text-4xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-6xl dark:text-white" style="margin-top:50px">Sell Item</h1>
+    <form method="POST" id="formControl" style="margin-top: 5%" onsubmit="return verifySubmit()">
       {%csrf_token%}
-      <div class="relative overflow-x-auto shadow-md sm:rounded-lg" style="max-height: 32vh;">
-        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-          <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 sticky top-0">
-            <tr>
-              <th scope=" col" class="px-6 py-3">
-                S. No.
-              </th>
-              <th scope=" col" class="px-6 py-3">
-                Item Name
-              </th>
-              <th scope=" col" class="px-6 py-3">
-                Item code
-              </th>
-              <th scope=" col" class="px-6 py-3">
-                Category
-              </th>
-              <th scope=" col" class="px-6 py-3">
-                department
-              </th>
-              <th scope=" col" class="px-6 py-3">
-                Authorized Person
-              </th>
-
-            </tr>
-          </thead>
-          <tbody id="vendorDetails" class="overflow-y-scroll">
-            {%for i in data%}
-            <tr class="border-b bg-gray-50 dark:bg-gray-800 dark:border-gray-700 class=" bg-white border-b
-              dark:bg-gray-900 dark:border-gray-700">
-              <td class="px-6 py-4">
-                {{forloop.counter}}
-              </td>
-              <td class="px-6 py-4">
-                {{i.item.Purchase_Item.name}}
-              </td>
-              <td class="px-6 py-4">
-                {{i.item.Item_Code}}
-              </td>
-              <td class="px-6 py-4">
-                {{i.item.Purchase_Item.mc.name}}
-              </td>
-              <td class="px-6 py-4">
-                {{i.item.current_department}}
-              </td>
-              <td class="px-6 py-4">
-                {{i.assigned_to_pickup}}
-              </td>
-            </tr>
-            {%endfor%}
-          </tbody>
-        </table>
+      <!-- <form> -->
+      <label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
+      <div class="relative">
+        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+          <svg aria-hidden="true" class="w-5 h-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor"
+            viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+        </div>
+        <input type="search" id="ItemSearch"
+          class="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          placeholder="Search Item to sell" required>
+        <button type="button" onclick="fetchDetail()"
+          class="text-white absolute right-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Search</button>
       </div>
-      <br>
-      <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Location Data</label>
-      <div class="p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
-        style="display: flex; flex-direction: column; height: 300px; justify-content: space-evenly; padding-right: 25%;">
-        <label for="building" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select
-          Building Name</label>
-        <select id="building" onchange="selectBuilding()" name="building"
-          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-          <option value="none">Choose Building</option>
-          {%for i in loc%}
-          <option {% if prof.location.building.code == i.code %} selected {%endif%} value="{{i.code}}">
-            {{i.name}}</option>
-          {%endfor%}
-        </select>
-
-        <label for="floor" name="floor" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select
-          Floor</label>
-        <select id="floor" disabled onchange="getRooms()" name="floor"
-          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-          <option value="none">Choose floor</option>
-          <option selected value="{{prof.location.floor.code}}">{{prof.location.floor.name}}</option>
-        </select>
-
-        <label for="room" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select Room
-          Number</label>
-        <select id="room" disabled name="room"
-          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-          <option selected>Choose Room</option>
-          <option selected value="{{prof.location.Final_Code}}">{{prof.location.Final_Code}}</option>
-        </select>
-      </div>
-      <div class="grid gap-6 mb-6 md:grid-cols-2" style="margin-top: 20px;">
-
-        <input type="text" name="remarks"
-          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-          value="Remarks">
-        
-          <div style="display: flex; width: 100%; justify-content: space-evenly;">
-            <button type="submit" id="submitbutton" style="width: 200px;"
-              class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
-            <button type="submit" id="submitbutton" style="width: 200px;"
-              class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
-
-          </div>
-      </div>
+      <div id="showDetails" style="margin-top: 30px;"></div>
     </form>
 
-
-
+    {%if messages%}
+    {% for message in messages %}
+    <div id="toast-success"
+        class="flex items-center w-full max-w-xs p-4 mb-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800"
+        role="alert" style="position: absolute; right: 10px; top: 10px;">
+        <div
+            class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-green-500 bg-green-100 rounded-lg dark:bg-green-800 dark:text-green-200">
+            <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clip-rule="evenodd"></path>
+            </svg>
+            <span class="sr-only">Check icon</span>
+        </div>
+        <div class="ml-3 text-sm font-normal">{{message}} </div>
+        <button type="button"
+            class="ml-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex h-8 w-8 dark:text-gray-500 dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700"
+            data-dismiss-target="#toast-success" aria-label="Close">
+            <span class="sr-only">Close</span>
+            <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd"
+                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                    clip-rule="evenodd"></path>
+            </svg>
+        </button>
+    </div>
+    {%endfor%}
+    {%endif%}
   </div>
 
+  <script>
+    var themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
+    var themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+
+    // Change the icons inside the button based on previous settings
+    if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+      themeToggleLightIcon.classList.remove('hidden');
+    } else {
+      themeToggleDarkIcon.classList.remove('hidden');
+    }
+
+    var themeToggleBtn = document.getElementById('theme-toggle');
+
+    themeToggleBtn.addEventListener('click', function () {
+
+      // toggle icons inside button
+      themeToggleDarkIcon.classList.toggle('hidden');
+      themeToggleLightIcon.classList.toggle('hidden');
+
+      // if set via local storage previously
+      if (localStorage.getItem('color-theme')) {
+        if (localStorage.getItem('color-theme') === 'light') {
+          document.documentElement.classList.add('dark');
+          localStorage.setItem('color-theme', 'dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+          localStorage.setItem('color-theme', 'light');
+        }
+
+        // if NOT set via local storage previously
+      } else {
+        if (document.documentElement.classList.contains('dark')) {
+          document.documentElement.classList.remove('dark');
+          localStorage.setItem('color-theme', 'light');
+        } else {
+          document.documentElement.classList.add('dark');
+          localStorage.setItem('color-theme', 'dark');
+        }
+      }
+
+    });
+
+
+    var input = document.getElementById("stockQuantity");
+
+    // Execute a function when the user presses a key on the keyboard
+    input.addEventListener("keypress", function (event) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        document.getElementById("ModalButton").click();
+      }
+    });
+  </script>
+
+  <script>
+    $(function () {
+      $("#ItemSearch").autocomplete({
+        delay: 300,
+        source: function (request, response) {
+          var itemsearch = request.term;
+          var vendor = [];
+          $.ajax({
+            url: "/dump/finditem",
+            data: {
+              item: itemsearch,
+            },
+            method: "POST",
+            headers: {
+              "X-CSRFToken": document.getElementsByName(
+                "csrfmiddlewaretoken"
+              )[0].value,
+            },
+            success: function (data) {
+              $.each(data, function (key, value) {
+                // console.log(value);
+                for (let x = 0; x < value.length; x++) {
+                  vendor.push(value[x]);
+                }
+              });
+              response(vendor);
+              // console.log(vendor.length)
+              if (vendor.length == 0) {
+                document.getElementById("addVendor").style.display = "block";
+                // console.log("sdkjfk",vendor[0]);
+              }
+              if (vendor.length > 0) {
+                document.getElementById("addVendor").style.display = "none";
+              }
+            },
+          });
+        },
+      });
+    });
+
+    function fetchDetail() {
+      $.ajax({
+        url: "/dump/search",
+        data: {
+          item: document.getElementById("ItemSearch").value,
+        },
+        method: "POST",
+        headers: {
+          "X-CSRFToken": document.getElementsByName("csrfmiddlewaretoken")[0]
+            .value,
+        },
+        success: function (data) {
+          console.log(data);
+          document.getElementById("showDetails").innerHTML = data["data"];
+          document.getElementById("showDetails").innerHTML += `
+          <div style="display: flex; align-items:flex-end; justify-content:space-between;">
+              
+                <div style="margin-top:30px; width:40%">
+          <label for="dubp_date" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Selling Date</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <svg aria-hidden="true" class="w-5 h-5 text-gray-500 dark:text-gray-400" fill="currentColor"
+                viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd"
+                  d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
+                  clip-rule="evenodd"></path>
+              </svg>
+            </div>
+            <input autocomplete="off" datepicker datepicker-buttons datepicker-format="dd/mm/yyyy" tabindex="2"
+              type="text" name="sellingDate"
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              placeholder="Select date" id="SellingDate" />
+          </div>
+          </div>
+          <div style="margin-left:7px; width:30%">
+            <input type="text" autocomplete="off" name="selling_price" placeholder="Selling price"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+          </div>
+          <textarea name="remark" rows="1" class="block mx-4 p-2.5 w-full text-sm text-gray-900 bg-white rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Remark....."></textarea>
+          <button type="submit" style="height:45px; width:150px; margin-bottom: 0;" class="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800">Submit</button>
+          </div>
+          `
+        let date = new Date();
+        date = date.toJSON().split("T")[0].split("-");
+        res = date[2] + "/" + date[1] + "/" + date[0];
+    
+        document.getElementById("SellingDate").value = res;
+        },
+      });
+    }
+
+    function verifySubmit(){
+     return confirm("Are you sure want to submit, once submitted, you cannot go back")
+    }
+  </script>
+
+
 </body>
-<script src="/static/theme.js"></script>
-<script src="/static/ajax.js"></script>
-<script>
-  function cleanSelect(tagid) {
-    let floors_options = document.getElementById(tagid);
-    for (let i = floors_options.children.length - 1; i > 0; i--) {
-      floors_options.children[i].remove();
-    }
-  }
-  function selectBuilding() {
-    let data = document.getElementById("building");
-    if (data.value == 'none') {
-      cleanSelect("floor");
-      document.getElementById("floor").disabled = true;
-    }
-    ajaxPOST({ "data": data.value }, '/getFloors').then(data => {
-      let x = data['data'];
-      floor_count = x.length;
 
-      //clearing current floor options
-
-      cleanSelect("floor");
-
-      let floors_options = document.getElementById("floor");
-      for (let i = 0; i < floor_count; i++) {
-        code = Object.keys(x[i])[0]
-        name = x[i][code]
-        floors_options.innerHTML += `
-              <option value="${code}">${name}</option>
-              `
-      }
-      document.getElementById("floor").disabled = false;
-
-
-    });
-  }
-  function getRooms() {
-    let building = document.getElementById("building");
-    let floor = document.getElementById("floor");
-
-    if (floor.value == 'none') {
-      cleanSelect("room");
-      document.getElementById("room").disabled = true;
-    }
-
-    ajaxPOST({ "building": building.value, "floor": floor.value }, '/getRooms').then(data => {
-      let x = data['data'];
-      floor_count = x.length;
-
-      //clearing current floor options
-
-      cleanSelect("room");
-      let floors_options = document.getElementById("room");
-      for (let i = 0; i < floor_count; i++) {
-        code = Object.keys(x[i])[0]
-        name = x[i][code]
-        floors_options.innerHTML += `
-              <option value="${code}">${name}</option>
-              `
-      }
-      document.getElementById("room").disabled = false;
-    });
-
-  }
-  let clicked = false;
-  $('#building').click(function() {
-    if(!clicked)
-    selectBuilding();
-    clicked  = true;
-  });
-
-  document.getElementById('submitbutton').addEventListener('click', function() {
-  setTimeout(function() {
-    // Should be triggered after download started
-    document.location.href='/done';
-  },2000);
- }, false);
-</script>
 </html>

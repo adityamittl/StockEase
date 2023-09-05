@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{%block main%}
+<div class="grid gap-6 mb-6 md:grid-cols-2 p-4">
+    <div>
+      <label for="VN" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Vendor Name</label>
+      <input type="text" disabled
+        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        value="{{data.Vendor.name}}">
+    </div>
+    <div>
+      <label for="BN" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Bill No.</label>
+      <input type="text" disabled
+        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        value="{{data.Purchase_Item.name}}">
+    </div>
+
+    <div>
+      <label for="DOE" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Date of
+        Entry</label>
+      <input type="text" disabled
+        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        value="{{data.Date_Of_Entry}}">
+    </div>
+
+    <div>
+      <label for="Rate" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Rate </label>
+      <input type="text" value="{{data.Rate}}" disabled
+        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+    </div>
+    <div>
+      <label for="Discount"
+        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Discount</label>
+      <input type="text" id="Pickup_P" value="{{data.Discount}}" disabled
+        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+    </div>
+
+
+    <div>
+      <label for="tax" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tax</label>
+      <input type="text" id="department" value="{{data.Tax}}" disabled
+        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+    </div>
+    <div>
+      <label for="b_department"
+        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Bought_for_Department</label>
+      <input type="text" id="department" value="{{data.buy_for.name}}" name="department" disabled
+        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+    </div>
+    <div>
+      <label for="c_department"
+        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Current_Department</label>
+      <input type="text" id="department" value="{{data.current_department.name}}" name="department" disabled
+        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+    </div>
+    <div>
+      <label for="A_To"
+        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Assigned_To</label>
+      <input type="text" id="department" value="{{assignee.user.first_name}} {{assignee.user.last_name}}" name="department" disabled
+        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+    </div>
+    <div>
+      <label for="A_date" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Assigned
+        Date</label>
+      <input type="text" id="department" value="{{assignee.pickupDate}}" name="department" disabled
+        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+    </div>
+    <div>
+        <label for="Remark" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Remark</label>
+        <input type="text" id="department" value="{%if dump or sell %}{{dump.Remark}}{%else%}{{data.remark}}{%endif%}" name="department" disabled
+        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+    </div>
+    {%if dump and sell == False%}
+    <div>
+        <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Dump Date</label>
+        <input type="text"value="{{dump.Dump_Date}}" name="department" disabled
+        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+    </div>
+    {%endif%}
+    {%if sell%}
+    <div>
+        <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Date of sold</label>
+        <input type="text"value="{{dump.Date_Of_Sold}}" name="department" disabled
+        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+    </div>
+    <div>
+        <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Selling price</label>
+        <input type="text"value="{{dump.Sold_Price}}" name="department" disabled
+        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+    </div>
+    {%endif%}
+</div>
+<div>
+  <label for="Shift" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Shift
+    History</label>
+    <ul class=" space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400">
+        {% for i in data.Shift_History.all reversed%}
+        <li style="border: 1px solid white; padding: 15px; margin: 8px 0 10px 0; border-radius: 5px;">
+            {%if i.from_User %}
+            Shifting from <strong> {{i.from_User}}</strong> to <strong>{{i.to_User}}</strong>
+            <br>
+            {%endif%}
+            {%if i.From%}
+            Shifting from Location <strong> {{i.From}}</strong> to <strong>{{i.To}}</strong>
+            <br>
+            {%endif%}
+            on: <strong>{{i.Date}}</strong>
+            <br>
+            {{i.remarks}}
+            <br>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{%endblock%}

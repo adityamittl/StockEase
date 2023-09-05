@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<h1 class="mb-4 text-4xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-6xl dark:text-white" style="margin-top:5px">Shift Item to new user</h1>
+<form method="POST" id="formControl" style="margin-top: 3%">
+    {%csrf_token%}
+    <!-- <form> -->
+    <label
+      for="default-search"
+      class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white"
+      >Search</label
+    >
+    <div class="relative">
+      <div
+        class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"
+      >
+        <svg
+          aria-hidden="true"
+          class="w-5 h-5 text-gray-500 dark:text-gray-400"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          ></path>
+        </svg>
+      </div>
+      <input
+        type="search"
+        id="search_username"
+        class="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        placeholder="Search by Username"
+        autocomplete="off"
+      />
+      <button
+        type="button"
+        onclick="fetchDetail(event)"
+        class="text-white absolute right-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+      >
+        Proceed
+      </button>
+    </div>
+    <div id="showDetails" style="margin-top: 30px;"></div>
+  </form>
+
+  <script>
+    $(function () {
+        $("#search_username").autocomplete({
+          delay: 300,
+          source: function (request, response) {
+            var itemName = request.term;
+            console.log(itemName)
+            $.ajax({
+              url: "/search/user",
+              data: {
+                item: itemName,
+              },
+              method: "POST",
+              headers: {
+                "X-CSRFToken": document.getElementsByName(
+                  "csrfmiddlewaretoken"
+                )[0].value,
+              },
+              success: function (data) {
+                response(data["data"]);
+              },
+            });
+          },
+        });
+      });
+
+      function fetchDetail() {
+        let parm = new URL(window.location.href)
+
+        $.ajax({
+          url: `/dump/search?user=${document.getElementById("search_username").value.split("-")[2].trim()}`,
+          data: {
+            item: parm.searchParams.get("item"),
+          },
+          method: "POST",
+          headers: {
+            "X-CSRFToken": document.getElementsByName("csrfmiddlewaretoken")[0]
+              .value,
+          },
+          success: function (data) {
+            
+            document.getElementById("showDetails").innerHTML = data["data"];
+            document.getElementById("showDetails").innerHTML += `
+            <div style="display: flex; align-items:flex-end; justify-content:space-between;">
+                <input name="type_of_change" style="display:none" id="type_of_change">
+                <input name="user" style="display:none" id="user" value="${document.getElementById("search_username").value.split("-")[2].trim()}">
+                <button type="button" onclick="submit_user()" id="shift_item" style="height:45px; min-width:150px; margin-top: 10px;" class="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800">Shift only user</button>
+                <button type="button" onclick="submit_user_with_location()" id="shift_user" style="height:45px; min-width:150px; mbuttonrgin-top: 10px;" class="text-green-700 hover:text-white border border-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:border-green-500 dark:text-green-500 dark:hover:text-white dark:hover:bg-green-600 dark:focus:ring-green-800">Shift user with their respective location</button>
+            </div>
+            `
+          },
+        });
+      }
+  
+      function verifySubmit(){
+       return confirm("Are you sure want to submit, once submitted, you cannot go back")
+      }
+      function submit_user_with_location(){
+          document.getElementById("type_of_change").value = "user_location";
+          document.getElementById("formControl").submit();
+        }
+        function submit_user(){
+          document.getElementById("type_of_change").value = "user";
+        document.getElementById("formControl").submit();
+      }
+  </script>
+{%endblock%}

@@ -132,6 +132,7 @@ class designation(models.Model):
 
 class profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    login_type = models.CharField(max_length=100, null = True, blank=True)
     department = models.ForeignKey(Departments, on_delete=models.CASCADE, blank=True)
     designation = models.ForeignKey(designation, on_delete=models.CASCADE)
     location = models.ForeignKey(Location_Description, on_delete=models.CASCADE, null=True, blank=True) # Location of the employee cabin, so that the item can be easily assigned to them! Filled by the user itself

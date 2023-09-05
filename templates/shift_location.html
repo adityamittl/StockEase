@@ -1,0 +1,148 @@
+{% extends 'base.html' %} {% block main %}
+<h1
+  class="mb-4 text-4xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-6xl dark:text-white"
+  style="margin-top: 5px"
+>
+  Shift Item to new Location
+</h1>
+<form method="POST" id="formControl" style="margin-top: 3%">
+  {%csrf_token%}
+  <!-- <form> -->
+  <div
+    class="p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
+    style="
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      justify-content: space-evenly;
+      padding-right: 25%;
+    "
+  >
+    <label
+      for="building"
+      class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+      >Select Building Name</label
+    >
+    <select
+      id="building"
+      onchange="selectBuilding()"
+      name="building"
+      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+    >
+      <option value="none">Choose Building</option>
+      {%for i in bd%}
+      <option value="{{i.code}}">{{i.name}}</option>
+      {%endfor%}
+    </select>
+
+    <label
+      for="floor"
+      name="floor"
+      class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+      >Select Floor</label
+    >
+    <select
+      id="floor"
+      disabled
+      onchange="getRooms()"
+      name="floor"
+      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+    >
+      <option value="none">Choose floor</option>
+      <option selected value="{{profile.location.floor.code}}">
+        {{profile.location.floor.name}}
+      </option>
+    </select>
+
+    <label
+      for="room"
+      class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+      >Select Room Number</label
+    >
+    <select
+      id="room"
+      disabled
+      name="room"
+      onchange="enableButton()"
+      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+    >
+      <option selected>Choose Room</option>
+      <option selected value="{{profile.location.Final_Code}}">
+        {{profile.location.code}}
+      </option>
+    </select>
+  </div>
+  <button type="submit" disabled style="margin-top:10px;" id="submitButton" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Relocate</button>
+</form>
+<script src="/static/ajax.js"></script>
+<script>
+  function cleanSelect(tagid) {
+      let floors_options = document.getElementById(tagid);
+      for (let i = floors_options.children.length - 1; i > 0; i--) {
+          floors_options.children[i].remove();
+      }
+  }
+  function selectBuilding() {
+      let data = document.getElementById("building");
+      if (data.value == 'none') {
+        cleanSelect("floor");
+        document.getElementById("floor").disabled = true;
+      }
+      ajaxPOST({ "data": data.value }, '/getFloors').then(data => {
+        let x = data['data'];
+        floor_count = x.length;
+
+        //clearing current floor options
+
+        cleanSelect("floor");
+
+        let floors_options = document.getElementById("floor");
+        for (let i = 0; i < floor_count; i++) {
+            code = Object.keys(x[i])[0]
+            name = x[i][code]
+            floors_options.innerHTML += `
+            <option value="${code}">${name}</option>
+            `
+        }
+        document.getElementById("floor").disabled = false;
+      });
+    }
+  function getRooms() {
+      let building = document.getElementById("building");
+      let floor = document.getElementById("floor");
+
+      if (floor.value == 'none') {
+          cleanSelect("room");
+          document.getElementById("room").disabled = true;
+      }
+
+      ajaxPOST({ "building": building.value, "floor": floor.value }, '/getRooms').then(data => {
+        let x = data['data'];
+        floor_count = x.length;
+
+        //clearing current floor options
+
+        cleanSelect("room");
+        let floors_options = document.getElementById("room");
+        for (let i = 0; i < floor_count; i++) {
+            code = Object.keys(x[i])[0]
+            name = x[i][code]
+            floors_options.innerHTML += `
+            <option value="${code}">${name}</option>
+            `
+        }
+        document.getElementById("room").disabled = false;
+      });
+
+    }
+
+    function verifySubmit(){
+     return confirm("Are you sure want to submit, once submitted, you cannot go back");
+    }
+
+    function enableButton(){
+        document.getElementById("submitButton").disabled = false;
+    }
+</script>
+
+{%endblock%}

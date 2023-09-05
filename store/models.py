@@ -80,6 +80,10 @@ class assign(models.Model):
     pickedUp = models.BooleanField(default=False)
     assigned_to_pickup = models.CharField(max_length=100)
     assigned_person = models.BooleanField(default=False)
+    
+
+    def __str__(self):
+        return self.item.Final_Code
 
 class complaints(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

@@ -10,7 +10,7 @@
   <script src="/static/date.js"></script>
   <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-  <script src="/static/index.js"></script>
+  <script src="/index.js"></script>
   <title>IMS | LNMIIT</title>
   <style>
     ::-webkit-scrollbar {
@@ -169,7 +169,7 @@
         </li>
         <li>
           <button type="button"
-            class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 dark:bg-gray-600 bg-gray-200"
+            class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
             aria-controls="dropdown-issue" data-collapse-toggle="dropdown-issue">
             <svg aria-hidden="true"
               class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
@@ -194,7 +194,7 @@
             </li>
             <li>
               <a href="/issue"
-                class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 dark:bg-gray-600 bg-gray-200">
+                class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
                 Issue</a>
             </li>
           </ul>
@@ -202,7 +202,7 @@
 
         <li>
           <button type="button"
-            class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+            class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 dark:bg-gray-600 bg-gray-200"
             aria-controls="dropdown-store" data-collapse-toggle="dropdown-store">
             <svg aria-hidden="true"
               class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
@@ -237,8 +237,8 @@
                 Items</a>
             </li>
             <li>
-              <a href="/sell/details"
-                class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Sold
+              <a href="#"
+                class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 dark:bg-gray-600 bg-gray-200">Sold
                 Items</a>
             </li>
             <li>
@@ -414,189 +414,114 @@
     </div>
   </aside>
 
-  <div style="padding-left: 5%; width: 83%; padding-right: 5%; padding-top: 70px;" class="dark:bg-gray-900">
-    <form method="post">
-      {%csrf_token%}
-      <div class="relative overflow-x-auto shadow-md sm:rounded-lg" style="max-height: 32vh;">
-        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-          <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 sticky top-0">
-            <tr>
-              <th scope=" col" class="px-6 py-3">
-                S. No.
-              </th>
-              <th scope=" col" class="px-6 py-3">
-                Item Name
-              </th>
-              <th scope=" col" class="px-6 py-3">
-                Item code
-              </th>
-              <th scope=" col" class="px-6 py-3">
-                Category
-              </th>
-              <th scope=" col" class="px-6 py-3">
-                department
-              </th>
-              <th scope=" col" class="px-6 py-3">
-                Authorized Person
-              </th>
-
-            </tr>
-          </thead>
-          <tbody id="vendorDetails" class="overflow-y-scroll">
-            {%for i in data%}
-            <tr class="border-b bg-gray-50 dark:bg-gray-800 dark:border-gray-700 class=" bg-white border-b
-              dark:bg-gray-900 dark:border-gray-700">
-              <td class="px-6 py-4">
-                {{forloop.counter}}
-              </td>
-              <td class="px-6 py-4">
-                {{i.item.Purchase_Item.name}}
-              </td>
-              <td class="px-6 py-4">
-                {{i.item.Item_Code}}
-              </td>
-              <td class="px-6 py-4">
-                {{i.item.Purchase_Item.mc.name}}
-              </td>
-              <td class="px-6 py-4">
-                {{i.item.current_department}}
-              </td>
-              <td class="px-6 py-4">
-                {{i.assigned_to_pickup}}
-              </td>
-            </tr>
-            {%endfor%}
-          </tbody>
-        </table>
-      </div>
-      <br>
-      <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Location Data</label>
-      <div class="p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
-        style="display: flex; flex-direction: column; height: 300px; justify-content: space-evenly; padding-right: 25%;">
-        <label for="building" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select
-          Building Name</label>
-        <select id="building" onchange="selectBuilding()" name="building"
-          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-          <option value="none">Choose Building</option>
-          {%for i in loc%}
-          <option {% if prof.location.building.code == i.code %} selected {%endif%} value="{{i.code}}">
-            {{i.name}}</option>
-          {%endfor%}
-        </select>
-
-        <label for="floor" name="floor" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select
-          Floor</label>
-        <select id="floor" disabled onchange="getRooms()" name="floor"
-          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-          <option value="none">Choose floor</option>
-          <option selected value="{{prof.location.floor.code}}">{{prof.location.floor.name}}</option>
-        </select>
-
-        <label for="room" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select Room
-          Number</label>
-        <select id="room" disabled name="room"
-          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-          <option selected>Choose Room</option>
-          <option selected value="{{prof.location.Final_Code}}">{{prof.location.Final_Code}}</option>
-        </select>
-      </div>
-      <div class="grid gap-6 mb-6 md:grid-cols-2" style="margin-top: 20px;">
-
-        <input type="text" name="remarks"
-          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-          value="Remarks">
+  <div style="padding-left: 5%; width: 83%; padding-right: 5%; padding-top: 60px;" class="dark:bg-gray-900">
+    <div class="absolute" style="right: 50px; top: 10px;">
+      
+      <button id="theme-toggle" type="button"
+      class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5">
+      <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"
+      xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+        </svg>
+        <svg id="theme-toggle-light-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"
+        xmlns="http://www.w3.org/2000/svg">
+          <path
+          d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
+            fill-rule="evenodd" clip-rule="evenodd"></path>
+        </svg>
+      </button>
+    </div>
+    <h6 class="mb-4 text-3xl font-extrabold text-gray-900 dark:text-white md:text-5xl lg:text-4xl"><span
+      class="text-transparent bg-clip-text bg-gradient-to-r to-emerald-600 from-sky-400">Sold</span> Items.</h6>
+      <div class="relative">
+        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+          <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+            fill="none" viewBox="0 0 20 20">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+          </svg>
+        </div>
+        <input type="search" id="search" autocomplete="off"
+          class="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          placeholder="Search item by Item Code" onkeyup="search()">
         
-          <div style="display: flex; width: 100%; justify-content: space-evenly;">
-            <button type="submit" id="submitbutton" style="width: 200px;"
-              class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
-            <button type="submit" id="submitbutton" style="width: 200px;"
-              class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
-
-          </div>
       </div>
-    </form>
+    <div class="relative overflow-x-auto shadow-md sm:rounded-lg" style="margin-top: 10px; max-height: 72vh;">
+      <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 sticky top-0">
+          <tr>
+            <th scope=" col" class="px-6 py-4">
+              S. No.
+            </th>
+            <th scope=" col" class="px-6 py-4">
+              Item Name
+            </th>
+            <th scope=" col" class="px-6 py-4">
+              Item code
+            </th>
+            <th scope=" col" class="px-6 py-4">
+              Item_Category
+            </th>
+            <th scope=" col" class="px-6 py-4">
+              Sold Date
+            </th>
+            <th scope="col" class="px-6 py-4">
+              View
+            </th>
+          </tr>
+        </thead>
+        <tbody class="overflow-y-scroll" style="max-height: 20vh;" id="item_details">
+          {% for i in data %}
+          <tr class="border-b bg-gray-50 dark:bg-gray-800 dark:border-gray-700 class=" bg-white border-b
+            dark:bg-gray-900 dark:border-gray-700">
+            <td class="px-6 py-4">
+              {{forloop.counter}}
+            </td>
+            <td class="px-6 py-4">
+              {{i.Item.Purchase_Item.name}}
+            </td>
+            <th class="px-6 py-4">
+              {{i.Item.Item_Code}}
+            </th>
+            <td class="px-6 py-4">
+              {{i.Item.Purchase_Item.mc.name}}
+            </td>
+            <td class="px-6 py-4">
+              {{i.Dump_Date}}
+            </td>
+            <td class="px-7 py-4">
+              <a onclick="window.open('/availables/view?item={{i.Item.Item_Code}}&sold=True', 
+              'newwindow', 
+              'width=800,height=800'); 
+   return false;" style="cursor:pointer"
+                class="text-white bg-gradient-to-br from-green-400 to-blue-600 hover:bg-gradient-to-bl focus:outline-none focus:ring-4 focus:ring-green-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">View</a>
+            </td>
+          </tr>
+          {%endfor%}
+        </tbody>
+      </table>
+    </div>
 
-
-
-  </div>
-
+    
+  <script src="/static/theme.js"></script>
+  <script>
+    function search() {
+      var input, filter, ul, li, a, i, txtValue;
+      input = document.getElementById("search");
+      filter = input.value.toUpperCase();
+      ul = document.getElementById("item_details");
+      li = ul.getElementsByTagName("tr");
+      for (i = 0; i < li.length; i++) {
+        a = li[i].getElementsByTagName("th")[0];
+        txtValue =  a.innerText;
+        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+          li[i].style.display = "";
+        } else {
+          li[i].style.display = "none";
+        }
+      }
+    }
+  </script>
 </body>
-<script src="/static/theme.js"></script>
-<script src="/static/ajax.js"></script>
-<script>
-  function cleanSelect(tagid) {
-    let floors_options = document.getElementById(tagid);
-    for (let i = floors_options.children.length - 1; i > 0; i--) {
-      floors_options.children[i].remove();
-    }
-  }
-  function selectBuilding() {
-    let data = document.getElementById("building");
-    if (data.value == 'none') {
-      cleanSelect("floor");
-      document.getElementById("floor").disabled = true;
-    }
-    ajaxPOST({ "data": data.value }, '/getFloors').then(data => {
-      let x = data['data'];
-      floor_count = x.length;
 
-      //clearing current floor options
-
-      cleanSelect("floor");
-
-      let floors_options = document.getElementById("floor");
-      for (let i = 0; i < floor_count; i++) {
-        code = Object.keys(x[i])[0]
-        name = x[i][code]
-        floors_options.innerHTML += `
-              <option value="${code}">${name}</option>
-              `
-      }
-      document.getElementById("floor").disabled = false;
-
-
-    });
-  }
-  function getRooms() {
-    let building = document.getElementById("building");
-    let floor = document.getElementById("floor");
-
-    if (floor.value == 'none') {
-      cleanSelect("room");
-      document.getElementById("room").disabled = true;
-    }
-
-    ajaxPOST({ "building": building.value, "floor": floor.value }, '/getRooms').then(data => {
-      let x = data['data'];
-      floor_count = x.length;
-
-      //clearing current floor options
-
-      cleanSelect("room");
-      let floors_options = document.getElementById("room");
-      for (let i = 0; i < floor_count; i++) {
-        code = Object.keys(x[i])[0]
-        name = x[i][code]
-        floors_options.innerHTML += `
-              <option value="${code}">${name}</option>
-              `
-      }
-      document.getElementById("room").disabled = false;
-    });
-
-  }
-  let clicked = false;
-  $('#building').click(function() {
-    if(!clicked)
-    selectBuilding();
-    clicked  = true;
-  });
-
-  document.getElementById('submitbutton').addEventListener('click', function() {
-  setTimeout(function() {
-    // Should be triggered after download started
-    document.location.href='/done';
-  },2000);
- }, false);
-</script>
 </html>

@@ -121,11 +121,14 @@ X_FRAME_OPTIONS = 'SAMEORIGIN'
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/login/'
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT=587
-EMAIL_USE_TLS=True
-EMAIL_USE_SSL = False
-
-EMAIL_HOST_USER='Email'
-EMAIL_HOST_PASSWORD='Password'
+EMAIL_BACKEND = 'django_imap_backend.ImapBackend'
+EMAIL_IMAP_SECRETS = [
+    {
+        'HOST': 'imap.gmail.com',
+        'PORT': 993,  # default 143 and for SSL 993
+        'USER': 'teslajackson9866@gmail.com',
+        'PASSWORD': 'tesla@123',
+        'MAILBOX': 'store',  # Created if not exists
+        'SSL': True  # Default
+    }
+]

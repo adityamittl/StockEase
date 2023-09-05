@@ -7,6 +7,10 @@
     <link href="/static/style.css" rel="stylesheet" />
     <script src="/static/main.js"></script>
     <script src="/static/date.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="/static/index.js"></script>
+    <script src="/static/theme.js"></script>
     <title>IMS | LNMIIT</title>
     <style>
       ::-webkit-scrollbar {
@@ -33,6 +37,65 @@
         -webkit-appearance: none;
         margin: 0;
       }
+
+      .ui-autocomplete {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        z-index: 1000;
+        float: left;
+        display: none;
+        min-width: 160px;
+        padding: 4px 0;
+        margin: 0 0 10px 25px;
+        list-style: none;
+        background-color: #ffffff;
+        border-color: #ccc;
+        border-color: rgba(0, 0, 0, 0.2);
+        border-style: solid;
+        border-width: 1px;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        border-radius: 5px;
+        -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        -webkit-background-clip: padding-box;
+        -moz-background-clip: padding;
+        background-clip: padding-box;
+        *border-right-width: 2px;
+        *border-bottom-width: 2px;
+      }
+
+      .ui-menu-item > a.ui-corner-all {
+        display: block;
+        padding: 3px 15px;
+        clear: both;
+        font-weight: normal;
+        line-height: 18px;
+        color: #555555;
+        white-space: nowrap;
+        text-decoration: none;
+      }
+
+      .ui-state-hover,
+      .ui-state-active {
+        color: #ffffff;
+        text-decoration: none;
+        background-color: #0088cc;
+        border-radius: 0px;
+        -webkit-border-radius: 0px;
+        -moz-border-radius: 0px;
+        background-image: none;
+      }
+
+      .ui-menu-item > div {
+        margin-left: 5px;
+      }
+
+      .ui-helper-hidden-accessible {
+        display: none;
+      }
     </style>
   </head>
 
@@ -48,7 +111,7 @@
           <li>
             <a
               href="/"
-              class="flex itemster p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+              class="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
             >
               <svg
                 aria-hidden="true"
@@ -188,7 +251,7 @@
               </li>
               <li>
                 <a
-                  href="/issue"
+                  href="#"
                   class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
                 >
                   Issue</a
@@ -251,7 +314,6 @@
                   >Available Items</a
                 >
               </li>
-
               <li>
                 <a
                   href="/dump/details"
@@ -298,7 +360,7 @@
           <li>
             <a
               href="/complaints"
-              class="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+              class="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-600 bg-gray-200"
             >
               <svg
                 aria-hidden="true"
@@ -385,7 +447,7 @@
           <li>
             <button
               type="button"
-              class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 dark:bg-gray-600 bg-gray-200"
+              class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
               aria-controls="dropdown-codes"
               data-collapse-toggle="dropdown-codes"
             >
@@ -434,14 +496,6 @@
                   >Sub Catagory</a
                 >
               </li>
-
-              <li>
-                <a
-                  href="/locationMaster"
-                  class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-                  >Location Master
-                </a>
-              </li>
               <li>
                 <a
                   href="/locationMaster"
@@ -452,7 +506,7 @@
               <li>
                 <a
                   href="/location"
-                  class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 dark:bg-gray-600 bg-gray-200"
+                  class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
                   >Location
                 </a>
               </li>
@@ -461,13 +515,6 @@
                   href="/departments"
                   class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
                   >Departments</a
-                >
-              </li>
-              <li>
-                <a
-                  href="/stockRegister"
-                  class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-                  >Stock Register</a
                 >
               </li>
             </ul>
@@ -585,291 +632,144 @@
           </svg>
         </button>
       </div>
-
-      <div class="flex items-center">
-        <div class="relative w-full">
-          <div
-            class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"
-          >
-            <svg
-              aria-hidden="true"
-              class="w-5 h-5 text-gray-500 dark:text-gray-400"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-              xmlns="http://www.w3.org/2000/svg"
+      <form method="post">
+        {%csrf_token%}
+        <div class="grid gap-6 mb-6 md:grid-cols-2">
+          <div>
+            <label
+              for="Item_Number"
+              class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+              >Item Number</label
             >
-              <path
-                fill-rule="evenodd"
-                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                clip-rule="evenodd"
-              ></path>
-            </svg>
+            <input
+              type="text"
+              disabled
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              value="{{data.complaint_item.item.Item_Code}}"
+            />
           </div>
+          <div>
+            <label
+              for="Item_Name"
+              class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+              >Item name</label
+            >
+            <input
+              type="text"
+              disabled
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              value="{{data.complaint_item.item.Purchase_Item.name}}"
+            />
+          </div>
+
+          <div>
+            <label
+              class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+              >Category</label
+            >
+            <input
+              type="text"
+              disabled
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              value="{{data.complaint_item.item.Purchase_Item.mc.name}}"
+            />
+          </div>
+
+          <div>
+            <label
+              for="Assignee"
+              class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+              >Assigned To</label
+            >
+            <input
+              type="text"
+              value="{{data.user.first_name}} {{data.user.last_name}}"
+              disabled
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            />
+          </div>
+          <div>
+            <label
+              for="Pickup_P"
+              class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+              >Pickup_Person</label
+            >
+            <input
+              type="text"
+              id="Pickup_P"
+              value="{{data.complaint_itemassigned_to_pickup}}"
+              name="Pickup_P"
+              disabled
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            />
+          </div>
+
+          <div>
+            <label
+              for="department"
+              class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+              >Department</label
+            >
+            <input
+              type="text"
+              id="department"
+              value="{{data.complaint_item.item.current_department}}"
+              name="department"
+              disabled
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            />
+          </div>
+        </div>
+        <div
+          class="p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
+          style="
+            display: flex;
+            flex-direction: column;
+            height: 300px;
+            justify-content: space-evenly;
+            padding-right: 25%;
+          "
+        >
+          <label
+            for="e_r"
+            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            >Employee Remark</label
+          >
+          <textarea
+            id="message"
+            rows="4"
+            class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            disabled
+          >
+{{data.description}}</textarea
+          >
+
+          <label
+            for="a_r"
+            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            >Admin Remark</label
+          >
           <input
             type="text"
-            id="search"
-            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            placeholder="Search by code"
-            onkeyup="search()"
+            name="remarks"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            placeholder="Remarks"
+            autocomplete="off"
           />
         </div>
-
-        <button
-          id="dropdownDefaultButton"
-          data-dropdown-toggle="dropdown"
-          style="margin-left: 25px"
-          class="flex text-green-700 hover:text-white border border-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 p-2.5 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 dark:border-green-500 dark:text-green-500 dark:hover:text-white dark:hover:bg-green-600 dark:focus:ring-green-800"
-          type="button"
-        >
-          More
-          <svg
-            class="w-4 h-4 ml-2"
-            aria-hidden="true"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M19 9l-7 7-7-7"
-            ></path>
-          </svg>
-        </button>
-        <!-- Dropdown menu -->
-        <div
-          id="dropdown"
-          class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700"
-          style="margin-left: 25px"
-        >
-          <ul
-            class="py-2 text-sm text-gray-700 dark:text-gray-200"
-            aria-labelledby="dropdownDefaultButton"
-            style="cursor: pointer"
-          >
-            <li>
-              <a
-                onclick="window.open('/location/new', 
-                        'newwindow', 
-                        'width=800,height=800'); 
-             return false;"
-                class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-              >
-                Add new Location</a
-              >
-            </li>
-            <li>
-              <a
-                href="#"
-                class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                data-modal-target="staticModal"
-                data-modal-toggle="staticModal"
-                >Import bulk data</a
-              >
-            </li>
-            <li>
-              <a
-                href="#"
-                class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                >Export CSV</a
-              >
-            </li>
-          </ul>
-        </div>
-      </div>
-
-      <div
-        class="relative overflow-x-auto shadow-md sm:rounded-lg"
-        style="margin-top: 70px; max-height: 72vh"
-      >
-        <table
-          class="w-full text-sm text-left text-gray-500 dark:text-gray-400"
-        >
-          <thead
-            class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 sticky top-0"
-          >
-            <tr>
-              <th scope=" col" class="px-6 py-3">Building Name</th>
-              <th scope=" col" class="px-6 py-3">Building Code</th>
-              <th scope="col" class="px-6 py-3">Description</th>
-              <th scope=" col" class="px-6 py-3">Floor</th>
-              <th scope=" col" class="px-6 py-3">Floor Code</th>
-              <th scope="col" class="px-6 py-3">Code</th>
-              <th scope="col" class="px-6 py-3">Final Code</th>
-              <th scope="col" class="px-6 py-3">Edit</th>
-            </tr>
-          </thead>
-          <tbody
-            id="vendorDetails"
-            class="overflow-y-scroll"
-            style="max-height: 65vh"
-          >
-            {% for val in data %}
-            <tr
-              class="{% if val.id|divisibleby:'2' %} border-b bg-gray-50 dark:bg-gray-800 {%else%}bg-white border-b dark:bg-gray-900{%endif%} dark:border-gray-700"
+        <div class="grid gap-6 mb-6 md:grid-cols-2" style="margin-top: 20px">
+          <p>
+            <button
+              type="submit"
+              id="submitbutton"
+              class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
             >
-              <th
-                scope="row"
-                class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-              >
-                {{val.building.name}}
-              </th>
-              <td class="px-6 py-4">{{val.building.code}}</td>
-              <td class="px-6 py-4">{{val.description}}</td>
-              <td class="px-6 py-4">{{val.floor.name}}</td>
-              <td class="px-6 py-4">{{val.floor.code}}</td>
-              <td class="px-6 py-4">{{val.code}}</td>
-              <th class="px-6 py-4">{{val.Final_Code}}</th>
-              <td class="px-6 py-4">
-                <a
-                  href="/location/edit/{{val.id}}"
-                  class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                  >Edit</a
-                >
-              </td>
-            </tr>
-            {%endfor%}
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <div
-      id="staticModal"
-      data-modal-backdrop="static"
-      tabindex="-1"
-      aria-hidden="true"
-      class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-modal md:h-full"
-    >
-      <div class="relative w-full h-full max-w-2xl md:h-auto">
-        <!-- Modal content -->
-        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-          <!-- Modal header -->
-          <div
-            class="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600"
-          >
-            <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
-              Import Data
-            </h3>
-          </div>
-          <!-- Modal body -->
-          <form
-            action=""
-            method="post"
-            enctype="multipart/form-data"
-            onsubmit="return confirm('Do you really want to submit the form?');"
-          >
-            <div class="p-6 space-y-6">
-              {%csrf_token%}
-              <label
-                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                for="file_input"
-                >Upload file</label
-              >
-              <input
-                required
-                class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
-                id="file_input"
-                type="file"
-                accept=".csv"
-                name="dataCSV"
-              />
-            </div>
-            <!-- Modal footer -->
-            <div
-              class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600"
-            >
-              <button
-                data-modal-hide="staticModal"
-                type="submit"
-                class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-              >
-                Submit
-              </button>
-              <button
-                data-modal-hide="staticModal"
-                type="button"
-                class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
-              >
-                Close
-              </button>
-            </div>
-          </form>
+              Submit
+            </button>
+          </p>
         </div>
-      </div>
+      </form>
     </div>
-
-    <script>
-      var themeToggleDarkIcon = document.getElementById(
-        "theme-toggle-dark-icon"
-      );
-      var themeToggleLightIcon = document.getElementById(
-        "theme-toggle-light-icon"
-      );
-
-      // Change the icons inside the button based on previous settings
-      if (
-        localStorage.getItem("color-theme") === "dark" ||
-        (!("color-theme" in localStorage) &&
-          window.matchMedia("(prefers-color-scheme: dark)").matches)
-      ) {
-        document.documentElement.classList.add("dark");
-        themeToggleLightIcon.classList.remove("hidden");
-      } else {
-        themeToggleDarkIcon.classList.remove("hidden");
-      }
-
-      var themeToggleBtn = document.getElementById("theme-toggle");
-
-      themeToggleBtn.addEventListener("click", function () {
-        // toggle icons inside button
-        themeToggleDarkIcon.classList.toggle("hidden");
-        themeToggleLightIcon.classList.toggle("hidden");
-
-        // if set via local storage previously
-        if (localStorage.getItem("color-theme")) {
-          if (localStorage.getItem("color-theme") === "light") {
-            document.documentElement.classList.add("dark");
-            localStorage.setItem("color-theme", "dark");
-          } else {
-            document.documentElement.classList.remove("dark");
-            localStorage.setItem("color-theme", "light");
-          }
-
-          // if NOT set via local storage previously
-        } else {
-          if (document.documentElement.classList.contains("dark")) {
-            document.documentElement.classList.remove("dark");
-            localStorage.setItem("color-theme", "light");
-          } else {
-            document.documentElement.classList.add("dark");
-            localStorage.setItem("color-theme", "dark");
-          }
-        }
-      });
-
-      // Search bar
-
-      function search() {
-        var input, filter, ul, li, a, i, txtValue;
-        input = document.getElementById("search");
-        filter = input.value.toUpperCase();
-        ul = document.getElementById("vendorDetails");
-        li = ul.getElementsByTagName("tr");
-        console.log(li);
-        for (i = 0; i < li.length; i++) {
-          a = li[i].getElementsByTagName("th")[1];
-          txtValue = a.textContent || a.innerText;
-          if (txtValue.toUpperCase().indexOf(filter) > -1) {
-            li[i].style.display = "";
-          } else {
-            li[i].style.display = "none";
-          }
-        }
-      }
-    </script>
-    <script src="/static/index.js"></script>
   </body>
+  <script src="/static/theme.js"></script>
 </html>

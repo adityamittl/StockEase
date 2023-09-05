@@ -105,6 +105,9 @@
         <div class="px-3 py-4 overflow-y-auto rounded bg-gray-50 dark:bg-gray-800 h-full">
             <ul class="space-y-2">
                 <li>
+                    <img src="/static/logo-removebg-preview.png" alt="Institute logo" style="height:70px; margin-left:30px">
+                </li>
+                <li>
                     <a href="/"
                         class="flex itemster p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
                         <svg aria-hidden="true"
@@ -116,7 +119,20 @@
                         <span class="ml-3">Dashboard</span>
                     </a>
                 </li>
-
+                {%if hod%}
+                <li>
+                    <a href="/hod"
+                        class="flex itemster p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <svg aria-hidden="true"
+                            class="w-6 h-6 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                            fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z"></path>
+                            <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z"></path>
+                        </svg>
+                        <span class="ml-3">Department Items</span>
+                    </a>
+                </li>
+                {%endif%}
                 <!-- New Pickup requests -->
                 <li>
                     <a href="/pickup"
@@ -222,14 +238,11 @@
                             <a href="/complaint/status"
                                 class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 dark:bg-gray-600 bg-gray-200">Status</a>
                         </li>
-                        <li>
-                            <a href="/complaint/history"
-                                class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">History</a>
-                        </li>
+                        
                     </ul>
                 </li>
                 <li class="mt-96">
-                    <a href="#"
+                    <a href="/profile"
                         class="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
                         <svg aria-hidden="true"
                             class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
@@ -251,7 +264,7 @@
                     </a>
                 </li>
                 <li class="mt-96">
-                    <a href="#"
+                    <a href="/logout"
                         class="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
                         <svg aria-hidden="true"
                             class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
@@ -315,9 +328,9 @@
                         </th>
                     </tr>
                 </thead>
-                <tbody>
+                <div data-accordion="collapse">
                     {%for i in data%}
-                    <tr {%if forloop.counter|divisibleby:'2' %}class="border-b bg-gray-50 dark:bg-gray-800 dark:border-gray-700"{%else%} class="bg-white border-b dark:bg-gray-900 dark:border-gray-700"{%endif%}>
+                    <tr {%if forloop.counter|divisibleby:'2' %}class="border-b bg-gray-50 dark:bg-gray-800 dark:border-gray-700"{%else%} class="bg-white border-b dark:bg-gray-900 dark:border-gray-700"{%endif%} data-accordion-target="#accordion-collapse-body-1" aria-expanded="true" aria-controls="accordion-collapse-body-1">
                         <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                             {{forloop.counter}}
                         </th>
@@ -334,8 +347,14 @@
                             {{i.complaint_status}}
                         </td>
                     </tr>
+                    <div id="accordion-collapse-body-1" class="hidden" aria-labelledby="accordion-collapse-heading-1">
+                        <div class="p-5 border border-b-0 border-gray-200 dark:border-gray-700 dark:bg-gray-900">
+                          <p class="mb-2 text-gray-500 dark:text-gray-400">Flowbite is an open-source library of interactive components built on top of Tailwind CSS including buttons, dropdowns, modals, navbars, and more.</p>
+                          <p class="text-gray-500 dark:text-gray-400">Check out this guide to learn how to <a href="/docs/getting-started/introduction/" class="text-blue-600 dark:text-blue-500 hover:underline">get started</a> and start developing websites even faster with components on top of Tailwind CSS.</p>
+                        </div>
+                      </div>
                     {%endfor%}
-                </tbody>
+                </div>
             </table>
         </div>
 
