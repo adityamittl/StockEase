@@ -1,0 +1,11 @@
+Following item has been assigned to {{name}}
+
+items-
+
+{%for i in items %}
+
+{{i.name}}
+{{i.item_code}}
+------
+
+{%endfor%}

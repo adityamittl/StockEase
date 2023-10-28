@@ -228,8 +228,8 @@
                             </path>
                         </svg>
                         <span class="flex-1 ml-3 whitespace-nowrap">Complaints</span>
-                        <span
-                            class="inline-flex items-center justify-center w-3 h-3 p-3 ml-3 text-sm font-medium bg-blue-100 text-blue-800 rounded-full dark:bg-blue-900 dark:text-blue-300">3</span>
+                        <span id="complaint-count"
+              class="inline-flex items-center justify-center w-3 h-3 p-3 ml-3 text-sm font-medium bg-blue-100 text-blue-800 rounded-full dark:bg-blue-900 dark:text-blue-300">3</span>
                     </a>
                 </li>
 
@@ -422,17 +422,12 @@
                         'newwindow', 
                         'width=800,height=800'); 
              return false;" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"> Add
-                            new Item</a>
+                            new user</a>
                     </li>
                     <li>
                         <a data-modal-target="staticModal" data-modal-toggle="staticModal"
                             class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Import
                             bulk data</a>
-                    </li>
-                    <li>
-                        <a href="#"
-                            class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Export
-                            CSV</a>
                     </li>
                 </ul>
             </div>
@@ -587,6 +582,8 @@
     </script>
 <script src="/static/index.js"></script>
 
+<script src="/static/ajax.js"></script>
+  <script src="/static/complaint.mjs"></script>
 </body>
 
 </html>

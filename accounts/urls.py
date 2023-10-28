@@ -1,5 +1,7 @@
 from django.contrib.auth import views
-from django.urls import path 
+from django.urls import path
+
+from .views import ResetPasswordView
 
 urlpatterns = [
    path('login/', views.LoginView.as_view(), name='login'), 

@@ -23,8 +23,12 @@ from .label import create_label
 from django.http import FileResponse
 from .roles import check_role, check_role_ajax
 from django.utils.decorators import method_decorator
-from django.core.mail import send_mail
-from django.conf import settings
+import threading
+from django.db.models import Count
+from django.core.paginator import Paginator
+
+from .sendMail import email_send
+
 
 
 password_length = 8
@@ -34,15 +38,16 @@ password_length = 8
 @transaction.atomic
 def entry(request):
     if request.method == "POST":
-        quantity = int(request.POST.get("stockQuantity"))
-        result = dict(request.POST)
-        billNO = request.POST.get("invoiceNumber")
-        doe = request.POST.get("EntryDate")
-        doi = request.POST.get("DOI")
-        item = Asset_Type.objects.get(Final_Code=result["ACN"][0].replace("&amp;", "&"))
-        item.Last_Assigned_serial_Number += 1
-        item.save()
-        vendor = Vendor.objects.get(name=result["vendorName"][0].replace("&amp;", "&"))
+        data = json.loads(request.body.decode())
+        # print(data)
+        item_codes_list = list(data.keys())
+        item_codes_list.remove("meta_data")
+        # print(item_codes_list)
+
+        billNO = data["meta_data"]['invoice']
+        doe = data["meta_data"]['doe']
+        doi = data["meta_data"]['doi']
+        vendor = Vendor.objects.get(name=data["meta_data"]['vendor_name'])
 
         dte = [int(doe.split("/")[1]), int(doe.split("/")[2])]
         fy = str()
@@ -59,40 +64,56 @@ def entry(request):
             finantialYear = Finantial_Year.objects.get(yearName=fy)
         except:
             finantialYear = Finantial_Year.objects.create(yearName=fy)
-        for i in range(quantity):
-            finalCode = (
-                result.get("ACN")[0]
-                + " "
-                + "{:04d}".format(int(result.get(f"item_{i}")[0]))
-            )
-            inner = result.get(f"item_{i}")
-            # print(inner[7].upper().replace("&AMP;", "&"))
-            Ledger.objects.create(
+        
+        
+        for items in item_codes_list:
+            item = Asset_Type.objects.get(Final_Code=data[items]["item_code"])
+            item_type = "FIXED ASSET" if data[items]["item_type"] == "FA" else "CONSUMABLE"
+            quantity = int(data[items]["quantity"])
+            item.Last_Assigned_serial_Number += quantity
+
+            item.save()
+
+            for j in data[items]["items"]:
+                
+                finalCode = (
+                    data[items]["item_code"]
+                    + " "
+                    + "{:04d}".format(int(j["item_number"]))
+                )
+
+                item_ledger = Ledger.objects.create(
                 Vendor=vendor,
                 bill_No=billNO,
                 Date_Of_Entry=datetime.strptime(doe, "%d/%m/%Y").strftime("%Y-%m-%d"),
                 Date_Of_Invoice=datetime.strptime(doi, "%d/%m/%Y").strftime("%Y-%m-%d"),
                 Purchase_Item=item,
-                Rate=inner[3],
-                Discount=inner[4],
-                Tax=inner[5],
-                Ammount=inner[6],
+                Rate=j["rate"],
+                Discount=j["discount"],
+                Tax=j["tax"],
+                Ammount=j["ammount"],
                 buy_for=Departments.objects.get(
-                    name=inner[8].upper().replace("&AMP;", "&")
+                    name=j["purchase_for"].upper()
                 ),
                 current_department=Departments.objects.get(
-                    name=inner[8].upper().replace("&AMP;", "&")
+                    name=j["purchase_for"].upper()
                 ),
                 stock_register=stock_register.objects.get(
-                    name=inner[7].upper().replace("&AMP;", "&")
+                    name=j["stock_register"].upper()
                 ),
-                Item_Code=finalCode,
-                make=inner[1].replace("&amp;", "&"),
-                sno=inner[2].replace("&amp;", "&"),
+                make=j["item_make"],
+                sno=j["item_sno"],
                 Financial_Year=finantialYear,
-            )
+                )
 
-        return redirect("entry")
+                Item_Code = ""
+                if item_type == "FIXED ASSET":
+                    Item_Code=finalCode
+                item_ledger.Item_Code = Item_Code
+                item_ledger.item_type = item_type
+                item_ledger.save()
+
+        return JsonResponse({"href":"/entry"})
 
     departments = Departments.objects.all()
     sr = stock_register.objects.all()
@@ -307,7 +328,11 @@ def itemAnem(request):
 
         return redirect("itemAnem")
     data = Asset_Type.objects.all()
-    return render(request, "itemAnem.html", context={"data": data})
+    paginator = Paginator(data, 25)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, "itemAnem.html", context={"data": page_obj})
 
 @check_role_ajax(role = "STORE")
 def findVendor(request):
@@ -455,7 +480,7 @@ def users(request):
                 department = row["Department"]
                 designation = row["Designation"]
                 ltype = row['Auth']
-                pswd = secrets.token_urlsafe(password_length)
+                pswd = secrets.token_urlsafe(password_length)[0:password_length]
                 print(pswd)
                 # try:
                 usr = User.objects.create(
@@ -470,6 +495,10 @@ def users(request):
                     user=usr,
                     login_type = ltype.upper()
                 )
+
+                # Send mail
+                threading.Thread(target=email_send, args=(new_user, {"username":usr.username, "password":pswd}, False, "credentials")).start()
+                # threading.Thread(target=email_send, args(usr, pswd, ))
 
             return redirect("users")
 
@@ -496,12 +525,13 @@ def edit_user(request, uname):
         usr.last_name = request.POST.get("last_name")
         usr.email = request.POST.get("email")
         usr.save()
+        msg = ""
 
         is_location_change = False
         old_location = ""
         pfile = profile.objects.get(user=usr)
 
-        # Updating locationin information
+        # Updating location information
         if request.POST.get("room"):
             is_location_change = True
             old_location = pfile.location.Final_Code
@@ -509,6 +539,8 @@ def edit_user(request, uname):
                 Final_Code=request.POST.get("room")
             )
             pfile.location = new_location
+
+            msg = "Your location has been changed by store admin, verify/view at https://localhost:8080/profile"
 
         # Updating user designation data
         if pfile.department.code != request.POST.get("department"):
@@ -531,12 +563,16 @@ def edit_user(request, uname):
 
             pfile.department = department_new
 
+            msg = "Your department has been changed by store admin, verify/view at https://localhost:8080/profile"
+
+
         pfile.designation = designation.objects.get(
             designation_id=request.POST.get("designation")
         )
 
         pfile.save()
-
+        threading.Thread(target=email_send, args=(usr, msg)).start()
+        # email_send(usr, msg)
         if is_location_change:
             return redirect(
                 f"/items/relocate?old={old_location}&new={request.POST.get('room')}&user={uname}"
@@ -568,7 +604,7 @@ def edit_user(request, uname):
 @transaction.atomic
 @check_role(role = "STORE", redirect_to= "employee_home")
 def assign_func(request):
-    print(request.POST)
+    # print(request.POST)
     if request.method == "POST":
         items = json.loads(
             request.POST.get("selected_items_data")
@@ -577,22 +613,39 @@ def assign_func(request):
         department_id = items["User_data"]["department"]
         del items[
             "User_data"
-        ]  # Removeing the user's information object from the items dictionary such that only selected items is present!
+        ]  # Removing the user's information object from the items dictionary such that only selected items is present!
         comment = request.POST.get("message")  # Use This in the mail to the person!
 
         user_profile = User.objects.get(username=uname)
 
+        data = dict()
+        temp_container = list() # storing item details
+
         for i in items:
-            print(items[i]["item_id"])
+            # print(items[i]["item_id"])
+            item_vals = dict()
+
             temp = Ledger.objects.get(Item_Code=items[i]["item_id"])
             assign.objects.create(item=temp, user=user_profile)
             temp.isIssued = True
             temp.save()
 
+            item_vals["name"] = temp.Purchase_Item.name
+            item_vals["item_code"] = temp.Item_Code
+            item_vals["department"] = department_id
+
+            temp_container.append(item_vals)
+        
+        data["items"] = temp_container
+        data["comment"] = comment
+        data["name"] = user_profile.first_name + " " + user_profile.last_name
+
         # Now we need to send emails to two persons-
         # 1. Department HOD
         # 2. Respective assigning person.
-        
+        alt_email = request.POST["alt_email"]
+        threading.Thread(target=email_send, args=(user_profile,data, False, "assign", alt_email)).start()
+        # email_send(user_profile,data, False, "assign") # sending email!
         messages.success(request, f"/issue/item?type=user&uname={uname}")
         return redirect("assign")
 
@@ -612,7 +665,15 @@ def issue_all_username(request):
         if items[0].pickedUp :
             return HttpResponse("Items has already been pickedup")
         inos = []
+
+        data = dict()
+        temp_container = list() # storing item details
+
+        usr = None
         for item in items:
+            temp_data = dict()
+
+
             item.pickedUp = True
             item.item.remark = request.POST["remarks"]
             locationCode = ""
@@ -638,7 +699,20 @@ def issue_all_username(request):
             item.item.Final_Code = item_code
             item.item.save()
             item.save()
-        
+
+            temp_data["name"] = item.item.Purchase_Item.name
+            temp_data["item_code"] = item.item.Final_Code
+            temp_data["location"] = item.item.Location_Code.Final_Code
+            temp_data["department"] = item.item.current_department.name
+            usr = item.user
+            data["name"] = item.user.first_name + " "+ item.user.last_name
+            temp_container.append(temp_data)
+
+        data["items"] = temp_container
+
+        # sending emails
+        threading.Thread(target=email_send, args=(usr, data, False, "issue")).start()
+        # email_send(usr, data, False, "issue")
         return render(request,"done.html",context={'data':inos})
 
     uname = request.GET["uname"]
@@ -659,7 +733,7 @@ def issue_all_username(request):
 @transaction.atomic
 @check_role(role = "STORE", redirect_to= "employee_home")
 def issueItem(request):
-    # print(request.GET)
+    
     if request.method == "POST":
         if request.GET["type"] == "item":
             # When the item is assigning by the item code
@@ -670,6 +744,11 @@ def issueItem(request):
             item.item.remark = request.POST["remarks"]
             locationCode = ""
             item.pickupDate = date.today()
+
+            data_email = dict()
+            temp_container = list() # storing item details
+
+
             # Assigning location
             if "room" in request.POST.keys():
                 item.item.Location_Code = Location_Description.objects.get(
@@ -689,6 +768,13 @@ def issueItem(request):
             item.item.Final_Code = item_code
             item.item.save()
             item.save()
+            temp_container.append({"name":item.item.Purchase_Item.name, "item_code":item.item.Final_Code, "location":item.item.Location_Code.Final_Code, "department" : item.item.current_department.name})
+            data_email["items"] = temp_container
+            data_email["name"] = item.user.first_name + " "+ item.user.last_name
+            data_email["pickedup"] = request.POST.get("Pickup_P")
+
+            threading.Thread(target=email_send, args=(item.user, data_email, False, "issue")).start()
+            # email_send(item.user, data_email, False, "issue")
 
             # when the user is assigning item by the user.
             # return the label
@@ -704,6 +790,8 @@ def issueItem(request):
             # print(items.count())
             if items.count() == 0:
                 return HttpResponse("These items has already been assigned!")
+
+
             for i in range(len(item_locations)):
                 temp = dict()
                 temp["location"] = item_locations[i]
@@ -1277,8 +1365,8 @@ def create_AJAX_html(item, catagory):
             </div>
         """
 
-    if catagory == 'itemcode':
-        innerStr = f"""<iframe src="/availables/view?item={item}" style="height:80vh; width: 100%;" frameborder="0"
+    elif catagory in ['itemcode',"finalcode"]:
+        innerStr = f"""<iframe src="/availables/view?item={data.Item_Code}" style="height:80vh; width: 100%;" frameborder="0"
                         id="actionFrame"></iframe>"""
     return innerStr
 
@@ -1317,23 +1405,29 @@ def dump(request):
         dump_date = request.POST.get("dumpdate")
         remark = request.POST.get("remark")
         item = Ledger.objects.get(Item_Code=item_code)
-        item.Is_Dump = True
+        assign_object = assign.objects.get(item = item)
+        assign_object.dumped_review = True
+        assign_object.dump_remark = remark
+        assign_object.action_date = datetime.strptime(dump_date, "%d/%m/%Y").strftime("%Y-%m-%d")
+        assign_object.save()
 
-        # Uncheck the
-        if item.isIssued:
-            item.isIssued = False
+        # item.Is_Dump = True
 
-        item.save()
+        # # Uncheck the
+        # if item.isIssued:
+        #     item.isIssued = False
 
-        Dump.objects.create(
-            Item=item,
-            Dump_Date=datetime.strptime(dump_date, "%d/%m/%Y").strftime("%Y-%m-%d"),
-            Remark=remark,
-        )
+        # item.save()
+
+        # Dump.objects.create(
+        #     Item=item,
+        #     Dump_Date=datetime.strptime(dump_date, "%d/%m/%Y").strftime("%Y-%m-%d"),
+        #     Remark=remark,
+        # )
 
         # Removing relationship with the assigned person and the item..
 
-        assign.objects.get(item=item).delete()
+        # assign.objects.get(item=item).delete()
         messages.success(request, f"Successfully Dumped Item {item_code}")
         return redirect("dump")
     return render(request, "dump.html")
@@ -1520,7 +1614,7 @@ def searchItemByNo(request):
 
     return JsonResponse({"data": res})
 
-@check_role(role='STORE')
+# @check_role(role='STORE')
 def done(request):
     if request.method == 'POST':
         # x = request.GET['code']
@@ -1575,7 +1669,44 @@ def number_complaints(request):
 
 @check_role(role = "STORE")
 def available_items(request):
-    return render(request, "available_items.html", context={"data":Ledger.objects.filter(Is_Dump = False)})
+    if "catagory" in request.GET.keys():
+        # viweing the items of a perticular catagory
+
+        catagory_code = request.GET["catagory"]
+        # getting the count of different types of item!
+        res = Ledger.objects.filter(Is_Dump = False, Purchase_Item__mc__code = catagory_code)
+        results = dict()
+
+        # O(N)
+        for i in res:
+            temp1 = i.Purchase_Item.name
+            if temp1 in results.keys():
+                results[temp1] += 1
+            else:
+                results[temp1] = 1
+        
+
+
+        data_res = list()
+        
+        for i in results.keys():
+            temp = dict()
+            temp["name"] = i
+            temp["count"] = results[i]
+            data_res.append(temp)
+
+        return render(request, "available_items.html", context={"data":data_res,"type": "catagory"})
+
+    if "type" in request.GET.keys():
+        item_name = request.GET["type"]
+
+        items_all = Ledger.objects.filter(Purchase_Item__name = item_name, Is_Dump = False)
+        
+        return render(request, "available_items.html", context={"data":items_all,"type": "detailed"})
+    
+
+
+    return render(request, "available_items.html", context={"data":Main_Catagory.objects.all(), "type": "all"})
 
 @check_role_ajax(role="STORE")
 def getlocations(request):
@@ -1611,8 +1742,15 @@ def bulkAssign(request):
         usr = data["user"]
         assignee_user = data['data']
 
+
+        data = dict()
+        temp_container = list() # storing item details
+
+
         final_codes = []
         for i in assignee_user:
+
+            temp_data = dict()
             assigning_data = assign.objects.get(item__Item_Code = i["item_code"])
             # print(assigning_data)
             assigning_data.pickupDate = date.today()
@@ -1632,8 +1770,22 @@ def bulkAssign(request):
             item_main.Last_Assigned_serial_Number = item_main.Last_Assigned_serial_Number +1
             item_main.save()
 
+
+            temp_data["name"] = assigning_data.item.Purchase_Item.name
+            temp_data["item_code"] = assigning_data.item.Final_Code
+            temp_data["location"] = assigning_data.item.Location_Code.Final_Code
+            temp_data["department"] = assigning_data.item.current_department.name
+            data["name"] = assigning_data.user.first_name + " "+ assigning_data.user.last_name
+            temp_container.append(temp_data)
+
             final_codes.append("LNM  "+i["location"]+" "+i["item_code"])
         
+        data["items"] = temp_container
+
+        threading.Thread(target=email_send, args=(usr, data, False, "issue")).start()
+        # email_send(usr, data, False, "issue")
+
+
         return JsonResponse({"data":str(final_codes)})
 
 
@@ -1792,17 +1944,24 @@ def search_user(request):
     return JsonResponse({"data":list(vals)})
 
 @check_role(role = "STORE", redirect_to="/employee")
+@transaction.atomic
 def new_user(request):
     if request.method == 'POST':
+
+        print(request.POST)
         email = request.POST.get("email")
         is_found = User.objects.filter(username = email.split("@")[0]).count()
         
         if is_found != 0:
             return HttpResponse("This user is already existed !")
 
-        pwd = secrets.token_urlsafe(password_length)
-
-        new_user = User.objects.create(username = email.split("@")[0], email = email, password = pwd)
+        pwd = secrets.token_urlsafe(password_length)[0:password_length]
+        print(pwd)
+        new_user = User.objects.create(username = email.split("@")[0], email = email, password = pwd, first_name = request.POST.get("first_name"), last_name = request.POST.get("last_name"))
+        # new_user.password = pwd
+        new_user.set_password(pwd)
+        new_user.save(update_fields=['password'])
+        # new_user.save()
 
         # creating user profile
         department = Departments.objects.get(code = request.POST.get("department"))
@@ -1816,11 +1975,12 @@ def new_user(request):
             user = new_user,
             login_type = login_type,
             department = department,
-            designation = designation.objects.get(code = request.POST.get("designation"))
+            designation = designation.objects.get(designation_id = request.POST.get("designation"))
         )
         
         # send email to the user about the username and password!
-
+        threading.Thread(target=email_send, args=(new_user, {"username":new_user.username, "password":pwd}, False, "credentials")).start()
+        # email_send(new_user, {"username":new_user.username, "password":pwd}, False, "credentials")
         messages.success(request ,"user has been successfully created and email is delivered")
 
         return render(request, "close.html")

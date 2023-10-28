@@ -57,9 +57,14 @@ class Ledger(models.Model):
     Shift_History = models.ManyToManyField(Shift_History, blank=True)
     Is_Dump = models.BooleanField(default=False)
     isIssued = models.BooleanField(default=False)
+    item_type = models.CharField(max_length = 100, null = True, blank=True)
+
 
     def __str__(self):
         return self.Item_Code
+    
+    class Meta:
+        ordering = ['Purchase_Item__name']
 
 # Contains the data of dump of item
 
@@ -80,6 +85,9 @@ class assign(models.Model):
     pickedUp = models.BooleanField(default=False)
     assigned_to_pickup = models.CharField(max_length=100)
     assigned_person = models.BooleanField(default=False)
+    dumped_review = models.BooleanField(default=False)
+    dump_remark = models.TextField(null=True, blank=True)
+    action_date = models.DateField(null=True, blank=True)
     
 
     def __str__(self):

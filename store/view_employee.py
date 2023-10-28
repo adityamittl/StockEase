@@ -12,7 +12,7 @@ def employeeHome(request):
     hod = False
     if profile.objects.get(user = request.user).designation.designation_id == 'HOD':
         hod = True
-    return render(request, "employee/dashboard.html", context={'data':assign.objects.filter(user = request.user, pickedUp = True), 'hod':hod})
+    return render(request, "employee/dashboard.html", context={'data':assign.objects.filter(user = request.user, pickedUp = True, item__item_type = "FIXED ASSET"), 'hod':hod})
 
 @check_role(redirect_to="/")
 def pickup(request):

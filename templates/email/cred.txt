@@ -1,0 +1,10 @@
+Your login credentials for LNMIIT Store manger is following
+Username	{{username}}
+Password	{{password}}
+
+
+login at- http://localhost:8000/login
+
+
+Regards
+LNMIIT Store Manager

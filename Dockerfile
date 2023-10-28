@@ -1,13 +1,21 @@
-FROM python:3.11.4-slim-buster
+FROM python:3.7.4-alpine3.10
 
+ADD requirements.txt /app/requirements.txt
+
+RUN set -ex \
+    && apk add --no-cache --virtual .build-deps postgresql-dev build-base \
+    && python -m venv /env \
+    && /env/bin/pip install --upgrade pip \
+    && /env/bin/pip install --no-cache-dir -r /app/requirements.txt \
+    && apk add --virtual rundeps $runDeps \
+    && apk del .build-deps
+
+ADD storemanager /app
 WORKDIR /app
 
-COPY requirements.txt requirements.txt
+ENV VIRTUAL_ENV /env
+ENV PATH /env/bin:$PATH
 
-RUN pip3 install -r requirements.txt
+EXPOSE 8000
 
-COPY . .
-
-ENV PYTHONUNBUFFERED=1
-
-CMD [ "python3", "manage.py" , "runserver", "0.0.0.0:8000"]
+CMD ["gunicorn", "--bind", ":8000", "--workers", "3", "mysite.wsgi"]

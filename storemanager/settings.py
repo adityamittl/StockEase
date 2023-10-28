@@ -9,6 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-&su%4r2k1kalc$dseoqnp8g8y6j9dt%o3l8pf&y(67-lx(0_@0'
+# SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -121,14 +122,25 @@ X_FRAME_OPTIONS = 'SAMEORIGIN'
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/login/'
 
-EMAIL_BACKEND = 'django_imap_backend.ImapBackend'
-EMAIL_IMAP_SECRETS = [
-    {
-        'HOST': 'imap.gmail.com',
-        'PORT': 993,  # default 143 and for SSL 993
-        'USER': 'teslajackson9866@gmail.com',
-        'PASSWORD': 'tesla@123',
-        'MAILBOX': 'store',  # Created if not exists
-        'SSL': True  # Default
-    }
-]
+email_address = os.environ.get("EMAIL")
+password = os.environ.get("PASSWORD")
+
+# EMAIL_BACKEND = 'django_imap_backend.ImapBackend'
+# EMAIL_IMAP_SECRETS = [
+#     {
+#         'HOST': 'imap.gmail.com',
+#         'PORT': 993,  # default 143 and for SSL 993
+#         'USER': "20ucs010@lnmiit.ac.in",
+#         'PASSWORD': "xbhctzqplsppqcch",
+#         'MAILBOX': 'store',  # Created if not exists
+#         'SSL': True  # Default
+#     }
+# ]
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = '20ucs010@lnmiit.ac.in'
+EMAIL_HOST_PASSWORD = 'xbhctzqplsppqcch' #past the key or password app here
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
