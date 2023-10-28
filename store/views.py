@@ -5,7 +5,8 @@ from django.db import transaction
 from django.contrib.auth.decorators import login_required
 from django.core.files.storage import FileSystemStorage
 import csv
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
+from dateutil.relativedelta import relativedelta
 from assetsData.models import *
 from .models import *
 from django.contrib.auth.models import User
@@ -1986,3 +1987,37 @@ def new_user(request):
         return render(request, "close.html")
     departments = Departments.objects.all()
     return render(request, 'new_user.html', context={"data":departments})
+
+
+# report generation!
+
+def reports(request):
+    if request.method == "POST":
+        sdate = request.POST["start"]
+        edate = request.POST["end"]
+        if sdate == "" or edate == "": #if the start date is empty, check if the user selected the quick select option
+            rtype = request.POST["rtype"]
+            if rtype != "":
+                edate = date.today()
+                if rtype == 'month':
+                    sdate = date.today() - relativedelta(months=1)
+
+                elif rtype == 'quaterly':
+                    sdate = date.today() - relativedelta(months=4)
+                
+                elif rtype == 'hyearly':
+                    sdate = date.today() - relativedelta(months=6)
+                
+                else:
+                    sdate = date.today() - relativedelta(months=12)
+        else:
+            sdate = datetime.strptime(sdate, "%m/%d/%Y").strftime("%Y-%m-%d")
+            edate = datetime.strptime(edate, "%m/%d/%Y").strftime("%Y-%m-%d")
+        # generating query
+        print(sdate, edate)
+        unassigned_items = Ledger.objects.filter(Date_Of_Entry__range = (sdate, edate), isIssued = False, Is_Dump = False).order_by("-Date_Of_Invoice")
+        assigned_items = assign.objects.filter(item__Date_Of_Entry__range = (sdate, edate)).order_by("-item__Date_Of_Invoice")
+        return render(request, "report_show.html", context={"data":unassigned_items, "assigned":assigned_items, "sdate":sdate,"edate":edate,"today":date.today()})
+    
+            
+    return render(request, "report_generate.html")

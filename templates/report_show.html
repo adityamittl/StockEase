@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report</title>
+    <style>
+        @media print{@page {size: A4 landscape;}}
+        tr > th{
+            border: 1px solid black;
+            padding: 5px;
+        }
+        table{
+            border: 1px solid black;
+            width: 98vw;
+            border-collapse: collapse;
+        }
+        td{
+            max-width: 70px;
+            text-align: center;
+            padding: 3px;
+            text-wrap: wrap;
+            font-size: 12px;
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <h3 style="text-align: center;">Data Duration between {{sdate}} and {{edate}}</h3>
+    <p style="text-align: center;">(Report generated on {{today}})</p>
+    {%if data%}
+    <h2>Un-Assigned Items</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>S.no</th>
+                <th>item Name</th>
+                <th>item Number</th>
+                <th>Entry Date</th>
+                <th>Date of Invoice</th>
+                <th>Invoice No.</th>
+                <th>Vendor Name</th>
+                <th>Rate</th>
+                <th>Tax</th>
+                <th>Discount</th>
+                <th>Ammount</th>
+                <th>Department</th>
+            </tr>
+        </thead>
+        <tbody>
+            {%for i in data%}
+            <tr>
+                <td>{{forloop.counter}}</td>
+                <td>{{i.Purchase_Item.name}}</td>
+                <td>{{i.Item_Code}}</td>
+                <td>{{i.Date_Of_Invoice}}</td>
+                <td>{{i.Date_Of_Entry}}</td>
+                <td>{{i.bill_No}}</td>
+                <td>{{i.Vendor.name}}</td>
+                <td>{{i.Rate}}</td>
+                <td>{{i.Tax}}</td>
+                <td>{{i.Discount}}</td>
+                <td>{{i.Ammount}}</td>
+                <td>{{i.current_department.name}}</td>
+            </tr>
+            {%endfor%}
+        </tbody>
+    </table>
+    {%endif%}
+
+    {%if assigned%}
+    <h2>Assigned Items</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>S.no</th>
+                <th>item Name</th>
+                <th>item Number</th>
+                <th>Entry Date</th>
+                <th>Date of Invoice</th>
+                <th>Invoice No.</th>
+                <th>Vendor Name</th>
+                <th>Rate</th>
+                <th>Tax</th>
+                <th>Discount</th>
+                <th>Ammount</th>
+                <th>Department</th>
+                <th>Location</th>
+                <th>Issue To</th>
+                <th>Issue Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {%for i in assigned%}
+            <tr>
+                <td>{{forloop.counter}}</td>
+                <td>{{i.item.Purchase_Item.name}}</td>
+                <td>{{i.item.Item_Code}}</td>
+                <td>{{i.item.Date_Of_Invoice}}</td>
+                <td>{{i.item.Date_Of_Entry}}</td>
+                <td>{{i.item.bill_No}}</td>
+                <td>{{i.item.Vendor.name}}</td>
+                <td>{{i.item.Rate}}</td>
+                <td>{{i.item.Tax}}</td>
+                <td>{{i.item.Discount}}</td>
+                <td>{{i.item.Ammount}}</td>
+                <td>{{i.item.current_department.name}}</td>
+                <td>{{i.item.Location_Code.Final_Code}}</td>
+                <td>{{i.user.first_name}} {{i.user.last_name}}</td>
+                <td>{{i.pickupDate}}</td>
+            </tr>
+            {%endfor%}
+        </tbody>
+    </table>
+    {%endif%}
+
+    <script>
+        print(document)
+    </script>
+</body>
+</html>

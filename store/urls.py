@@ -73,4 +73,6 @@ urlpatterns = [
     # Item shifts
     path("shift",shift_item),
 
+    # Report generation!
+    path("reports", reports),
 ]
