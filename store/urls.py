@@ -1,7 +1,7 @@
 from django.urls import path, include
 from .views import *
 from django.views.generic import TemplateView
-
+from .assign_issue import *
 # Urls for store Administrator
 
 urlpatterns = [
@@ -23,16 +23,21 @@ urlpatterns = [
     path("users", users, name="users"),
     path("users/new", new_user),
     path("user/<str:uname>", edit_user, name="editusers"),
+
     # Assign and issue module
-    path("assign", assign_func, name="assign"),
-    path("issue", issue),
-    path("issue/item", issueItem),
-    path("issue/all", issue_all_username),
-    path("bulkAssign", bulkAssign),
-    path("backup", backup.as_view()),
-    path("backup_reminder", backupreminder),
+    path("assign", assign_func, name="assign"), #mig
+    path("issue", issue), #mig
+    path("issue/item", issueItem), #mig
+    path("issue/all", issue_all_username), #mig
+    path("bulkAssign", bulkAssign), #mig
     path("getDepartmentUsers/<str:dpt>", getDepartmentUsers),
     path("getDepartmentItems/<str:dpt>", getDepartmentItems),
+    path("mapitems", mapitems_to_locations), #mig
+    path("issueConsumeable",issueConsumeable),
+    
+    #data backup
+    path("backup", backup.as_view()),
+    path("backup_reminder", backupreminder),
     # Dashboard
     path("", home),
     path("searchItems", searchItems),
@@ -45,6 +50,7 @@ urlpatterns = [
     path("dump", dump, name="dump"),
     path("dump/finditem", find_dump_item),
     path("dump/search", get_item_details),
+
     # AJAX calls
     path(
         "getUnassigned", getUnassigned
@@ -54,6 +60,10 @@ urlpatterns = [
     ),  # for the autocomplete of search in assign by item number
     path("search/user", search_user),
     path("done", done),
+
+    # Ajax call for autocomplete of item code
+    path("itemsearch", item_search_autocomplete),
+
     # Lost path
     path("404", TemplateView.as_view(template_name="404.html"), name="NotFound"),
     
@@ -69,10 +79,17 @@ urlpatterns = [
     path("dump/details", dump_details),
     path("sell/details", sold_details),
     path("sell", sell),
+    path("alert", notifications),
+    path("alert/action", notificationAction),
+    path("register",registerMap),
+    path("register/new",new_entry_register),
 
     # Item shifts
     path("shift",shift_item),
 
     # Report generation!
     path("reports", reports),
+
+    # Register to ledger relationship
+    path("registerentry",register_to_ledger),
 ]

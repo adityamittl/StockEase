@@ -29,13 +29,13 @@ class Shift_History(models.Model):
 # Contains all the data that store has!
 class Ledger(models.Model):
     # Main_Catagory = models.ForeignKey(Main_Catagory,on_delete=models.CASCADE)
-    Financial_Year = models.ForeignKey(Finantial_Year, on_delete=models.CASCADE)
+    Financial_Year = models.ForeignKey(Finantial_Year, on_delete=models.DO_NOTHING)
     # Sub_Catagory = models.ForeignKey(Sub_Catagory, on_delete=models.CASCADE)
     Vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE)
     bill_No = models.CharField(max_length=500)
     Date_Of_Entry = models.DateField()
     Date_Of_Invoice = models.DateField()
-    Purchase_Item = models.ForeignKey(Asset_Type, on_delete=models.CASCADE)
+    Purchase_Item = models.ForeignKey(Asset_Type, on_delete=models.DO_NOTHING)
     Rate = models.CharField(max_length=200)
     Discount = models.CharField(max_length=100)
     Tax = models.CharField(max_length=100)
@@ -43,14 +43,14 @@ class Ledger(models.Model):
     make = models.CharField(max_length=500, null=True, blank=True)
     sno = models.CharField(max_length=500, null=True, blank=True)
     buy_for = models.ForeignKey(
-        Departments, on_delete=models.CASCADE, null=True, blank=True
+        Departments, on_delete=models.DO_NOTHING, null=True, blank=True
     )
-    current_department = models.ForeignKey(Departments, on_delete=models.CASCADE, null=True, blank=True, related_name= "new_department")
+    current_department = models.ForeignKey(Departments, on_delete=models.DO_NOTHING, null=True, blank=True, related_name= "new_department")
     stock_register = models.ForeignKey(
-        stock_register, on_delete=models.CASCADE, null=True, blank=True
+        stock_register, on_delete=models.DO_NOTHING, null=True, blank=True
     )
     # Make_No = models.CharField(max_length=200)
-    Location_Code = models.ForeignKey(Location_Description, on_delete=models.CASCADE, null=True, blank=True)
+    Location_Code = models.ForeignKey(Location_Description, on_delete=models.DO_NOTHING, null=True, blank=True)
     Item_Code = models.CharField(max_length=200)
     Final_Code = models.CharField(max_length=500, null=True, blank=True)
     remark = models.TextField(null=True, blank=True)
@@ -59,9 +59,6 @@ class Ledger(models.Model):
     isIssued = models.BooleanField(default=False)
     item_type = models.CharField(max_length = 100, null = True, blank=True)
 
-
-    def __str__(self):
-        return self.Item_Code
     
     class Meta:
         ordering = ['Purchase_Item__name']
@@ -79,8 +76,8 @@ class Dump(models.Model):
 
 
 class assign(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    item = models.ForeignKey(Ledger, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    item = models.ForeignKey(Ledger, on_delete=models.DO_NOTHING)
     pickupDate = models.DateField(null=True, blank=True)
     pickedUp = models.BooleanField(default=False)
     assigned_to_pickup = models.CharField(max_length=100)
@@ -102,3 +99,19 @@ class complaints(models.Model):
     complaint_status = models.CharField(max_length=40, null=True)
     time_registered = models.DateTimeField(auto_now_add=True, null=True)
     time_closed = models.DateTimeField(null=True)
+
+
+class entry_to_register(models.Model):
+    finantialYear = models.ForeignKey(Finantial_Year, on_delete=models.DO_NOTHING, null=True, blank= True)
+    item = models.ForeignKey(Ledger, on_delete=models.DO_NOTHING, null=True, blank=True)
+    pageno = models.IntegerField(null = True, blank = True)
+    register_number = models.CharField(max_length=100, null=True, blank=True)
+
+#     def __str__(self):
+#         return self.pageno
+
+class admin_notifications(models.Model):
+    notification_date = models.DateTimeField()
+    notification = models.TextField()
+    status = models.CharField(max_length=100, default = "unread")
+    notification_type = models.CharField(max_length=100)

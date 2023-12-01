@@ -3,7 +3,7 @@
 {% block title %}Done!!{% endblock %}
 
 {% block main %}
-<div style="width: 75%; display: flex; flex-direction: column; align-items: center;">
+<div style="width: 100%; display: flex; flex-direction: column; align-items: center;">
     {%csrf_token%}
     <input type="text" name="itemList" id="itemList" style="display: none;" value="{{data}}">
 
@@ -26,6 +26,14 @@
         </button>
     </div>
 </div>
+
+{%if error%}
+<script>
+    alert(
+        "following items has been issued by other Admin operator in the mean time\n{%for i in error_data%}->{{i}}\n{%endfor%}"
+    )
+</script>
+{%endif%}
 
 <script>
     function AjaxSend() {

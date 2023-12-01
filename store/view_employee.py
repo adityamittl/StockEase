@@ -5,7 +5,9 @@ from datetime import datetime
 from assetsData.models import *
 import json
 from .roles import check_role
-
+from .models import *
+from datetime import date
+from django.db import transaction
 
 @check_role()
 def employeeHome(request):
@@ -166,3 +168,48 @@ def getRooms(request):
         for i in rooms:
             res.append({i:i.split(" ")[2]})
         return JsonResponse({"data":res})
+    
+def notifications(request):
+    data = assign.objects.filter(user = request.user, dumped_review = True)
+    print(data)
+    return render(request, "employee/notifications.html", context = {"data":data})
+
+@transaction.atomic
+def notificationAction(request):
+    if request.method == 'POST':
+        data_received = json.loads(request.body.decode())
+        print(data_received)
+        if data_received["type"] == "dump":
+            if data_received["action"] == 'approve':
+                # dump item successfully!
+                item = Ledger.objects.get(Item_Code = data_received["id"])
+                item_assign = assign.objects.get(item = item)
+                Dump.objects.create(Item = item, Dump_Date = item_assign.action_date, Remark= item_assign.dumped_review)
+                item_assign.delete()
+                print("sdkfjagjf")
+                item.Is_Dump = True
+                if item.isIssued:
+                    item.isIssued = False
+                item.save()
+
+                # creating notification for the store admin
+                admin_notifications.objects.create(notification_date = datetime.now(), notification = f'item {item.Purchase_Item.name} with item number {item.Item_Code} has been successfully approved by the user and dumped on {date.today()} which was located initially on location {item.Location_Code.Final_Code}', notification_type = "success")
+                return JsonResponse({"type" : "success"})
+            
+            elif data_received["action"] == "reject":
+                item = Ledger.objects.get(Item_Code = data_received["id"])
+                item_assign = assign.objects.get(item = item)
+                item_assign.dumped_review = False
+                item_assign.action_date = date.today()
+
+                admin_notifications.objects.create(notification_date = datetime.now(), notification = f'item {item.Purchase_Item.name} with item number {item.Item_Code} has been rejected by the user on {date.today()}', notification_type = "warning")
+
+                return JsonResponse({"type":"success"})
+
+            else:
+                return JsonResponse({"type":"failure"})
+        else:
+            return JsonResponse({"type":"failure"})
+    else:
+        return redirect("NotFound")
+        

@@ -10,6 +10,8 @@ urlpatterns = [
     path("complaint/status",complaint_status, name="complaint status"),
     path("profile",profile_dash, name="profile"),
     path('hod', hod_dash),
+    path("notifications", notifications),
+    path("notification/action", notificationAction),
     
     # Ajax call endpoints for the location selection
     path("getFloors",getfloors),

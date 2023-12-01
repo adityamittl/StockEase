@@ -42,7 +42,8 @@
         <div class="px-3 py-4 overflow-y-auto rounded bg-gray-50 dark:bg-gray-800 h-full">
             <ul class="space-y-2">
                 <li>
-                    <img src="/static/logo-removebg-preview.png" alt="Institute logo" style="height:70px; margin-left:30px">
+                    <img src="/static/logo-removebg-preview.png" alt="Institute logo"
+                        style="height:70px; margin-left:30px">
                 </li>
                 <li>
                     <a href="/"
@@ -126,7 +127,7 @@
                                 d="M3,1 C3,0.44772 3.44772,0 4,0 L6,0 C6.55228,0 7,0.44772 7,1 L7,2 C7,2.55228 6.55228,3 6,3 L4,3 C3.44772,3 3,2.55228 3,2 L3,1 Z M2,1 L0,1 L0,14 L10,14 L10,1 L8,1 L8,2.4 L8.6,2.4 L8.6,12.6 L1.4,12.6 L1.4,2.4 L2,2.4 L2,1 Z M4.57808,10.0212 L7.9899,6.6094 L6.99996,5.61945 L4.57808,8.04132 L3.36715,6.83038 L2.3772,7.82033 L4.57808,10.0212 Z"
                                 transform="translate(3 1)" />
                         </svg>
-                        <span class="flex-1 ml-3 text-left whitespace-nowrap" sidebar-toggle-item>Issue</span>
+                        <span class="flex-1 ml-3 text-left whitespace-nowrap" sidebar-toggle-item>Issue/Assign</span>
                         <svg sidebar-toggle-item class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"
                             xmlns="http://www.w3.org/2000/svg">
                             <path fill-rule="evenodd"
@@ -180,7 +181,7 @@
                                 class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Available
                                 Items</a>
                         </li>
-                        
+
                         <li>
                             <a href="/dump/details"
                                 class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Dump
@@ -226,7 +227,7 @@
                         </svg>
                         <span class="flex-1 ml-3 whitespace-nowrap">Complaints</span>
                         <span id="complaint-count"
-              class="inline-flex items-center justify-center w-3 h-3 p-3 ml-3 text-sm font-medium bg-blue-100 text-blue-800 rounded-full dark:bg-blue-900 dark:text-blue-300">3</span>
+                            class="inline-flex items-center justify-center w-3 h-3 p-3 ml-3 text-sm font-medium bg-blue-100 text-blue-800 rounded-full dark:bg-blue-900 dark:text-blue-300">3</span>
                     </a>
                 </li>
 
@@ -279,7 +280,8 @@
                             class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
                             fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
 
-                            <path d="M23,6a1,1,0,0,1-1,1H12a1,1,0,0,1,0-2H22A1,1,0,0,1,23,6Zm-1,5H12a1,1,0,0,0,0,2H22a1,1,0,0,0,0-2Zm0,6H12a1,1,0,0,0,0,2H22a1,1,0,0,0,0-2ZM2,14a1,1,0,0,0,0,2H8a1,1,0,0,0,0-2H6V9a1,1,0,0,0-1.447-.895l-2,1a1,1,0,0,0,.894,1.79L4,10.618V14Z"/>
+                            <path
+                                d="M23,6a1,1,0,0,1-1,1H12a1,1,0,0,1,0-2H22A1,1,0,0,1,23,6Zm-1,5H12a1,1,0,0,0,0,2H22a1,1,0,0,0,0-2Zm0,6H12a1,1,0,0,0,0,2H22a1,1,0,0,0,0-2ZM2,14a1,1,0,0,0,0,2H8a1,1,0,0,0,0-2H6V9a1,1,0,0,0-1.447-.895l-2,1a1,1,0,0,0,.894,1.79L4,10.618V14Z" />
                         </svg>
                         <span class="flex-1 ml-3 text-left whitespace-nowrap" sidebar-toggle-item>Codes</span>
                         <svg sidebar-toggle-item class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"
@@ -292,31 +294,35 @@
                     <ul id="dropdown-codes" class="hidden py-2 space-y-2">
                         <li>
                             <a href="/maincategory"
-                                class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Main Catagory</a>
+                                class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Main
+                                Catagory</a>
                         </li>
-<li>
+                        <li>
                             <a href="/subcategory"
-                                class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Sub Catagory</a>
+                                class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Sub
+                                Catagory</a>
                         </li>
-                        
+
                         <li>
                             <a href="/locationMaster"
-                                class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Location Master
-                                </a>
+                                class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Location
+                                Master
+                            </a>
                         </li>
                         <li>
                             <a href="/location"
                                 class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Location
-                                </a>
+                            </a>
                         </li>
                         <li>
                             <a href="/departments"
-                              class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Departments</a>
-                          </li>
+                                class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Departments</a>
+                        </li>
                         <li>
                             <a href="/stockRegister"
-                              class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Stock Register</a>
-                          </li>
+                                class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Stock
+                                Register</a>
+                        </li>
                     </ul>
                 </li>
                 <li class="mt-96">
@@ -324,7 +330,7 @@
                         class="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
                         <svg aria-hidden="true"
                             class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-                            fill="currentColor"  viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                            fill="currentColor" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
                             <path
                                 d="M5.1 7.93A2.87 2.87 0 0 0 7.87 5 2.88 2.88 0 0 0 5.1 2a2.88 2.88 0 0 0-2.78 3A2.88 2.88 0 0 0 5.1 7.93zm0-4.67A1.62 1.62 0 0 1 6.62 5 1.63 1.63 0 0 1 5.1 6.68 1.63 1.63 0 0 1 3.58 5 1.62 1.62 0 0 1 5.1 3.26zm7.19 5.05a2.39 2.39 0 0 0 2.3-2.46 2.39 2.39 0 0 0-2.3-2.47A2.39 2.39 0 0 0 10 5.85a2.39 2.39 0 0 0 2.29 2.46zm0-3.68a1.15 1.15 0 0 1 1.05 1.22 1.15 1.15 0 0 1-1.05 1.21 1.15 1.15 0 0 1-1.06-1.21 1.15 1.15 0 0 1 1.06-1.22zm-.07 4.93a3.85 3.85 0 0 0-3.07 1.51A5.21 5.21 0 0 0 5.1 9.18 5 5 0 0 0 0 14h1.25a3.72 3.72 0 0 1 3.85-3.57A3.71 3.71 0 0 1 8.94 14h1.25a4.5 4.5 0 0 0-.32-1.69 2.54 2.54 0 0 1 2.35-1.5 2.44 2.44 0 0 1 2.53 2.33V14H16v-.86a3.69 3.69 0 0 0-3.78-3.58z" />
                         </svg>
@@ -346,32 +352,31 @@
                             </path>
                             <rect x="0" y="0" width="36" height="36" fill-opacity="0" />
                         </svg>
-                        
+
                         <span class="flex-1 ml-3 whitespace-nowrap">Backup</span>
                     </a>
                 </li>
                 <li class="mt-96">
                     <a href="/reports"
-                      class="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
-                      <svg
-                        class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-                        fill="currentColor" width="24" height="2" viewBox="0 0 512 512" version="1.1"
-                        xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                        <title>report-text</title>
-                        <g id="Page-1" stroke="none" stroke-width="1" fill="currentColor" fill-rule="evenodd">
-                          <g id="add" fill="currentColor" transform="translate(42.666667, 85.333333)">
-                            <path
-                              d="M341.333333,1.42108547e-14 L426.666667,85.3333333 L426.666667,341.333333 L3.55271368e-14,341.333333 L3.55271368e-14,1.42108547e-14 L341.333333,1.42108547e-14 Z M330.666667,42.6666667 L42.6666667,42.6666667 L42.6666667,298.666667 L384,298.666667 L384,96 L330.666667,42.6666667 Z M149.333333,234.666667 L149.333333,266.666667 L85.3333333,266.666667 L85.3333333,234.666667 L149.333333,234.666667 Z M341.333333,234.666667 L341.333333,266.666667 L192,266.666667 L192,234.666667 L341.333333,234.666667 Z M149.333333,170.666667 L149.333333,202.666667 L85.3333333,202.666667 L85.3333333,170.666667 L149.333333,170.666667 Z M341.333333,170.666667 L341.333333,202.666667 L192,202.666667 L192,170.666667 L341.333333,170.666667 Z M149.333333,106.666667 L149.333333,138.666667 L85.3333333,138.666667 L85.3333333,106.666667 L149.333333,106.666667 Z M341.333333,106.666667 L341.333333,138.666667 L192,138.666667 L192,106.666667 L341.333333,106.666667 Z"
-                              id="Combined-Shape">
-          
-                            </path>
-                          </g>
-                        </g>
-                      </svg>
-          
-                      <span class="flex-1 ml-3 whitespace-nowrap">Reports</span>
+                        class="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <svg class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                            fill="currentColor" width="24" height="2" viewBox="0 0 512 512" version="1.1"
+                            xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                            <title>report-text</title>
+                            <g id="Page-1" stroke="none" stroke-width="1" fill="currentColor" fill-rule="evenodd">
+                                <g id="add" fill="currentColor" transform="translate(42.666667, 85.333333)">
+                                    <path
+                                        d="M341.333333,1.42108547e-14 L426.666667,85.3333333 L426.666667,341.333333 L3.55271368e-14,341.333333 L3.55271368e-14,1.42108547e-14 L341.333333,1.42108547e-14 Z M330.666667,42.6666667 L42.6666667,42.6666667 L42.6666667,298.666667 L384,298.666667 L384,96 L330.666667,42.6666667 Z M149.333333,234.666667 L149.333333,266.666667 L85.3333333,266.666667 L85.3333333,234.666667 L149.333333,234.666667 Z M341.333333,234.666667 L341.333333,266.666667 L192,266.666667 L192,234.666667 L341.333333,234.666667 Z M149.333333,170.666667 L149.333333,202.666667 L85.3333333,202.666667 L85.3333333,170.666667 L149.333333,170.666667 Z M341.333333,170.666667 L341.333333,202.666667 L192,202.666667 L192,170.666667 L341.333333,170.666667 Z M149.333333,106.666667 L149.333333,138.666667 L85.3333333,138.666667 L85.3333333,106.666667 L149.333333,106.666667 Z M341.333333,106.666667 L341.333333,138.666667 L192,138.666667 L192,106.666667 L341.333333,106.666667 Z"
+                                        id="Combined-Shape">
+
+                                    </path>
+                                </g>
+                            </g>
+                        </svg>
+
+                        <span class="flex-1 ml-3 whitespace-nowrap">Reports</span>
                     </a>
-                  </li>
+                </li>
                 <li class="mt-96">
                     <a href="/logout"
                         class="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
@@ -389,7 +394,7 @@
         </div>
     </aside>
 
-    <div style="padding-left: 3%; width: 83%; padding-right: 2%; padding-top: 70px;" class="dark:bg-gray-900">
+    <div style="padding-left: 3%; width: 84%; padding-right: 2%; padding-top: 70px;" class="dark:bg-gray-900">
         <div class="absolute" style="right: 50px; top: 10px;">
 
             <button id="theme-toggle" type="button"
@@ -408,10 +413,12 @@
         </div>
 
         <div class="flex items-center">
-            <select id="searchType" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" style="margin-right: 10px;">
+            <select id="searchType"
+                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                style="margin-right: 10px;">
                 <option value="bn" selected>By Name</option>
                 <option value="bc">By Code</option>
-              </select>
+            </select>
             <div class="relative w-full">
                 <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                     <svg aria-hidden="true" class="w-5 h-5 text-gray-500 dark:text-gray-400" fill="currentColor"
@@ -515,10 +522,11 @@
                             {{val.Last_Assigned_serial_Number}}
                         </td>
                         <td class="px-6 py-4">
-                            <a href="/itemanem/edit/{{val.id}}" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
+                            <a href="/itemanem/edit/{{val.id}}"
+                                class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
                         </td>
                     </tr>
-                    
+
                     {%else%}
                     <tr class="bg-white border-b dark:bg-gray-900 dark:border-gray-700">
                         <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
@@ -543,7 +551,8 @@
                             {{val.Last_Assigned_serial_Number}}
                         </td>
                         <td class="px-6 py-4">
-                            <a href="/itemanem/edit/{{val.id}}" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
+                            <a href="/itemanem/edit/{{val.id}}"
+                                class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
                         </td>
                     </tr>
                     {%endif%}
@@ -554,35 +563,44 @@
         <div class="flex flex-col items-center" style="margin-top:10px;">
 
             <span class="text-sm text-gray-700 dark:text-gray-400">
-                Showing <span class="font-semibold text-gray-900 dark:text-white">{{ data.number }}</span> of <span class="font-semibold text-gray-900 dark:text-white">{{ data.paginator.num_pages }}</span> Pages
+                Showing <span class="font-semibold text-gray-900 dark:text-white">{{ data.number }}</span> of <span
+                    class="font-semibold text-gray-900 dark:text-white">{{ data.paginator.num_pages }}</span> Pages
             </span>
             <div class="inline-flex mt-2 xs:mt-0">
-              <!-- Buttons -->
-              {% if data.has_previous %}
-              <a href="?page=1" class="flex items-center justify-center px-3 h-8 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                First
-              </a>
-                    
-              <a href="?page={{ data.previous_page_number }}" class="flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-gray-800 rounded-l hover:bg-gray-900 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                  <svg class="w-3.5 h-3.5 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4"/>
-                  </svg>
-                  Prev
+                <!-- Buttons -->
+                {% if data.has_previous %}
+                <a href="?page=1"
+                    class="flex items-center justify-center px-3 h-8 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                    First
                 </a>
-              {% endif %}
-              {% if data.has_next %}
-              <a href="?page={{ data.next_page_number }}" class="flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-gray-800 border-0 border-l border-gray-700 rounded-r hover:bg-gray-900 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                  Next
-                  <svg class="w-3.5 h-3.5 ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
-                </svg>
-            </a>
-                <a href="?page={{ data.paginator.num_pages }}" class="flex items-center justify-center px-3 h-8 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+
+                <a href="?page={{ data.previous_page_number }}"
+                    class="flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-gray-800 rounded-l hover:bg-gray-900 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                    <svg class="w-3.5 h-3.5 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                        viewBox="0 0 14 10">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 5H1m0 0 4 4M1 5l4-4" />
+                    </svg>
+                    Prev
+                </a>
+                {% endif %}
+                {% if data.has_next %}
+                <a href="?page={{ data.next_page_number }}"
+                    class="flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-gray-800 border-0 border-l border-gray-700 rounded-r hover:bg-gray-900 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                    Next
+                    <svg class="w-3.5 h-3.5 ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                        viewBox="0 0 14 10">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M1 5h12m0 0L9 1m4 4L9 9" />
+                    </svg>
+                </a>
+                <a href="?page={{ data.paginator.num_pages }}"
+                    class="flex items-center justify-center px-3 h-8 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
                     Last
-                  </a>
-              {%endif%}
+                </a>
+                {%endif%}
             </div>
-          </div>
+        </div>
 
     </div>
     <div id="staticModal" data-modal-backdrop="static" tabindex="-1" aria-hidden="true"
@@ -597,7 +615,8 @@
                     </h3>
                 </div>
                 <!-- Modal body -->
-                <form action="" method="post" enctype="multipart/form-data" onsubmit="return confirm('Do you really want to submit the form?');">
+                <form action="" method="post" enctype="multipart/form-data"
+                    onsubmit="return confirm('Do you really want to submit the form?');">
                     <div class="p-6 space-y-6">
                         {%csrf_token%}
                         <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
@@ -675,10 +694,10 @@
             li = ul.getElementsByTagName("tr");
             console.log(li)
             for (i = 0; i < li.length; i++) {
-                if(st == 'bc'){
+                if (st == 'bc') {
                     a = li[i].getElementsByTagName('th')[1];
                 }
-                else{
+                else {
                     a = li[i].getElementsByTagName('td')[2];
                 }
                 txtValue = a.textContent || a.innerText;
@@ -690,10 +709,10 @@
             }
         }
     </script>
-<script src="/static/index.js"></script>
+    <script src="/static/index.js"></script>
 
-<script src="/static/ajax.js"></script>
-  <script src="/static/complaint.mjs"></script>
+    <script src="/static/ajax.js"></script>
+    <script src="/static/complaint.mjs"></script>
 </body>
 
 </html>

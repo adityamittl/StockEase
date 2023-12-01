@@ -10,12 +10,10 @@ from dateutil.relativedelta import relativedelta
 from assetsData.models import *
 from .models import *
 from django.contrib.auth.models import User
-import json
 import secrets
 import zipfile
 from io import StringIO, BytesIO
 from django.core.files.base import ContentFile
-from datetime import datetime, date
 from django.views import View
 import concurrent.futures
 from django.contrib import messages
@@ -60,7 +58,7 @@ def entry(request):
 
         print(fy)
         finantialYear = None
-
+        print(data)
         try:
             finantialYear = Finantial_Year.objects.get(yearName=fy)
         except:
@@ -76,13 +74,14 @@ def entry(request):
             item.save()
 
             for j in data[items]["items"]:
-                
-                finalCode = (
-                    data[items]["item_code"]
-                    + " "
-                    + "{:04d}".format(int(j["item_number"]))
-                )
-
+                if item_type == "FIXED ASSET":
+                    finalCode = (
+                        data[items]["item_code"]
+                        + " "
+                        + "{:04d}".format(int(j["item_number"]))
+                    )
+                dept = j["purchase_for"].upper().replace("&AMP;","&")
+                print("---------------------> ",dept)
                 item_ledger = Ledger.objects.create(
                 Vendor=vendor,
                 bill_No=billNO,
@@ -94,13 +93,13 @@ def entry(request):
                 Tax=j["tax"],
                 Ammount=j["ammount"],
                 buy_for=Departments.objects.get(
-                    name=j["purchase_for"].upper()
+                    name=dept
                 ),
                 current_department=Departments.objects.get(
-                    name=j["purchase_for"].upper()
+                    name=dept
                 ),
                 stock_register=stock_register.objects.get(
-                    name=j["stock_register"].upper()
+                    name=j["stock_register"].upper().replace("&AMP;","&")
                 ),
                 make=j["item_make"],
                 sno=j["item_sno"],
@@ -347,6 +346,7 @@ def findVendor(request):
         for i in res:
             data.append(i.name)
         return JsonResponse({"vendors": data})
+    return redirect("NotFound")
 
 
 # Codes of initial database
@@ -410,6 +410,7 @@ def findItem(request):
         for i in res:
             data.append(i.name)
         return JsonResponse({"items": data})
+    return redirect("NotFound")
 
 @check_role_ajax(role = "STORE")
 def FetchDetails(request):
@@ -597,244 +598,6 @@ def edit_user(request, uname):
             "designations": designations,
         },
     )
-
-
-# ---------------- Assign and issue module -----------------
-
-
-@transaction.atomic
-@check_role(role = "STORE", redirect_to= "employee_home")
-def assign_func(request):
-    # print(request.POST)
-    if request.method == "POST":
-        items = json.loads(
-            request.POST.get("selected_items_data")
-        )  # Items is a JSON that has selected items to assign and user's information such as username and department id
-        uname = items["User_data"]["name"]
-        department_id = items["User_data"]["department"]
-        del items[
-            "User_data"
-        ]  # Removing the user's information object from the items dictionary such that only selected items is present!
-        comment = request.POST.get("message")  # Use This in the mail to the person!
-
-        user_profile = User.objects.get(username=uname)
-
-        data = dict()
-        temp_container = list() # storing item details
-
-        for i in items:
-            # print(items[i]["item_id"])
-            item_vals = dict()
-
-            temp = Ledger.objects.get(Item_Code=items[i]["item_id"])
-            assign.objects.create(item=temp, user=user_profile)
-            temp.isIssued = True
-            temp.save()
-
-            item_vals["name"] = temp.Purchase_Item.name
-            item_vals["item_code"] = temp.Item_Code
-            item_vals["department"] = department_id
-
-            temp_container.append(item_vals)
-        
-        data["items"] = temp_container
-        data["comment"] = comment
-        data["name"] = user_profile.first_name + " " + user_profile.last_name
-
-        # Now we need to send emails to two persons-
-        # 1. Department HOD
-        # 2. Respective assigning person.
-        alt_email = request.POST["alt_email"]
-        threading.Thread(target=email_send, args=(user_profile,data, False, "assign", alt_email)).start()
-        # email_send(user_profile,data, False, "assign") # sending email!
-        messages.success(request, f"/issue/item?type=user&uname={uname}")
-        return redirect("assign")
-
-    department = Departments.objects.all()
-    return render(request, "assign.html", context={"data": department})
-
-
-@check_role(role = "STORE", redirect_to= "employee_home")
-def issue(request):
-    return render(request, "issue.html")
-
-@transaction.atomic
-@check_role(role = "STORE", redirect_to= "employee_home")
-def issue_all_username(request):
-    if request.method == 'POST':
-        items = assign.objects.filter(user__username=request.GET["uname"], pickedUp = False)
-        if items[0].pickedUp :
-            return HttpResponse("Items has already been pickedup")
-        inos = []
-
-        data = dict()
-        temp_container = list() # storing item details
-
-        usr = None
-        for item in items:
-            temp_data = dict()
-
-
-            item.pickedUp = True
-            item.item.remark = request.POST["remarks"]
-            locationCode = ""
-            item.pickupDate = date.today()
-
-            # Assigning location
-            if "room" in request.POST.keys():
-                item.item.Location_Code = Location_Description.objects.get(
-                    Final_Code=request.POST["room"]
-                )
-                locationCode = request.POST["room"]
-            else:
-                # Admin didn't changed the user's Location, hence getting it.
-
-                location_item = profile.objects.get(user=item.user).location
-                item.item.Location_Code = location_item
-                locationCode = location_item.Final_Code
-
-            # Creating the item number with location
-
-            item_code = f"LNM {locationCode} {item.item.Item_Code}"
-            inos.append(item_code)
-            item.item.Final_Code = item_code
-            item.item.save()
-            item.save()
-
-            temp_data["name"] = item.item.Purchase_Item.name
-            temp_data["item_code"] = item.item.Final_Code
-            temp_data["location"] = item.item.Location_Code.Final_Code
-            temp_data["department"] = item.item.current_department.name
-            usr = item.user
-            data["name"] = item.user.first_name + " "+ item.user.last_name
-            temp_container.append(temp_data)
-
-        data["items"] = temp_container
-
-        # sending emails
-        threading.Thread(target=email_send, args=(usr, data, False, "issue")).start()
-        # email_send(usr, data, False, "issue")
-        return render(request,"done.html",context={'data':inos})
-
-    uname = request.GET["uname"]
-    items = assign.objects.filter(user__username=uname, pickedUp=False)
-    if not items:
-        return HttpResponse("No Items are available for the user")
-    return render(
-        request,
-        "issue_all_once.html",
-        context={
-            "data": items,
-            "prof": profile.objects.get(user__username=uname),
-            "loc": Building_Name.objects.all(),
-        },
-    )
-
-
-@transaction.atomic
-@check_role(role = "STORE", redirect_to= "employee_home")
-def issueItem(request):
-    
-    if request.method == "POST":
-        if request.GET["type"] == "item":
-            # When the item is assigning by the item code
-            item = assign.objects.get(item__Item_Code=request.GET["code"])
-            if item.pickedUp :
-                return HttpResponse("Items has already been pickedup")
-            item.pickedUp = True
-            item.item.remark = request.POST["remarks"]
-            locationCode = ""
-            item.pickupDate = date.today()
-
-            data_email = dict()
-            temp_container = list() # storing item details
-
-
-            # Assigning location
-            if "room" in request.POST.keys():
-                item.item.Location_Code = Location_Description.objects.get(
-                    Final_Code=request.POST["room"]
-                )
-                locationCode = request.POST["room"]
-            else:
-                # Admin didn't changed the user's Location, hence getting it.
-
-                location_item = profile.objects.get(user=item.user).location
-                item.item.Location_Code = location_item
-                locationCode = location_item.Final_Code
-
-            # Creating the item number with location
-
-            item_code = f"LNM {locationCode} {item.item.Item_Code}"
-            item.item.Final_Code = item_code
-            item.item.save()
-            item.save()
-            temp_container.append({"name":item.item.Purchase_Item.name, "item_code":item.item.Final_Code, "location":item.item.Location_Code.Final_Code, "department" : item.item.current_department.name})
-            data_email["items"] = temp_container
-            data_email["name"] = item.user.first_name + " "+ item.user.last_name
-            data_email["pickedup"] = request.POST.get("Pickup_P")
-
-            threading.Thread(target=email_send, args=(item.user, data_email, False, "issue")).start()
-            # email_send(item.user, data_email, False, "issue")
-
-            # when the user is assigning item by the user.
-            # return the label
-            return render(request, "done.html", context={'data':[item_code]})
-        if request.GET["type"] == "user":
-            uname = request.GET["uname"]
-            item_locations = dict(request.POST)["checked_data"] # item locations selected by user
-            items = assign.objects.filter(
-                user=User.objects.get(username=uname), pickedUp=False
-            )
-
-            data = []
-            # print(items.count())
-            if items.count() == 0:
-                return HttpResponse("These items has already been assigned!")
-
-
-            for i in range(len(item_locations)):
-                temp = dict()
-                temp["location"] = item_locations[i]
-                temp["item_code"] = items[i].item.Item_Code
-                # temp["catagory"] = items[i].item.Purchase_Item.mc
-                temp["name"] = items[i].item.Purchase_Item.name
-                temp["final_code"] = temp["item_code"]+" "+temp["location"]
-                data.append(temp)
-            
-            pfile = profile.objects.get(user__username = uname)
-
-            return render(request, "bulk_verify.html", context={"data":data, "prof":pfile})
-
-            
-
-
-    if request.method == "GET":
-        if request.GET["type"] == "item":
-            code = request.GET["code"]
-            try:
-                item_dets = assign.objects.get(item__Item_Code=code, pickedUp=False)
-            except:
-                return HttpResponse(
-                    "Item has been already assigned, you can shift item to realocate to someone"
-                )
-            location_info = Building_Name.objects.all()
-            prof = profile.objects.get(user=item_dets.user)
-            return render(
-                request,
-                "issue_in.html",
-                context={"data": item_dets, "loc": location_info, "prof": prof},
-            )
-        if request.GET["type"] == "user":
-            uname = request.GET["uname"]
-            items = assign.objects.filter(
-                user=User.objects.get(username=uname), pickedUp=False
-            )
-            buildings = Building_Name.objects.all()
-            return render(request, "issue_un.html", context={"data": items, 'uname':uname, 'buildings':buildings})
-    else:
-        return JsonResponse({"Status": "Prohibited"})
-
 
 # ------------ Backup data ----------------
 
@@ -1185,6 +948,8 @@ def searchItems(request):
             {"Data": fetchData(request.POST.get("catagory"), request.POST.get("item"))}
         )
 
+    return redirect("NotFound")
+
 
 # Dashboard of admin where they can search for item and fire this query on search, this is an AJAX call
 def create_AJAX_html(item, catagory):
@@ -1411,7 +1176,7 @@ def dump(request):
         assign_object.dump_remark = remark
         assign_object.action_date = datetime.strptime(dump_date, "%d/%m/%Y").strftime("%Y-%m-%d")
         assign_object.save()
-
+        # send an approval mail for the same!
         # item.Is_Dump = True
 
         # # Uncheck the
@@ -1429,6 +1194,7 @@ def dump(request):
         # Removing relationship with the assigned person and the item..
 
         # assign.objects.get(item=item).delete()
+
         messages.success(request, f"Successfully Dumped Item {item_code}")
         return redirect("dump")
     return render(request, "dump.html")
@@ -1443,6 +1209,8 @@ def find_dump_item(request):
         for item in items:
             res.append(item.Item_Code)
         return JsonResponse({"data": res})
+
+    return redirect("NotFound")
 
 @check_role(role='STORE', redirect_to='employee_home')
 def get_item_details(request):
@@ -1504,6 +1272,8 @@ def get_item_details(request):
 
         return JsonResponse({"data": htmlWrap})
 
+    return redirect("NotFound")
+
 
 @check_role(role='STORE', redirect_to='employee_home')
 def item_relocate(request):
@@ -1523,6 +1293,7 @@ def item_relocate(request):
                 "items": items,
             },
         )
+    return redirect("NotFound")
 
 
 def relocateFunction(item_id, old_loc, new_loc):
@@ -1573,6 +1344,8 @@ def relocateItem(request):
                 post_data["data"], post_data["old"], post_data["new"]
             )
         return JsonResponse({"data": new_code, "success": True})
+
+    return redirect("NotFound")
 
 
 @check_role_ajax(role='STORE')
@@ -1711,6 +1484,14 @@ def available_items(request):
 
 @check_role_ajax(role="STORE")
 def getlocations(request):
+    if "location" in request.POST.keys():
+        query_output = Location_Description.objects.filter(Final_Code__icontains = request.POST.get("location")).order_by("-Final_Code")[:10]
+        res = list()
+
+        for i in query_output:
+            res.append(i.Final_Code)
+
+        return JsonResponse({"data":res})
     data = json.loads(request.body.decode('utf-8'))
     building = data['building']
     floor = data['floor']
@@ -1734,60 +1515,6 @@ def getlocations(request):
     
     return JsonResponse({'data':res})
 
-@transaction.atomic()
-@check_role_ajax(role="STORE")
-def bulkAssign(request):
-    if request.method == 'POST':
-        data = json.loads(request.body.decode())
-        # Assigning the data
-        usr = data["user"]
-        assignee_user = data['data']
-
-
-        data = dict()
-        temp_container = list() # storing item details
-
-
-        final_codes = []
-        for i in assignee_user:
-
-            temp_data = dict()
-            assigning_data = assign.objects.get(item__Item_Code = i["item_code"])
-            # print(assigning_data)
-            assigning_data.pickupDate = date.today()
-            assigning_data.pickedUp = True
-            assigning_data.save()
-
-            # assigning final item code to the item
-            item = Ledger.objects.get(Item_Code = i["item_code"])
-            item.Location_Code = Location_Description.objects.get(Final_Code = i["location"])
-            item.Final_Code = "LNM  "+i["location"]+" "+i["item_code"]
-            item.current_department = profile.objects.get(user__username = usr).department
-            item.isIssued = True
-            item.save()
-
-            # changing last assign of the item
-            item_main = item.Purchase_Item
-            item_main.Last_Assigned_serial_Number = item_main.Last_Assigned_serial_Number +1
-            item_main.save()
-
-
-            temp_data["name"] = assigning_data.item.Purchase_Item.name
-            temp_data["item_code"] = assigning_data.item.Final_Code
-            temp_data["location"] = assigning_data.item.Location_Code.Final_Code
-            temp_data["department"] = assigning_data.item.current_department.name
-            data["name"] = assigning_data.user.first_name + " "+ assigning_data.user.last_name
-            temp_container.append(temp_data)
-
-            final_codes.append("LNM  "+i["location"]+" "+i["item_code"])
-        
-        data["items"] = temp_container
-
-        threading.Thread(target=email_send, args=(usr, data, False, "issue")).start()
-        # email_send(usr, data, False, "issue")
-
-
-        return JsonResponse({"data":str(final_codes)})
 
 
 @check_role(role = "STORE", redirect_to="/employee")
@@ -2021,3 +1748,132 @@ def reports(request):
     
             
     return render(request, "report_generate.html")
+
+def register_to_ledger(request):
+    if "finantial_year" in request.GET.keys():
+        fyear = request.GET.get("finantial_year")
+
+        infos = entry_to_register.objects.filter(finantialYear__yearName = fyear)
+        paginator = Paginator(infos, 25)
+        page_number = request.GET.get("page")
+        page_obj = paginator.get_page(page_number)
+        return render(request, "register_to_ledger.html", context={"data":page_obj, "is_view":False})
+        
+
+    fy = Finantial_Year.objects.all()
+    return render(request, "register_to_ledger.html", context={"fy":fy, "is_view":True})
+
+
+def item_search_autocomplete(request):
+    item_code = request.POST.get("item_code")
+    fy = request.POST.get("fy")
+    item_code = request.POST.get("item_code")
+    print(item_code, fy)
+    items = entry_to_register.objects.filter(item__Item_Code__icontains = item_code, finantialYear__yearName = fy)[:10]
+
+    res = list()
+
+    for i in items:
+        res.append(i.item.Item_Code)
+
+    return JsonResponse({"data":res})
+
+def notifications(request):
+    data = admin_notifications.objects.all().order_by("-notification_date","-id")
+    return render(request, "notification.html", context={"data":data, "count":data.filter(status="unread")})
+
+def notificationAction(request):
+    if request.method == "POST":
+        data = json.loads(request.body.decode())
+        print(data)
+        if data["type"] == "read":
+            id = data["id"]
+            notify = admin_notifications.objects.get(id = id)
+            notify.status = "read"
+            notify.save()
+
+            return JsonResponse({"type":"success"})
+        elif data["type"] == "delete":
+            admin_notifications.objects.get(id = data["id"]).delete()
+            return JsonResponse({"type":"success"})
+    
+        else:
+            return JsonResponse({"type":"Failure"})
+    else:
+        return redirect("NotFound")
+    
+def registerMap(request):
+    tdate = date.today()
+    tdate = str(tdate).split("-") #year-month-date
+    fy = None
+    if int(tdate[1]) >=4 and int(tdate[1])<=12:
+        fy = tdate[0] +"-"+str(int(tdate[0])+1)
+    else:
+        fy = str(int(tdate[0])-1) +"-"+tdate[0]
+    
+    fyyn = Finantial_Year.objects.filter(yearName = fy).count()
+    if fyyn == 0:
+        Finantial_Year.objects.create(yearName = fy)
+    
+    currFY = Finantial_Year.objects.get(yearName = fy)
+    data = entry_to_register.objects.filter(finantialYear = currFY)
+
+    paginator = Paginator(data, 50)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+    return render(request, "register_entry.html", context={"data":page_obj, "fy":fy})
+
+@transaction.atomic
+def new_entry_register(request):
+    tdate = date.today()
+    tdate = str(tdate).split("-") #year-month-date
+    fy = None
+    if int(tdate[1]) >=4 and int(tdate[1])<=12:
+        fy = tdate[0] +"-"+str(int(tdate[0])+1)
+    else:
+        fy = str(int(tdate[0])-1) +"-"+tdate[0]
+    
+    fyyn = Finantial_Year.objects.filter(yearName = fy).count()
+    if fyyn == 0:
+        Finantial_Year.objects.create(yearName = fy)
+    
+    currFY = Finantial_Year.objects.get(yearName = fy)
+    if request.method == "GET":
+        itemsCount = Ledger.objects.filter(Is_Dump = False, item_type = "FIXED ASSET")
+        # create the entry in entry table while calling this page, and leave the register and page number entry empty initially, and itereatively run the loop
+        # see if the entry of finaitial year is present, if not, create one
+
+        newCount = 0
+        for i in itemsCount:
+            # see if that entry is present in the database, if not, make it!
+            # print(entry_to_register.objects.filter(finantialYear= currFY, item = i).count())
+            if entry_to_register.objects.filter(finantialYear= currFY, item = i).count() == 0:
+                print(i)
+                entry_to_register.objects.create(finantialYear = currFY, item = i)
+                newCount+=1
+            elif entry_to_register.objects.filter(finantialYear = currFY, item = i, pageno__gt = 0, register_number__gt = "").count()==0:
+                newCount+=1
+        print(newCount)
+        if newCount == 0:
+            return HttpResponse("Entry of all the items of this year has successfully done!")
+        
+        registerItems = entry_to_register.objects.filter(finantialYear = currFY, pageno__isnull = True, register_number__isnull = True)
+        paginator = Paginator(registerItems, 50)
+        page_number = request.GET.get("page")
+        page_obj = paginator.get_page(page_number)
+
+        return render(request, "selectFY.html", context={"fy":fy, "data":page_obj})
+
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body.decode())
+            item_no = data["id"]
+            register_value = entry_to_register.objects.get(item__Item_Code = item_no, finantialYear = currFY)
+            register_value.register_number = data["rno"]
+            register_value.pageno = data["pno"]
+            register_value.save()
+
+            return JsonResponse({"type" : "success"})
+        
+        except:
+            return JsonResponse({"type":"failure"})
