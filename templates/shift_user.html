@@ -88,16 +88,26 @@
               .value,
           },
           success: function (data) {
-            
+            console.log(data)
             document.getElementById("showDetails").innerHTML = data["data"];
-            document.getElementById("showDetails").innerHTML += `
-            <div style="display: flex; align-items:flex-end; justify-content:space-between;">
-                <input name="type_of_change" style="display:none" id="type_of_change">
-                <input name="user" style="display:none" id="user" value="${document.getElementById("search_username").value.split("-")[2].trim()}">
-                <button type="button" onclick="submit_user()" id="shift_item" style="height:45px; min-width:150px; margin-top: 10px;" class="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800">Shift only user</button>
-                <button type="button" onclick="submit_user_with_location()" id="shift_user" style="height:45px; min-width:150px; mbuttonrgin-top: 10px;" class="text-green-700 hover:text-white border border-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:border-green-500 dark:text-green-500 dark:hover:text-white dark:hover:bg-green-600 dark:focus:ring-green-800">Shift user with their respective location</button>
-            </div>
-            `
+            if(data["hasloc"])
+              document.getElementById("showDetails").innerHTML += `
+              <div style="display: flex; align-items:flex-end; justify-content:space-between;">
+                  <input name="type_of_change" style="display:none" id="type_of_change">
+                  <input name="user" style="display:none" id="user" value="${document.getElementById("search_username").value.split("-")[2].trim()}">
+                  <button type="button" onclick="submit_user()" id="shift_item" style="height:45px; min-width:150px; margin-top: 10px;" class="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800">Shift only user</button>
+                  <button type="button" onclick="submit_user_with_location()" id="shift_user" style="height:45px; min-width:150px; mbuttonrgin-top: 10px;" class="text-green-700 hover:text-white border border-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:border-green-500 dark:text-green-500 dark:hover:text-white dark:hover:bg-green-600 dark:focus:ring-green-800">Shift user with their respective location</button>
+              </div>
+              `
+              else
+                document.getElementById("showDetails").innerHTML += `
+                <div style="display: flex; align-items:flex-end; justify-content:space-between;">
+                    <input name="type_of_change" style="display:none" id="type_of_change">
+                    <input name="user" style="display:none" id="user" value="${document.getElementById("search_username").value.split("-")[2].trim()}">
+                    <button type="button" onclick="submit_user()" id="shift_item" style="height:45px; min-width:150px; margin-top: 10px;" class="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800">Shift only user</button>
+                </div>
+                `
+
           },
         });
       }

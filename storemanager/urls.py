@@ -8,6 +8,7 @@ urlpatterns = [
     path("", include("accounts.urls")),
 ]
 
+
 admin.site.site_header  =  "LNMIIT | IMS"  
 admin.site.site_title  =  "LNMIIT | IMS"
 admin.site.index_title  =  "LNMIIT | IMS"

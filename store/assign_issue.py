@@ -40,16 +40,31 @@ def assign_func(request):
             # print(items[i]["item_id"])
             item_vals = dict()
 
-            temp = Ledger.objects.get(Item_Code=items[i]["item_id"])
-            assign.objects.create(item=temp, user=user_profile)
-            temp.isIssued = True
-            temp.save()
+            temp = Ledger.objects.filter(Purchase_Item__name=items[i]["item_name"], isIssued = False, Is_Dump = False) #got all the ledger of that name
 
-            item_vals["name"] = temp.Purchase_Item.name
-            item_vals["item_code"] = temp.Item_Code
-            item_vals["department"] = department_id
+            # quantity requested by the user
+            qty = int(items[i]["quantity"])
+            for j in range(qty):
 
-            temp_container.append(item_vals)
+                ao = assign.objects.create(item=temp[j], user=user_profile)
+
+                item_vals["name"] = temp[j].Purchase_Item.name
+                item_vals["item_code"] = temp[j].Item_Code
+                item_vals["department"] = department_id
+                # creating user notification
+                employee_notifications.objects.create(
+                    user = user_profile, 
+                    notification_date = date.today(),
+                    notification = f"Item with item number {temp[j].Item_Code} has been succesfully assigned to you, pick it up from the store!",
+                    notification_type = "success",
+                    action_url = f"/pickup/action/{ao.id}"
+                )
+                temp_container.append(item_vals)
+
+
+                update_query = Ledger.objects.get(id = temp[j].id)
+                update_query.isIssued = True
+                update_query.save()
         
         data["items"] = temp_container
         data["comment"] = comment
@@ -117,6 +132,14 @@ def issue_all_username(request):
             item.item.save()
             item.save()
 
+            # notify user in their notificatoin section too!
+            employee_notifications.objects.create(
+                user = item.user,
+                notification_date = date.today(), 
+                notification = f"Item with item number {item_code} has been successfylly assigned to you and addded to your inventory", 
+                notification_type = "success"
+            )
+
             temp_data["name"] = item.item.Purchase_Item.name
             temp_data["item_code"] = item.item.Final_Code
             temp_data["location"] = item.item.Location_Code.Final_Code
@@ -133,7 +156,9 @@ def issue_all_username(request):
         return render(request,"done.html",context={'data':inos})
 
     uname = request.GET["uname"]
-    items = assign.objects.filter(user__username=uname, pickedUp=False)
+    if uname == "":
+        return HttpResponse("No user selected")
+    items = assign.objects.filter(user__username=uname, pickedUp=False, item__item_type ="FIXED ASSET")
     if not items:
         return HttpResponse("No Items are available for the user")
     return render(
@@ -186,6 +211,15 @@ def issueItem(request):
             item.item.Final_Code = item_code
             item.item.save()
             item.save()
+
+            # creating notification for user 
+            employee_notifications.objects.create(
+                user = item.user,
+                notification_date = date.today(), 
+                notification = f"Item with item number {item_code} has been successfully pickedup and assigned to you, and added to your inventory",
+                notification_type = "success"
+            )
+
             temp_container.append({"name":item.item.Purchase_Item.name, "item_code":item.item.Final_Code, "location":item.item.Location_Code.Final_Code, "department" : item.item.current_department.name})
             data_email["items"] = temp_container
             data_email["name"] = item.user.first_name + " "+ item.user.last_name
@@ -228,6 +262,8 @@ def issueItem(request):
         try:
             if request.GET["type"] == "item":
                 code = request.GET["code"]
+                if code == "":
+                    return HttpResponse("No Item code is selected")
                 try:
                     item_dets = assign.objects.get(item__Item_Code=code, pickedUp=False)
                 except:
@@ -243,27 +279,62 @@ def issueItem(request):
                 )
         except:
             return redirect("NotFound")
-        try:
-            if request.GET["type"] == "user":
-                uname = request.GET["uname"]
-                items_fixed = assign.objects.filter(
-                    user=User.objects.get(username=uname), pickedUp=False, item__item_type = "FIXED_ASSET"
-                )
-                items_consumable = assign.objects.filter(
-                    user=User.objects.get(username=uname), pickedUp=False, item__item_type = "CONSUMABLE"
-                )
+        # try:
+        if request.GET["type"] == "user":
+            uname = request.GET["uname"]
+            if uname == "":
+                return HttpResponse('No user is selected')
+            ca = dict()
+            items_fixed = assign.objects.filter(
+                user=User.objects.get(username=uname), pickedUp=False, item__item_type = "FIXED ASSET"
+            )
 
-                buildings = Building_Name.objects.all()
-                return render(request, "issue_un.html", context={"data": items_fixed, "consumable":items_consumable, 'uname':uname, 'buildings':buildings})
-        except:
-            return redirect("NotFound")
+            items_consumable = assign.objects.filter(
+                user=User.objects.get(username=uname), pickedUp=False, item__item_type = "CONSUMABLE"
+            )
+
+            # creating a dictionary of fixed asset items with all the necessary details required!
+
+            
+            for i in items_consumable:
+                if i.item.Purchase_Item.name in ca.keys():
+                    ca[i.item.Purchase_Item.name] = {
+                        "quantity" : ca[i.item.Purchase_Item.name]["quantity"]+1
+                    }
+                else:
+                    ca[i.item.Purchase_Item.name] = {
+                        "quantity" : 1
+                    }
+
+            # appending stock register names in it
+            for i in ca.keys():
+                srValue = entry_to_register.objects.get(item__name = i)
+                ca[i]["regno"] = srValue.register_number
+                ca[i]["pageno"] = srValue.pageno
+            
+            fa = {}
+            for i in items_fixed:
+                etr = entry_to_register.objects.get(item = i.item.Purchase_Item)
+                fa[i.item.Purchase_Item.name] = {
+                    "page" : etr.pageno,
+                    "register": etr.register_number,
+                    "code":i.item.Item_Code,
+                    "name":i.item.Purchase_Item.name,
+                    "catagory": i.item.Purchase_Item.mc.name
+                }
+
+            buildings = Building_Name.objects.all()
+            print(fa)
+            return render(request, "issue_un.html", context={"data": items_fixed, "consumable":ca, 'uname':uname, 'buildings':buildings, "ccounts":items_consumable.count(), "fr" : fa})
+        # except:
+        #     return redirect("NotFound")
     else:
         return JsonResponse({"Status": "Prohibited"})
 
     return redirect("NotFound")
 
 
-
+@check_role(role="STORE", redirect_to="/employee")
 def mapitems_to_locations(request):
     if request.method == "POST":
         items_with_location = [i for i in request.POST.keys() if "location" in i]
@@ -285,12 +356,22 @@ def mapitems_to_locations(request):
             item.item.remark = request.POST["remarks"]
             item.pickupDate = date.today()
 
+            final_item_code = f"LNM {location_code} {item_code}"
             # giving item the location code
             item.item.Location_Code = Location_Description.objects.get(Final_Code = location_code)
             item.item.Final_Code = f"LNM {location_code} {item_code}" 
             item.assigned_to_pickup = request.POST.get("picked_up_person")
             item.item.save()
             item.save()
+            
+            # creating user notification 
+            employee_notifications.objects.create(
+                user = item.user,
+                notification_date = date.today(), 
+                notification = f"Item with item number {final_item_code} has been successfully pickedup and assigned to you, and added to your inventory",
+                notification_type = "success"
+            )
+
 
             # each items details!
             items_data.append({"name" : item.item.Purchase_Item.name, "item_code":item.item.Final_Code, "location":item.item.Location_Code.Final_Code, "department" : item.item.current_department.name})
@@ -305,7 +386,7 @@ def mapitems_to_locations(request):
 
         return render(request, "done.html", context={'data':[item_code], "error" : True, "error_data":issued_by_other_operator})
 
-    items = assign.objects.filter(user__username=request.GET["uname"], pickedUp=False)
+    items = assign.objects.filter(user__username=request.GET["uname"], pickedUp=False, item__item_type = "FIXED ASSET")
     return render(request, "issue_location_code.html", context={
             "data": items,
             "prof": profile.objects.get(user__username=request.GET["uname"]),
@@ -336,11 +417,12 @@ def bulkAssign(request):
             assigning_data.pickupDate = date.today()
             assigning_data.pickedUp = True
             assigning_data.save()
-
+            
+            final_item_code = "LNM "+i["location"]+" "+i["item_code"]
             # assigning final item code to the item
             item = Ledger.objects.get(Item_Code = i["item_code"])
             item.Location_Code = Location_Description.objects.get(Final_Code = i["location"])
-            item.Final_Code = "LNM  "+i["location"]+" "+i["item_code"]
+            item.Final_Code = "LNM "+i["location"]+" "+i["item_code"]
             item.current_department = profile.objects.get(user__username = usr).department
             item.isIssued = True
             item.save()
@@ -350,6 +432,13 @@ def bulkAssign(request):
             item_main.Last_Assigned_serial_Number = item_main.Last_Assigned_serial_Number +1
             item_main.save()
 
+            # User notification 
+            employee_notifications.objects.create(
+                user = assigning_data.user,
+                notification_date = date.today(), 
+                notification = f"Item with item number {final_item_code} has been successfully pickedup and assigned to you, and added to your inventory",
+                notification_type = "success"
+            )
 
             temp_data["name"] = assigning_data.item.Purchase_Item.name
             temp_data["item_code"] = assigning_data.item.Final_Code
@@ -358,7 +447,7 @@ def bulkAssign(request):
             data["name"] = assigning_data.user.first_name + " "+ assigning_data.user.last_name
             temp_container.append(temp_data)
 
-            final_codes.append("LNM  "+i["location"]+" "+i["item_code"])
+            final_codes.append("LNM "+i["location"]+" "+i["item_code"])
         
         data["items"] = temp_container
 
@@ -370,16 +459,23 @@ def bulkAssign(request):
 
     return redirect("NotFound")
 
+@transaction.atomic
+@check_role_ajax(role="STORE")
 def issueConsumeable(request):
     if request.method == 'POST':
-        asign_id = json.loads(request.body.decode())["id"]
+        data = json.loads(request.body.decode())
+        print(data)
+        assign_name = data["name"]
+        quantity = int(data["quantity"])
         # assign consmable item to the user!
-        assign_object = assign.objects.get(id = asign_id)
-        assign_object.pickedUp = True
-        assign_object.pickupDate = date.today()
-        assign_object.item.isIssued = True
-        assign_object.item.save()
-        assign_object.save()
-        
+        assign_object = assign.objects.filter(item__Purchase_Item__name = assign_name, pickedUp = False, item__item_type = "CONSUMABLE")
+        print(assign_func)
+        for i in range(quantity):
+            temp_view = assign.objects.get(id = assign_object[i].id)
+            temp_view.pickedUp = True
+            temp_view.pickupDate = date.today()
+            temp_view.item.isIssued = True
+            temp_view.item.save()
+            temp_view.save()
         return JsonResponse({"status":"success"})
     return JsonResponse({"status":"error"})

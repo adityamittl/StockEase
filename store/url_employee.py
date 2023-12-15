@@ -12,6 +12,7 @@ urlpatterns = [
     path('hod', hod_dash),
     path("notifications", notifications),
     path("notification/action", notificationAction),
+    path("notification/count", notif_count),
     
     # Ajax call endpoints for the location selection
     path("getFloors",getfloors),

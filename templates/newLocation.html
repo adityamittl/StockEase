@@ -14,11 +14,17 @@
   </head>
 
   <body>
+    {%if error%}
+    <div class="w-full p-4 text-center bg-white border border-gray-200 rounded-lg shadow sm:p-8 dark:bg-gray-800 dark:border-gray-700" style="border: 1px solid red; background-color: rgba(255, 0, 0, 0.363);">
+        <h5 class="mb-2 text-3xl font-bold text-gray-900 dark:text-white">{{msg}}</h5>
+    </div>
+    {%endif%}
     <form
       method="post"
       style="
         padding-left: 10%;
-        width: 84%;
+        width: 100%;
+        height: 100vh;
         padding-right: 5%;
         padding-top: 30px;
       "
@@ -31,65 +37,69 @@
       >
         <div class="mb-6">
           <label
-            for="countries"
-            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            for="building"
+            {%if error%} class="block mb-2 text-sm font-medium text-red-700 dark:text-red-500" {%else%} class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" {%endif%}
             >Building Name</label
           >
           <select
-            id="countries"
+          onchange="checkStatus(event)"
+            id="building"
+            name="building"
             required
-            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            {%if error %}  class="bg-red-50 border border-red-500 text-red-900 placeholder-red-700 text-sm rounded-lg focus:ring-red-500 dark:bg-gray-700 focus:border-red-500 block w-full p-2.5 dark:text-red-500 dark:placeholder-red-500 dark:border-red-500" {%else%}class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" {%endif%}
           >
-            <option selected>Building Name</option>
-            <option value="US">United States</option>
-            <option value="CA">Canada</option>
-            <option value="FR">France</option>
-            <option value="DE">Germany</option>
+            <option>Building Name</option>
+            {%for i in building%}
+            <option value="{{i.code}}" {%if data.building.code == i.code%}selected{%endif%}>{{i.name}}</option>
+            {%endfor%}
+            <option value="other">Other</option>
           </select>
         </div>
 
         <div class="mb-6">
           <label
-            for="countries"
-            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            for="floor"
+            {%if error%} class="block mb-2 text-sm font-medium text-red-700 dark:text-red-500" {%else%} class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" {%endif%}
             >Floor</label
-          >
-          <select
-            id="countries"
+            >
+            <select
+            onchange="checkStatus(event)"
+            id="floor"
+            name="floor"
             required
-            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            {%if error %}  class="bg-red-50 border border-red-500 text-red-900 placeholder-red-700 text-sm rounded-lg focus:ring-red-500 dark:bg-gray-700 focus:border-red-500 block w-full p-2.5 dark:text-red-500 dark:placeholder-red-500 dark:border-red-500" {%else%}class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" {%endif%}
           >
             <option selected>Choose Floor</option>
-            <option value="US">United States</option>
-            <option value="CA">Canada</option>
-            <option value="FR">France</option>
-            <option value="DE">Germany</option>
           </select>
         </div>
         <div class="mb-6">
           <label
-            for="default-input"
-            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white mt-3"
+            for="description"
+            {%if error%} class="block mb-2 text-sm font-medium text-red-700 dark:text-red-500" {%else%} class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" {%endif%}
             >Description</label
           >
           <input
             type="text"
-            id="default-input"
+            id="description"
+            name="description"
             required
-            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            value="{{data.description}}"
+            {%if error %}  class="bg-red-50 border border-red-500 text-red-900 placeholder-red-700 text-sm rounded-lg focus:ring-red-500 dark:bg-gray-700 focus:border-red-500 block w-full p-2.5 dark:text-red-500 dark:placeholder-red-500 dark:border-red-500" {%else%}class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" {%endif%}
           />
         </div>
         <div class="mb-6">
           <label
-            for="default-input"
-            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white mt-3"
+            for="dcode"
+            {%if error%} class="block mb-2 text-sm font-medium text-red-700 dark:text-red-500" {%else%} class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" {%endif%}
             >Description-Code</label
-          >
-          <input
+            >
+            <input
+            value="{{data.code}}{{data.dcode}}"
             type="text"
-            id="default-input"
+            id="dcode"
+            id="name"
             required
-            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            {%if error %}  class="bg-red-50 border border-red-500 text-red-900 placeholder-red-700 text-sm rounded-lg focus:ring-red-500 dark:bg-gray-700 focus:border-red-500 block w-full p-2.5 dark:text-red-500 dark:placeholder-red-500 dark:border-red-500" {%else%}class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" {%endif%}
           />
         </div>
         <button
@@ -99,10 +109,90 @@
           Submit
         </button>
       </div>
-    </form>
-  <script src="/static/index.js"></script>
+</form>
 
+  
+<script src="/static/index.js"></script>
 <script src="/static/ajax.js"></script>
-  <script src="/static/complaint.mjs"></script>
+<script src="/static/theme.js"></script>
+
+<script>
+  let floor_code = "{{data.floor.code}}"
+  function cleanSelect(tagid) {
+    let floors_options = document.getElementById(tagid);
+    for (let i = floors_options.children.length - 1; i > 0; i--) {
+      floors_options.children[i].remove();
+    }
+  }
+  function insertAfter(referenceNode, newNode) {
+    referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
+  }
+  function fetch_and_set_floors(selection_value, selected_value = null){
+    ajaxPOST({ "data": selection_value }, '/getFloors').then(data => {
+        let x = data['data'];
+        floor_count = x.length;
+        //clearing current floor options
+
+        cleanSelect("floor");
+
+        let floors_options = document.getElementById("floor");
+        for (let i = 0; i < floor_count; i++) {
+          code = Object.keys(x[i])[0]
+          name = x[i][code]
+          if(selected_value && code == floor_code){
+            floors_options.innerHTML += `
+                  <option value="${code}" selected>${name}</option>
+                  `
+          }
+          else{
+            floors_options.innerHTML += `
+                  <option value="${code}">${name}</option>
+                  `
+          }
+        }
+        floors_options.innerHTML += `
+              <option value="other">Other</option>
+              `
+      });
+  }
+  function checkStatus(event){
+    let selection_value = event.srcElement.value
+    if(selection_value == "other"){
+      let newEle = document.createElement("div");
+      if(event.srcElement.getAttribute("id") == "building"){
+        newEle.innerHTML = `
+          <div>
+              <label for="new_building_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">New Building Name</label>
+              <input type="text" id="new_building_name" name="new_building_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+          </div>
+          <div>
+              <label for="new_building_code" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">New Building Code</label>
+              <input type="text" id="new_building_code" name="new_building_code" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+          </div>
+        `
+        
+        fetch_and_set_floors("all")
+      }
+      else if(event.srcElement.getAttribute("id") == "floor"){
+        newEle.innerHTML = `
+          <div>
+              <label for="new_floor_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">New Floor Name</label>
+              <input type="text" id="new_floor_name" name="new_building_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+          </div>
+          <div>
+              <label for="new_floor_code" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">New Floor Code</label>
+              <input type="text" id="new_floor_code" name="new_building_code" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+          </div>
+        `
+      }
+      newEle.setAttribute("class","grid gap-6 mb-6 md:grid-cols-2")
+      insertAfter(event.srcElement.parentNode, newEle);
+    }
+    else{
+      fetch_and_set_floors(selection_value)
+    }
+  }
+  fetch_and_set_floors(document.getElementById("building").value, floor_code)
+</script>
 </body>
 </html>

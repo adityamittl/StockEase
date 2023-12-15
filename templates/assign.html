@@ -278,6 +278,10 @@
                   >Item anem</a
                 >
               </li>
+              <li>
+                <a href="/register"
+                class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Register Entry</a>
+            </li>
             </ul>
           </li>
           <li>
@@ -599,6 +603,23 @@
           </svg>
         </button>
       </div>
+
+      <div class="absolute" style="right: 110px; top: 10px;">
+        <a href="/alert"
+            class="relative inline-flex items-center p-3 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+            <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                viewBox="0 0 20 16">
+                <path
+                    d="m10.036 8.278 9.258-7.79A1.979 1.979 0 0 0 18 0H2A1.987 1.987 0 0 0 .641.541l9.395 7.737Z" />
+                <path
+                    d="M11.241 9.817c-.36.275-.801.425-1.255.427-.428 0-.845-.138-1.187-.395L0 2.6V14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2.5l-8.759 7.317Z" />
+            </svg>
+            <span class="sr-only">Notifications</span>
+            <div style="margin-left:17px" id="notificationCount"
+                class="absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full -top-2 -end-2 dark:border-gray-900">
+                </div>
+        </a>
+    </div>
       <ol
         class="items-center w-full space-y-4 sm:flex sm:space-x-8 sm:space-y-0"
         style="
@@ -806,7 +827,10 @@
                   <tr>
                     <th scope="col" class="px-6 py-3"><input id="checkbox_all" type="checkbox" onclick="toggle_check_boxes(event)" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"></th>
                     <th scope="col" class="px-6 py-3">Item</th>
-                    <th scope="col" class="px-6 py-3">Item Code</th>
+                    <th scope="col" class="px-6 py-3">Register</th>
+                    <th scope="col" class="px-6 py-3">Page</th>
+                    <th scope="col" class="px-6 py-3">Available quantity</th>
+                    <th scope="col" class="px-6 py-3">Select quantity</th>
                   </tr>
                 </thead>
                 <tbody id="items_table" style="max-height: 57vh"></tbody>
@@ -825,6 +849,7 @@
                 type="button"
                 style="float: right; margin-top: 10vh; width: 100%"
                 onclick="backToAssignee()"
+                tabindex="-1"
                 class="text-red-700 hover:text-white border border-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900"
               >
                 previous
@@ -870,7 +895,11 @@
                   style="font-weight: 600"
                 ></p>
               </div>
-              <input type="text" name="alt_email" placeholder="Alternate Email Address" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+              <div id="altEmails" style="display: flex; gap: 5px; flex-direction: row; flex-wrap: wrap;">
+                <div>
+                </div>
+                <input type="text" onkeyup="emailVerify(event)" name="alt_email" placeholder="Alternate Email Address" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+              </div>
             </div>
               
               <!-- Review Block, showing all the items selected for the selected person! -->
@@ -894,7 +923,8 @@
                       >
                         <tr>
                           <th scope=" col" class="px-6 py-3">Item Name</th>
-                          <th scope=" col" class="px-6 py-3">Item Code</th>
+                          <th scope=" col" class="px-6 py-3">Item Type</th>
+                          <th scope=" col" class="px-6 py-3">Quantity</th>
                         </tr>
                       </thead>
 
@@ -1188,31 +1218,82 @@
         let it = document.getElementById("items_table");
         getUsers("getDepartmentItems", ap).then((data) => {
           const keys = Object.keys(data);
-
+          console.log(data)
           for (let i = 0; i < keys.length; i++) {
             let tr = document.createElement("tr");
             tr.setAttribute(
               "class",
               "bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
             );
-            tr.innerHTML = `
-                    <td scope="row"
-                                    class="px-6 py-4">
-                                    <input type="checkbox" name="selected_items" value = "${
-                                      keys[i]
-                                    }"
-                                    class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+            if(data[keys[i]]["item_type"] == "CONSUMABLE")
+              tr.innerHTML = `
+                      <td scope="row"
+                                      class="px-6 py-4">
+                                      <input type="checkbox" name="selected_items" value = "${
+                                        keys[i]
+                                      }"
+                                      class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                                    <input type="text" style="display:none" value="${data[keys[i]]["item_type"]}"  
                                     </td>
                                     <th class="px-6 py-4">
-                                        ${data[keys[i]]}
-                                        </th>
-                                        <td class="px-6 py-4">
-                                            ${keys[i]}
-                                            </td>
-                                            `;
+                                      ${keys[i]}
+                                      </th>
+                                    <td class="px-6 py-4">
+                                      ${data[keys[i]]["reg_no"]}
+                                      </td>
+                                    <td class="px-6 py-4">
+                                      ${data[keys[i]]["page_no"]}
+                                      </td>
+                                      <td class="px-6 py-4">
+                                        ${data[keys[i]]["quantity"]}
+                                          </td>
+                                      <td class="px-6 py-4">
+                                        <input type="number" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" value="0" onchange="reviewChanges(event)">
+                                          </td>
+                                              `;
+            else{
+              tr.innerHTML = `
+                      <td scope="row"
+                                      class="px-6 py-4">
+                                      <input type="checkbox" name="selected_items" disabled value = "${
+                                        keys[i]
+                                      }"
+                                      class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                                      <input type="text" style="display:none" value="${data[keys[i]]["item_type"]}"  
+                                    </td>
+                                      <th class="px-6 py-4">
+                                          ${keys[i]}
+                                          </th>
+                                          <td class="px-6 py-4">
+                                      ${data[keys[i]]["reg_no"]}
+                                      </td>
+                                    <td class="px-6 py-4">
+                                      ${data[keys[i]]["page_no"]}
+                                      </td>
+                                          <td class="px-6 py-4">
+                                            ${data[keys[i]]["quantity"]}
+                                              </td>
+                                          <td class="px-6 py-4">
+                                            <input type="number" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" value="0" onchange="reviewChanges(event)">
+                                              </td>
+                                              `;
+            }
             it.append(tr);
           }
         });
+      }
+
+      function reviewChanges(event){
+        let rowEle = event.srcElement.parentElement.parentElement.children;
+        let iquantity = rowEle[4].innerHTML.trim();
+        if(event.srcElement.value > 0 && event.srcElement.value <= iquantity){
+          let cb = rowEle[0].children[0].checked = true;
+        }
+        else{
+          event.srcElement.value = "0"
+          let cb = rowEle[0].children[0].checked = false;
+          alert(`Item ${rowEle[1].innerHTML.trim()} has been selected with number more than available in store`)
+        }
       }
       let info;
 
@@ -1256,12 +1337,16 @@
               checkBoxes[
                 i
               ].parentElement.parentElement.children[1].innerHTML.trim();
-
+            let itype = checkBoxes[i].parentElement.children[1].value
+            let qty = checkBoxes[i].parentElement.parentElement.children[5].children[0].value
             selectedItems[counter++] = {
-              item_id: iid,
+              quantity: qty,
               item_name: iname,
+              itype :itype
             };
             // Parsing the data into the next tab!
+            console.log(selectedItems)
+            if(itype == "CONSUMABLE")
 
             reviewTable.innerHTML += `
                     <tr class="border-b bg-gray-50 dark:bg-gray-800 dark:border-gray-700">
@@ -1270,7 +1355,26 @@
                                                 ${iname}
                                             </td>
                                             <th class="px-6 py-4">
-                                                ${iid}
+                                                CONSUMABLE
+                                            </th>
+                                            <th class="px-6 py-4">
+                                                ${qty}
+                                            </th>
+                                        </tr>
+                    `;
+            
+            else
+            reviewTable.innerHTML += `
+                    <tr class="border-b bg-gray-50 dark:bg-gray-800 dark:border-gray-700">
+                                            <td scope="row"
+                                                class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                                ${iname}
+                                            </td>
+                                            <th class="px-6 py-4">
+                                                Fixed Asset
+                                            </th>
+                                            <th class="px-6 py-4">
+                                                ${qty}
                                             </th>
                                         </tr>
                     `;
@@ -1303,20 +1407,39 @@
         document.getElementsByName("selected_items_data")[0].value = "";
       }
 
-      function toggle_check_boxes(event){
-        let items_selection = document.getElementsByName("selected_items");
+      // function toggle_check_boxes(event){
+      //   let items_selection = document.getElementsByName("selected_items");
 
-        for(let i=0;i<items_selection.length;i++){
-          if(event.srcElement.checked == true){
-            items_selection[i].checked = true;
+      //   for(let i=0;i<items_selection.length;i++){
+      //     if(event.srcElement.checked == true){
+      //       items_selection[i].checked = true;
+      //     }
+      //     else{
+      //       items_selection[i].checked = false;
+      //     }
+      //   }
+      // }
+
+      function emailVerify(event){
+        let eleLen = event.srcElement.value.length;
+        if(event.srcElement.value[eleLen-1] == " "){
+          if(event.srcElement.value.indexOf("@lnmiit.ac.in") == -1){
+            alert("Enter valid email address (with @lnmiit.ac.in domain)");
+            return;
           }
-          else{
-            items_selection[i].checked = false;
-          }
+          let inptValue = event.srcElement.value;
+          let newEmail = document.createElement("span");
+          newEmail.setAttribute("class","inline-flex items-center bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300")
+          newEmail.innerHTML = ` ${inptValue}
+          `
+          event.srcElement.parentElement.children[0].append(newEmail)
+          event.srcElement.value = "";
         }
       }
     </script>
   <script src="/static/ajax.js"></script>
+  <script src="/static/notify.js"></script>
   <script src="/static/complaint.mjs"></script>
+  
 </body>
 </html>

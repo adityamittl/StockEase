@@ -25,7 +25,7 @@ from django.utils.decorators import method_decorator
 import threading
 from django.db.models import Count
 from django.core.paginator import Paginator
-
+import os
 from .sendMail import email_send
 
 
@@ -46,6 +46,7 @@ def entry(request):
         billNO = data["meta_data"]['invoice']
         doe = data["meta_data"]['doe']
         doi = data["meta_data"]['doi']
+        pono = data["meta_data"]["po_no"]
         vendor = Vendor.objects.get(name=data["meta_data"]['vendor_name'])
 
         dte = [int(doe.split("/")[1]), int(doe.split("/")[2])]
@@ -56,9 +57,9 @@ def entry(request):
             else str(dte[1]) + "-" + str(dte[1] + 1)
         )
 
-        print(fy)
+        # print(fy)
         finantialYear = None
-        print(data)
+        # print(data)
         try:
             finantialYear = Finantial_Year.objects.get(yearName=fy)
         except:
@@ -66,10 +67,11 @@ def entry(request):
         
         
         for items in item_codes_list:
-            item = Asset_Type.objects.get(Final_Code=data[items]["item_code"])
+            item = Asset_Type.objects.get(name=data[items]["item_name"])
             item_type = "FIXED ASSET" if data[items]["item_type"] == "FA" else "CONSUMABLE"
             quantity = int(data[items]["quantity"])
             item.Last_Assigned_serial_Number += quantity
+            item.quantity += quantity
 
             item.save()
 
@@ -104,6 +106,7 @@ def entry(request):
                 make=j["item_make"],
                 sno=j["item_sno"],
                 Financial_Year=finantialYear,
+                pono = pono
                 )
 
                 Item_Code = ""
@@ -123,6 +126,9 @@ def entry(request):
 
 @check_role(role = "STORE", redirect_to= "employee_home")
 def vendor_details(request):
+    if "id" in request.GET.keys():
+        if request.method == 'GET':
+            return render(request, "vendor_view.html", context={"data": Vendor.objects.get(id = request.GET["id"])})
     vendors = Vendor.objects.all()
     return render(request, "vendor_entry.html", context={"data": vendors})
 
@@ -147,7 +153,7 @@ def new_vendor(request):
                 fs = FileSystemStorage(location="media/vendors/")
                 filename = fs.save(x.name, x)
                 attach = Vendor_Attachments.objects.create(File_Name=filename)
-                vendor.add(attach)
+                vendor.attach.add(attach)
 
         for y in service:
             try:
@@ -160,10 +166,60 @@ def new_vendor(request):
 
     return render(request, "newVendor.html")
 
+def edit_location(request):
 
+    building = Building_Name.objects.all()
+    if request.method == "POST":
+        location_code = request.GET["code"]
+        location_object = Location_Description.objects.get(Final_Code = location_code)
+
+        # check if the new location code issued by the user already exists or not
+
+        new_code = request.POST["building"]+" "+request.POST["floor"]+" "+request.POST["dcode"]
+        if new_code == location_code:
+            return render(request, "close.html")
+        else:
+            # check if the new location code already exists, if yes, throw an error
+            if Location_Description.objects.filter(Final_Code = new_code).count() >0:
+                return render(request, "newLocation.html", context={"error":True, "msg":"This location code already exists, create a unique one", "data":request.POST, "building":building})
+            else:
+                location_object.description = request.POST["description"]
+                location_object.code = request.POST["dcode"]
+                location_object.Final_Code = location_code
+                location_object.building = Building_Name.objects.get(code = request.POST["building"])
+                location_object.floor = Floor_Code.objects.get(code = Floor_Code.objects.get(code = request.POST["floor"]))
+
+                location_object.save()
+
+                return render(request, "close.html")
+
+    if "code" in request.GET.keys():
+        floor = Floor_Code.objects.all()
+        building = Building_Name.objects.all()
+        try:
+            item = Location_Description.objects.get(Final_Code = request.GET["code"])
+        except:
+            return redirect("NotFound")
+        return render(request, "newLocation.html", context={"floor":floor, "building":building, "data":item})
+
+    return redirect("NotFound")
 @transaction.atomic
 @check_role(role = "STORE", redirect_to= "employee_home")
 def locationCode(request):
+    if request.method == "POST" and "autocomplete" in  request.POST.keys():
+        locs = Location_Description.objects.filter(Final_Code__icontains = request.POST["code"])[:10]
+        res = []
+        for i in locs:
+            res.append(i.Final_Code)
+
+        return JsonResponse({"Data":res})
+
+    if request.method == "GET" and "code" in request.GET.keys():
+        try:
+            return render(request, "locations.html", context={"data":Location_Description.objects.filter(Final_Code = request.GET["code"]), "code":request.GET["code"]})
+
+        except:
+            return redirect("NotFound")
     if request.method == "POST":
         file = request.FILES.get("dataCSV")
         data = file.read().decode("utf-8")
@@ -218,9 +274,12 @@ def locationCode(request):
                 )
 
         return redirect("location")
-
+    #  pagify
     data = Location_Description.objects.all()
-    return render(request, "locations.html", context={"data": data})
+    paginator = Paginator(data, 50)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+    return render(request, "locations.html", context={"data": page_obj})
 
 @check_role(role = "STORE", redirect_to= "employee_home")
 def new_location(request):
@@ -287,28 +346,59 @@ def departments(request):
 @transaction.atomic
 @check_role(role = "STORE", redirect_to= "employee_home")
 def itemAnem(request):
+    if request.method == "POST" and "autocomplete" in request.POST.keys():
+        res = []
+        if request.POST["type"] == "bc":
+            itm = Asset_Type.objects.filter(Final_Code__icontains = request.POST['item'])[:10]
+
+            for i in itm:
+                res.append(i.Final_Code)
+        else:
+            itm = Asset_Type.objects.filter(name__icontains = request.POST["item"])[:10]
+            for i in itm:
+                res.append(i.name)
+        return JsonResponse({'Data':res})
+
+
     if request.method == "POST":
         file = request.FILES.get("dataCSV")
         data = file.read().decode("utf-8")
         newData = data.split("\r\n")
         x = csv.DictReader(newData)
+        new_m = 0
+        new_s = 0
         try:
             for row in x:
-                mc = Main_Catagory.objects.get(
-                    name=row["MAIN CATEGORY"].upper(), code=row["MC CODE"]
-                )
-                sc = Sub_Catagory.objects.get(
-                    name=row["SUB CATEGORY"].upper(), code=int(row["SC CODE"])
-                )
+                try:
+                    mc = Main_Catagory.objects.get(
+                        name=row["MAIN CATEGORY"].upper()
+                    )
+                except:
+                    mc = Main_Catagory.objects.create(
+                        name=row["MAIN CATEGORY"].upper(),
+                        code = row["MC CODE"]
+                    )
+                    new_m +=1
+                    
+                try:
+                    sc = Sub_Catagory.objects.get(
+                        name=row["SUB CATEGORY"].upper()
+                    )
+                except:
+                    sc = Sub_Catagory.objects.create(
+                        name = row["SUB CATEGORY"].upper(), code = row["SC CODE"]
+                    )
+                    new_s +=1
                 las = row["last serial no assigned"]
+                print(las, sc, mc)
                 if las == "":
                     las = 0
                 else:
                     las = int(las)
                 try:
-                    Asset_Type.objects.get(Final_Code=row["FINAL CODE"])
+                    t = Asset_Type.objects.get(Final_Code=row["FINAL CODE"])
                 except:
-                    Asset_Type.objects.create(
+                    t = Asset_Type.objects.create(
                         mc=mc,
                         sc=sc,
                         name=row["ASSET TYPE"].upper(),
@@ -316,17 +406,21 @@ def itemAnem(request):
                         Final_Code=row["FINAL CODE"],
                         Last_Assigned_serial_Number=las,
                     )
-
         except:
-            return render(
-                request,
-                "itemAnem.html",
-                context={
-                    "error": "Use the correct formatted csv file to import the data, Headers must be in the format "
-                },
-            )
+            return HttpResponse("Data should be in prescribed format only!")
 
+        if new_s or new_m:
+            return HttpResponse(f"created {new_m} new main catagories and {new_s} sub catagories in new data insertion")
         return redirect("itemAnem")
+    
+    if request.method == "GET" and "item" in request.GET.keys():
+        if request.GET["type"] == "bc":
+            return render(request, "itemAnem.html", context={"data": Asset_Type.objects.filter(Final_Code = request.GET["item"]), "code" : request.GET["item"]})
+        else:
+            return render(request, "itemAnem.html", context={"data": Asset_Type.objects.filter(name = request.GET["item"]),"code" : request.GET["item"]})
+
+        
+
     data = Asset_Type.objects.all()
     paginator = Paginator(data, 25)
     page_number = request.GET.get("page")
@@ -334,13 +428,57 @@ def itemAnem(request):
 
     return render(request, "itemAnem.html", context={"data": page_obj})
 
+
+def itemanem_new(request):
+    mc = Main_Catagory.objects.all()
+    sc = Sub_Catagory.objects.all()
+    if request.method == "POST":
+        fc = Main_Catagory.objects.get(code = request.POST["mc"]).code+"{:02d}".format(Sub_Catagory.objects.get(name = request.POST["sc"]).code)+"{:03d}".format(int(request.POST["code"]))
+        # check if that item number already exists or not, else throw an error on screen! 
+        if Asset_Type.objects.filter(Final_Code = fc).count() >0 :
+            return render(request, "anem_edit.html", context={"data": request.POST, "msg": "Item with this item number already exists", "error":True, "mc":mc, "sc":sc})
+        item = Asset_Type.objects.create(
+            mc = Main_Catagory.objects.get(code = request.POST["mc"]), 
+            sc = Sub_Catagory.objects.get(name = request.POST["sc"]), 
+            name = request.POST["name"],
+            code = request.POST["code"],
+            remark = request.POST["remark"],
+            Last_Assigned_serial_Number = 0,
+            quantity = 0,
+            Final_Code = fc
+        )
+        return render(request, "close.html")
+    return render(request, "anem_edit.html", context={"mc":mc, "sc":sc, "new" : True})
+
+
+def itemanem_edit(request):
+    if request.method == "POST":
+        try:
+            item = Asset_Type.objects.get(id = request.GET["id"])
+        except:
+            return redirect("NotFound")
+        
+        item.mc = Main_Catagory.objects.get(code = request.POST["mc"])
+        item.sc = Sub_Catagory.objects.get(name = request.POST["sc"])
+        item.name = request.POST["name"]
+        item.code = request.POST["code"]
+        item.remark = request.POST["remark"]
+
+        item.Final_Code = Main_Catagory.objects.get(code = request.POST["mc"]).code+"{:02d}".format(Sub_Catagory.objects.get(name = request.POST["sc"]).code)+"{:03d}".format(int(request.POST["code"]))
+        item.save()
+
+        return redirect(f"/itemanem?item={item.Final_Code}&type=bc")
+    if "id" in request.GET.keys():
+        mc = Main_Catagory.objects.all()
+        sc = Sub_Catagory.objects.all()
+        item = Asset_Type.objects.get(id = request.GET["id"])
+        return render(request,"anem_edit.html", context={"mc":mc, "sc":sc,"data": item})
+    return request("NotFound")
+
 @check_role_ajax(role = "STORE")
 def findVendor(request):
     if request.method == "POST":
-        vs = request.body.decode("utf-8")
-        # print(vs)
-        y = vs.split("=")[1].replace("+", " ")
-        res = Vendor.objects.filter(name__icontains=y)
+        res = Vendor.objects.filter(name__icontains=request.POST["vendor"])
         data = []
 
         for i in res:
@@ -390,7 +528,6 @@ def main_category(request):
                     Main_Catagory.objects.get(code=i["CODE"])
                 except:
                     Main_Catagory.objects.create(
-                        Consumable_type=i["CONSUMABLE TYPE"],
                         name=i["MAIN CATEGORY"],
                         code=i["CODE"],
                     )
@@ -402,9 +539,7 @@ def main_category(request):
 @check_role_ajax(role = "STORE")
 def findItem(request):
     if request.method == "POST":
-        vs = request.body.decode("utf-8")
-        y = vs.split("=")[1].replace("+", " ")
-        res = Asset_Type.objects.filter(name__icontains=y.upper())
+        res = Asset_Type.objects.filter(name__icontains=request.POST["vendor"].upper())
         # print(res)
         data = []
         for i in res:
@@ -414,9 +549,7 @@ def findItem(request):
 
 @check_role_ajax(role = "STORE")
 def FetchDetails(request):
-    vs = request.body.decode("utf-8")
-    y = vs.split("=")[1].replace("+", " ")
-    res = Asset_Type.objects.get(name=y)
+    res = Asset_Type.objects.get(name=request.POST["vendor"])
 
     return JsonResponse(
         {"code": res.Final_Code, "lsn": res.Last_Assigned_serial_Number}
@@ -642,7 +775,6 @@ class backup(View):
         writer.writerow(
             [
                 "S.NO",
-                "Item Category",
                 " MAIN CATEGORY",
                 " MC CODE",
                 " SUB CATEGORY",
@@ -658,7 +790,6 @@ class backup(View):
             writer.writerow(
                 [
                     i,
-                    data.mc.Consumable_type,
                     data.mc.name,
                     data.mc.code,
                     data.sc.name,
@@ -677,7 +808,7 @@ class backup(View):
         writer = csv.writer(usrs)
         pfs = profile.objects.all()
         i = 0
-        writer.writerow(["Sno", "Name", "Email", "Department", "Designation"])
+        writer.writerow(["Sno", "Name", "Email", "Department", "Designation","login type"])
 
         for data in pfs:
             writer.writerow(
@@ -687,6 +818,7 @@ class backup(View):
                     data.user.email,
                     data.department.code,
                     data.designation,
+                    data.login_type
                 ]
             )
             i += 1
@@ -697,10 +829,10 @@ class backup(View):
         writer = csv.writer(temp)
         pfs = Main_Catagory.objects.all()
         i = 0
-        writer.writerow(["Sno", "CONSUMABLE_TYPE", "NAME", "CODE"])
+        writer.writerow(["Sno", "NAME", "CODE"])
 
         for data in pfs:
-            writer.writerow([i, data.Consumable_type, data.name, data.code])
+            writer.writerow([i, data.name, data.code])
             i += 1
         return [temp, "main_catagory.csv"]
 
@@ -714,6 +846,114 @@ class backup(View):
             writer.writerow([i, data.name, data.code])
             i += 1
         return [temp, "sub_catagory.csv"]
+    
+    def get_shifts(self):
+        temp = StringIO()
+        writer = csv.writer(temp)
+        sc = Shift_History.objects.all()
+        writer.writerow(["S.NO", "ID", "FROM", "TO", "FROM USER", "TO USER", "DATE",'REMARK'])
+        i = 1
+        for data in sc:
+            writer.writerow([
+                i, 
+                data.id, 
+                data.From,
+                data.To, 
+                data.from_User.username,
+                data.to_User.username,
+                data.Date,
+                data.remarks
+                ])
+            i += 1
+        return [temp, "shift_history.csv"]
+    
+    def get_dump(self):
+        temp = StringIO()
+        writer = csv.writer(temp)
+        sc = Dump.objects.all()
+        writer.writerow(["S.NO", "ITEM_ID", "ITEM", "REMARK", "IS SOLD", "DATE OF SOLD", "SOLD PRICE"])
+        i = 1
+        for data in sc:
+            writer.writerow([
+                i, 
+                data.id, 
+                data.Item.Purchase_Item.name,
+                data.Remark, 
+                data.Is_Sold,
+                data.Date_Of_Sold,
+                data.Sold_Price,
+                ])
+            i += 1
+        return [temp, "dump.csv"]
+    def get_assign(self):
+        temp = StringIO()
+        writer = csv.writer(temp)
+        sc = assign.objects.all()
+        writer.writerow(["S.NO", "LEDGER ID", "USER", "ITEM", "PICKUP DATE", "PICKEDUP","ASSIGNED TO PICKUP","ASSIGNED PERSON","DUMPED REVIEW","DUMP REMARK","ACTION DATE"])
+        i = 1
+        for data in sc:
+            writer.writerow([
+                i, 
+                data.item.id,
+                data.user.username, 
+                data.item.Purchase_Item.name,
+                data.pickupDate,
+                data.pickedUp,
+                data.assigned_to_pickup,
+                data.assigned_person,
+                data.assigned_person,
+                data.dumped_review,
+                data.dump_remark,
+                data.action_date,
+                ])
+            i += 1
+        return [temp, "assign.csv"]
+    
+    def get_reg_entry(self):
+        temp = StringIO()
+        writer = csv.writer(temp)
+        sc = entry_to_register.objects.all()
+        writer.writerow(["S.NO", "FINANTIAL YEAR", "ITEM", "PAGE NO", "REGISTER NO"])
+        i = 1
+        for data in sc:
+            writer.writerow([
+                i, 
+                data.finantialYear.yearName,
+                data.item.name,
+                data.pageno,
+                data.register_number,
+                ])
+            i += 1
+        return [temp, "register_entry.csv"]
+
+    def get_designations(self):
+        temp = StringIO()
+        writer = csv.writer(temp)
+        sc = designation.objects.all()
+        writer.writerow(["S.NO", "NAME", "CODE"])
+        i = 1
+        for data in sc:
+            writer.writerow([
+                i, 
+                data.designation_name,
+                data.designation_id,
+                ])
+            i += 1
+        return [temp, "DESIGNATIONS.csv"]
+
+    def get_stock_register(self):
+        temp = StringIO()
+        writer = csv.writer(temp)
+        sc = stock_register.objects.all()
+        writer.writerow(["S.NO", "NAME"])
+        i = 1
+        for data in sc:
+            writer.writerow([
+                i, 
+                data.name
+                ])
+            i += 1
+        return [temp, "stock_registers.csv"]
 
     def get_ledger(self):
         temp = StringIO()
@@ -722,12 +962,13 @@ class backup(View):
         writer.writerow(
             [
                 "S.NO",
+                "ID",
                 "FINANTIAL YEAR",
                 "VENDOR",
                 "BILL NO",
                 "DATE OF ENTRY",
                 "DATE OF INVOICE",
-                "PURCHASE ITEM CODE",
+                "PURCHASE ITEM NAME",
                 "RATE",
                 "DISCOUNT",
                 "TAX",
@@ -743,19 +984,25 @@ class backup(View):
                 "SHIFT HISTORY",
                 "IS DUMP",
                 "IS ISSUED",
+                "ITEM TYPE"
             ]
         )
         i = 1
         for data in sc:
+            sh = []
+            sh_all = data.Shift_History.all()
+            for sh_id in sh_all:
+                sh.append(sh_id.id)
             writer.writerow(
                 [
                     i,
-                    data.Finantial_Year.yearName,
+                    data.id,
+                    data.Financial_Year.yearName,
                     data.Vendor.name,
                     data.bill_No,
                     data.Date_Of_Entry,
                     data.Date_Of_Invoice,
-                    data.Purchase_Item.Final_Code,
+                    data.Purchase_Item.name,
                     data.Rate,
                     data.Discount,
                     data.Tax,
@@ -768,9 +1015,10 @@ class backup(View):
                     data.Item_Code,
                     data.Final_Code,
                     data.remark,
-                    "pending",
+                    sh,
                     data.Is_Dump,
                     data.isIssued,
+                    data.item_type
                 ]
             )
             i += 1
@@ -818,6 +1066,7 @@ class backup(View):
             i += 1
         return [temp, "vendors.csv"]
 
+    
     def save_backup(self, request):
         pass
 
@@ -839,6 +1088,12 @@ class backup(View):
                 tpe.submit(self.get_subCatagory),
                 tpe.submit(self.get_vendors),
                 tpe.submit(self.get_ledger),
+                tpe.submit(self.get_assign),
+                tpe.submit(self.get_shifts),
+                tpe.submit(self.get_dump),
+                tpe.submit(self.get_reg_entry),
+                tpe.submit(self.get_designations),
+                tpe.submit(self.get_stock_register),
             ]
             for f in concurrent.futures.as_completed(results):
                 files.append((f.result()[0], f.result()[1]))
@@ -846,7 +1101,7 @@ class backup(View):
         with zipfile.ZipFile(s, "w", zipfile.ZIP_DEFLATED) as zf:
             for data, filename in files:
                 zf.writestr(filename, data.getvalue())
-
+        print(os.getcwd()+ "\\media")
         file_size = s.tell()
         s.seek(0)
 
@@ -903,13 +1158,57 @@ def getDepartmentItems(request, dpt):
     dept = Departments.objects.get(code=dpt)
     users = Ledger.objects.filter(buy_for=dept, isIssued=False, Is_Dump=False)
     res = dict()
+    count_id = 0
     for i in users:
-        res[i.Item_Code] = i.Purchase_Item.name
+        if i.item_type == "FIXED ASSET":
+            if i.Purchase_Item.name in res.keys():
+                res[i.Purchase_Item.name] = {
+                    "item_type" : i.item_type,
+                    "quantity": res[i.Purchase_Item.name]["quantity"]+1
+                }
+            else:
+                res[i.Purchase_Item.name] = {
+                    "item_type" : i.item_type,
+                    "quantity": 1
+                }
+                
+        else:
+            if i.Purchase_Item.name in res.keys():
+                res[i.Purchase_Item.name] = {
+                    "item_type" : i.item_type,
+                    "quantity": res[i.Purchase_Item.name]["quantity"]+1
+                }
+            else:
+                res[i.Purchase_Item.name] = {
+                    "item_type" : i.item_type,
+                    "quantity": 1
+                }
+                
+    # looping into res dictionary and append register numbers and pagee number in it
+
+    tdate = date.today()
+    tdate = str(tdate).split("-") #year-month-date
+    fy = None
+    if int(tdate[1]) >=4 and int(tdate[1])<=12:
+        fy = tdate[0] +"-"+str(int(tdate[0])+1)
+    else:
+        fy = str(int(tdate[0])-1) +"-"+tdate[0]
+    
+    fyyn = Finantial_Year.objects.filter(yearName = fy).count()
+
+    for i in res.keys():
+        # i has all the item name
+        try:
+            entry = entry_to_register.objects.get(finantialYear = fyyn, item__name = i)
+            res[i]["reg_no"] = entry.register_number
+            res[i]["page_no"] = entry.pageno
+        except:
+            res[i]["reg_no"] = "NA"
+            res[i]["page_no"] = "NA"
+
+
     return JsonResponse(res)
 
-
-def itemAnem_edit(request, itemId):
-    pass
 
 
 def fetchData(typeFetch, val):
@@ -963,7 +1262,8 @@ def create_AJAX_html(item, catagory):
         data = Ledger.objects.get(Item_Code=item)
     
     elif catagory == "user":
-        data = assign.objects.filter(user__username = item, pickedUp = True)
+        data = assign.objects.filter(user__username = item, pickedUp = True, item__item_type = "FIXED ASSET")
+        dc = assign.objects.filter(user__username = item, pickedUp = True, item__item_type = "FIXED ASSET")
 
     elif catagory == 'sr':
         data = Ledger.objects.filter(stock_register__name = item)
@@ -1097,6 +1397,10 @@ def create_AJAX_html(item, catagory):
         <tbody id="vendorDetails" class="overflow-y-scroll" style="max-height: 65vh;">
         """
         for i in data:
+            try:
+                location_code_allocated = i.item.Location_Code.Final_Code
+            except:
+                location_code_allocated = "No Location yet"
             innerStr += f"""
                 <tr
                     class="bg-white border-b dark:bg-gray-900 dark:border-gray-700">
@@ -1110,7 +1414,7 @@ def create_AJAX_html(item, catagory):
                         {i.item.Item_Code}
                     </td>
                     <td class="px-6 py-4">
-                        {i.item.Location_Code.Final_Code}
+                        {location_code_allocated}
                     </td>
                     <td class="px-6 py-4">
                         {i.item.Final_Code}
@@ -1177,25 +1481,8 @@ def dump(request):
         assign_object.action_date = datetime.strptime(dump_date, "%d/%m/%Y").strftime("%Y-%m-%d")
         assign_object.save()
         # send an approval mail for the same!
-        # item.Is_Dump = True
 
-        # # Uncheck the
-        # if item.isIssued:
-        #     item.isIssued = False
-
-        # item.save()
-
-        # Dump.objects.create(
-        #     Item=item,
-        #     Dump_Date=datetime.strptime(dump_date, "%d/%m/%Y").strftime("%Y-%m-%d"),
-        #     Remark=remark,
-        # )
-
-        # Removing relationship with the assigned person and the item..
-
-        # assign.objects.get(item=item).delete()
-
-        messages.success(request, f"Successfully Dumped Item {item_code}")
+        messages.success(request, f"Successfully send dump request of item {item_code}")
         return redirect("dump")
     return render(request, "dump.html")
 
@@ -1234,13 +1521,18 @@ def get_item_details(request):
         res["Code with Location"] = item_details.Final_Code
 
         # Details of the responsible person of that item.
-
+        print(item_details)
         person = assign.objects.get(item=item_details)
 
         res["Assigned to"] = person.user.first_name + " " + person.user.last_name
-        
+        hasloc = True
         if "user" in request.GET.keys():
-            res["Code with Location"] = "LNM "+item_details.Item_Code+" "+ profile.objects.get(user__username = request.GET["user"]).location.Final_Code
+            try:
+                res["Code with Location"] = "LNM "+" "+ profile.objects.get(user__username = request.GET["user"]).location.Final_Code+" "+item_details.Item_Code
+                hasloc = True
+            except:
+                res["Code with Location"] = "user has not updated their profile location!"
+                hasloc = False
             res["Assigned to"] = User.objects.get(username = request.GET["user"]).first_name + " "+ User.objects.get(username = request.GET["user"]).last_name
 
 
@@ -1270,7 +1562,7 @@ def get_item_details(request):
         <input type="text" style="visibility: hidden; position: absolute" name="itemcode_final" value = "{res['Item Code']}">
         """
 
-        return JsonResponse({"data": htmlWrap})
+        return JsonResponse({"data": htmlWrap, "hasloc": hasloc})
 
     return redirect("NotFound")
 
@@ -1539,7 +1831,23 @@ def available_details(request):
 
 @check_role(role = "STORE", redirect_to="/employee")
 def dump_details(request):
-    return render(request, "dump_details.html", context={"data":Dump.objects.filter(Is_Sold = False)})
+    if request.method == "POST":
+        item = Dump.objects.filter(Item__Item_Code__icontains = request.POST["item"], Is_Sold = False)[:10]
+        res = []
+
+        for i in item:
+            res.append(i.Item.Item_Code)
+
+        print(res)
+        return JsonResponse({"Data":res})
+
+    if request.method == "GET" and "item" in request.GET.keys():
+        return render(request, "dump_details.html", context={"data":Dump.objects.filter(Item__Item_Code = request.GET["item"]), "code":request.GET["item"]})
+    items = Dump.objects.filter(Is_Sold = False)
+    paginator = Paginator(items, 50)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+    return render(request, "dump_details.html", context={"data":page_obj})
 
 
 @check_role(role = "STORE", redirect_to="/employee")
@@ -1586,9 +1894,9 @@ def shift_item(request):
         if request.GET["type"] == "user":
             if request.method == "POST":
                 type = request.POST.get("type_of_change")
+                print(request.POST)
                 usr = User.objects.get(username = request.POST.get("user"))
                 item = Ledger.objects.get(Item_Code = request.POST.get("itemcode_final"))
-                print(request.POST)
                 if type == "user":
                     # only user is shifted, the location is still the same
                     # send mail to the new user, nwe user's department HOD, old user
@@ -1779,6 +2087,9 @@ def item_search_autocomplete(request):
     return JsonResponse({"data":res})
 
 def notifications(request):
+    if request.method == "POST":
+        return JsonResponse({"count":admin_notifications.objects.filter(status = "unread").count()})
+    
     data = admin_notifications.objects.all().order_by("-notification_date","-id")
     return render(request, "notification.html", context={"data":data, "count":data.filter(status="unread")})
 
@@ -1816,12 +2127,30 @@ def registerMap(request):
         Finantial_Year.objects.create(yearName = fy)
     
     currFY = Finantial_Year.objects.get(yearName = fy)
-    data = entry_to_register.objects.filter(finantialYear = currFY)
+    if "year" in request.GET.keys():
+        try:
+            currFY = Finantial_Year.objects.get(yearName = request.GET["year"])
+        except:
+            return redirect("NotFound")
+    try:
+        data = entry_to_register.objects.filter(finantialYear = currFY, pageno__isnull = False)
+    except:
+        return redirect("NotFound")
 
     paginator = Paginator(data, 50)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
-    return render(request, "register_entry.html", context={"data":page_obj, "fy":fy})
+
+    # relatively easier way to check number of unique finantial years!
+
+    fyears_all = Finantial_Year.objects.all()
+    uniques = list()
+    for fy in fyears_all:
+        if entry_to_register.objects.filter(finantialYear = fy).count() !=0:
+            uniques.append(fy.yearName)
+
+    print(uniques)
+    return render(request, "register_entry.html", context={"data":page_obj, "fy":fy, "allYears":uniques})
 
 @transaction.atomic
 def new_entry_register(request):
@@ -1839,36 +2168,24 @@ def new_entry_register(request):
     
     currFY = Finantial_Year.objects.get(yearName = fy)
     if request.method == "GET":
-        itemsCount = Ledger.objects.filter(Is_Dump = False, item_type = "FIXED ASSET")
-        # create the entry in entry table while calling this page, and leave the register and page number entry empty initially, and itereatively run the loop
-        # see if the entry of finaitial year is present, if not, create one
+        if "catagory" in request.GET.keys():
+            cat = request.GET["catagory"]
+            if cat == "":
+                return HttpResponse("No catagory selected")
+            
+            registerItems = entry_to_register.objects.filter(finantialYear = currFY, pageno__isnull = True, register_number__isnull = True, item__mc__code = cat)
 
-        newCount = 0
-        for i in itemsCount:
-            # see if that entry is present in the database, if not, make it!
-            # print(entry_to_register.objects.filter(finantialYear= currFY, item = i).count())
-            if entry_to_register.objects.filter(finantialYear= currFY, item = i).count() == 0:
-                print(i)
-                entry_to_register.objects.create(finantialYear = currFY, item = i)
-                newCount+=1
-            elif entry_to_register.objects.filter(finantialYear = currFY, item = i, pageno__gt = 0, register_number__gt = "").count()==0:
-                newCount+=1
-        print(newCount)
-        if newCount == 0:
-            return HttpResponse("Entry of all the items of this year has successfully done!")
-        
-        registerItems = entry_to_register.objects.filter(finantialYear = currFY, pageno__isnull = True, register_number__isnull = True)
-        paginator = Paginator(registerItems, 50)
-        page_number = request.GET.get("page")
-        page_obj = paginator.get_page(page_number)
+            return render(request, "selectFY.html", context={"fy":fy, "data":registerItems})
+            # return render(request,"selectFY.html")
 
-        return render(request, "selectFY.html", context={"fy":fy, "data":page_obj})
+        return render(request, "catagories_register.html", context={"data":Main_Catagory.objects.all(), "type":"catagory"})
 
     if request.method == "POST":
         try:
             data = json.loads(request.body.decode())
+            print(data)
             item_no = data["id"]
-            register_value = entry_to_register.objects.get(item__Item_Code = item_no, finantialYear = currFY)
+            register_value = entry_to_register.objects.get(item__name = item_no, finantialYear = currFY)
             register_value.register_number = data["rno"]
             register_value.pageno = data["pno"]
             register_value.save()
@@ -1877,3 +2194,62 @@ def new_entry_register(request):
         
         except:
             return JsonResponse({"type":"failure"})
+        
+def grn_fetch(request):
+    if "pono" in request.GET.keys():
+        try:
+            grn_search = grn.objects.get(poid = request.GET["pono"])
+            grn_value = grn_search.first().id 
+        except:
+            grn_search = grn.objects.create(poid = request.GET["pono"])
+            grn_value = grn_search.id
+        data = Ledger.objects.filter(pono = request.GET["pono"])
+        res = {} #resultant items dictionary
+        srn = {
+            "invoice": set(),
+            "stock_register": set(),
+            "date": set(),
+            "supplier":set()
+        }
+        total_price = 0
+        for i in data:
+            if i.Purchase_Item.name not in res.keys():
+                reg_mapping = entry_to_register.objects.get(item = i.Purchase_Item)
+                res[i.Purchase_Item.name] = {
+                    "name" : i.Purchase_Item.name,
+                    "cost": i.Rate,
+                    "discount": i.Discount,
+                    "ammount": i.Ammount,
+                    "quantity": 1,
+                    "page" : reg_mapping.pageno,
+                    "register" : reg_mapping.register_number
+                }
+                total_price+= float(i.Ammount)
+            else:
+                res[i.Purchase_Item.name] = {
+                    "name" : i.Purchase_Item.name,
+                    "cost": i.Rate,
+                    "discount": i.Discount,
+                    "ammount": i.Ammount,
+                    "quantity": res[i.Purchase_Item.name]["quantity"] + 1,
+                    "page" : res[i.Purchase_Item.name],
+                    "register": res[i.Purchase_Item.name]
+                }
+                total_price+= float(i.Ammount)
+            srn["invoice"].add(i.bill_No)
+            srn["stock_register"].add(i.stock_register.name)
+            srn["date"].add("-".join(i.Date_Of_Entry.isoformat().split("-")[::-1]))
+            srn["supplier"].add(i.Vendor.name)
+        print(int(round(total_price))-int(total_price*100)/100)
+        print(total_price - round(total_price))
+        return render(request, "grn.html", context={"data":res, "pono":srn, "poNum":request.GET["pono"], "total": total_price, "round" : round(total_price), "diff" : (round(total_price)*100-int(total_price*100))/100, "grn_no" : grn_value})
+    else:
+        return redirect("NotFound")
+
+def generate_grn(request):
+    data = Ledger.objects.filter(Is_Dump = False)
+    res = {}
+    for i in data:
+        res[i.pono] = 1
+
+    return render(request, "grn_generate.html", context={"data":res})

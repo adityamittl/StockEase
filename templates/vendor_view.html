@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}Done!!{% endblock %}
+
+{% block main %}
+{%if error%}
+<div class="w-full p-4 text-center bg-white border border-gray-200 rounded-lg shadow sm:p-8 dark:bg-gray-800 dark:border-gray-700" style="border: 1px solid red; background-color: rgba(255, 0, 0, 0.363);">
+    <h5 class="mb-2 text-3xl font-bold text-gray-900 dark:text-white">{{msg}}</h5>
+</div>
+{%endif%}
+<form method="post">
+    {%csrf_token%}
+<div class="grid gap-6 mb-6 md:grid-cols-2 p-4">
+    <div>
+      <label for="mc" {%if error%} class="block mb-2 text-sm font-medium text-red-700 dark:text-red-500" {%else%} class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" {%endif%}>Main Catagory</label>
+      <select name="mc" id="mc" {%if error %}  class="bg-red-50 border border-red-500 text-red-900 placeholder-red-700 text-sm rounded-lg focus:ring-red-500 dark:bg-gray-700 focus:border-red-500 block w-full p-2.5 dark:text-red-500 dark:placeholder-red-500 dark:border-red-500" {%else%}class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" {%endif%}>
+        {%for i in mc%}
+        <option value="{{i.code}}" {%if i.code == data.mc.code %} selected {%endif%} {%if i.code == data.mc %} selected {%endif%}>{{i.name}}</option>
+        {%endfor%}
+    </select>
+</div>
+<div>
+    
+    <label for="name" {%if error%} class="block mb-2 text-sm font-medium text-red-700 dark:text-red-500" {%else%} class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" {%endif%}>Sub Catagory</label>
+    <select name="name" id="name" {%if error %}  class="bg-red-50 border border-red-500 text-red-900 placeholder-red-700 text-sm rounded-lg focus:ring-red-500 dark:bg-gray-700 focus:border-red-500 block w-full p-2.5 dark:text-red-500 dark:placeholder-red-500 dark:border-red-500" {%else%}class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" {%endif%}>
+        {%for i in sc%}
+        <option value="{{i.name}}" {%if i.name == data.sc.name %} selected {%endif%} {%if i.name == data.sc %} selected {%endif%}>{{i.name}}</option>
+        {%endfor%}
+      </select>
+    </div>
+
+    <div>
+      <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Item Name</label>
+      <input type="text" name="name"
+        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        value="{{data.name}}">
+    </div>
+
+    <div>
+      <label for="code" {%if error%} class="block mb-2 text-sm font-medium text-red-700 dark:text-red-500" {%else%} class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" {%endif%}>Item Code </label>
+      <input type="text" name="code"
+      {%if error %}  class="bg-red-50 border border-red-500 text-red-900 placeholder-red-700 text-sm rounded-lg focus:ring-red-500 dark:bg-gray-700 focus:border-red-500 block w-full p-2.5 dark:text-red-500 dark:placeholder-red-500 dark:border-red-500" {%else%}class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" {%endif%} value="{{data.code}}">
+    </div>
+    <div>
+      <label for="remark"
+        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Remark</label>
+      <input type="text" id="remark" name="remark" value="{{data.remark}}" 
+        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+    </div>
+    <div>
+      <label for="icode"
+        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Final Item Code</label>
+      <input type="text" value="{{data.Final_Code}}{{data.icode}}" disabled 
+        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+    </div>
+    {%if not new%}
+    <div>
+        <label for="quantity" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Quantity in Institute</label>
+        <input type="number" id="quantity" name="quantity" value="{{data.quantity}}" disabled
+        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+    </div>
+    <div></div>
+    {%endif%}
+    <button style="margin-top: 20px;" type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
+</div>
+</form>
+{% endblock %}

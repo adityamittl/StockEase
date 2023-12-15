@@ -58,8 +58,9 @@ class Ledger(models.Model):
     Is_Dump = models.BooleanField(default=False)
     isIssued = models.BooleanField(default=False)
     item_type = models.CharField(max_length = 100, null = True, blank=True)
+    pono = models.CharField(max_length = 100, null = True, blank = True)
 
-    
+
     class Meta:
         ordering = ['Purchase_Item__name']
 
@@ -88,7 +89,7 @@ class assign(models.Model):
     
 
     def __str__(self):
-        return self.item.Final_Code
+        return self.item.Item_Code
 
 class complaints(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -103,15 +104,30 @@ class complaints(models.Model):
 
 class entry_to_register(models.Model):
     finantialYear = models.ForeignKey(Finantial_Year, on_delete=models.DO_NOTHING, null=True, blank= True)
-    item = models.ForeignKey(Ledger, on_delete=models.DO_NOTHING, null=True, blank=True)
+    item = models.ForeignKey(Asset_Type, on_delete=models.DO_NOTHING, null=True, blank=True)
     pageno = models.IntegerField(null = True, blank = True)
     register_number = models.CharField(max_length=100, null=True, blank=True)
 
-#     def __str__(self):
-#         return self.pageno
+    class Meta:
+        ordering = ['-id']
+
+    def __str__(self):
+        return str(self.finantialYear)
 
 class admin_notifications(models.Model):
     notification_date = models.DateTimeField()
     notification = models.TextField()
     status = models.CharField(max_length=100, default = "unread")
     notification_type = models.CharField(max_length=100)
+
+class employee_notifications(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    notification_date = models.DateTimeField()
+    notification = models.TextField()
+    status = models.CharField(max_length=100, default = "unread")
+    notification_type = models.CharField(max_length=100)
+    action_url = models.CharField(max_length=100, null = True, blank=True)
+
+
+class grn(models.Model):
+    poid = models.CharField(max_length=100)

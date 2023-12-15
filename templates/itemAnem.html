@@ -8,6 +8,9 @@
     <link href="/static/style.css" rel="stylesheet" />
     <script src="/static/main.js"></script>
     <script src="/static/date.js"></script>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <title>IMS | LNMIIT</title>
     <style>
         ::-webkit-scrollbar {
@@ -34,6 +37,64 @@
             -webkit-appearance: none;
             margin: 0;
         }
+        .ui-autocomplete {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      z-index: 1000;
+      float: left;
+      display: none;
+      min-width: 160px;
+      padding: 4px 0;
+      margin: 0 0 10px 25px;
+      list-style: none;
+      background-color: #ffffff;
+      border-color: #ccc;
+      border-color: rgba(0, 0, 0, 0.2);
+      border-style: solid;
+      border-width: 1px;
+      -webkit-border-radius: 5px;
+      -moz-border-radius: 5px;
+      border-radius: 5px;
+      -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+      -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+      -webkit-background-clip: padding-box;
+      -moz-background-clip: padding;
+      background-clip: padding-box;
+      *border-right-width: 2px;
+      *border-bottom-width: 2px;
+    }
+
+    .ui-menu-item>a.ui-corner-all {
+      display: block;
+      padding: 3px 15px;
+      clear: both;
+      font-weight: normal;
+      line-height: 18px;
+      color: #555555;
+      white-space: nowrap;
+      text-decoration: none;
+    }
+
+    .ui-state-hover,
+    .ui-state-active {
+      color: #ffffff;
+      text-decoration: none;
+      background-color: #0088cc;
+      border-radius: 0px;
+      -webkit-border-radius: 0px;
+      -moz-border-radius: 0px;
+      background-image: none;
+    }
+
+    .ui-menu-item>div {
+      margin-left: 5px;
+    }
+
+    .ui-helper-hidden-accessible {
+      display: none;
+    }
     </style>
 </head>
 
@@ -196,6 +257,10 @@
                             <a href="#"
                                 class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 dark:bg-gray-600 bg-gray-200">Item
                                 anem</a>
+                        </li>
+                        <li>
+                            <a href="/register"
+                            class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Register Entry</a>
                         </li>
                     </ul>
                 </li>
@@ -411,7 +476,22 @@
                 </svg>
             </button>
         </div>
-
+        <div class="absolute" style="right: 110px; top: 10px;">
+            <a href="/alert"
+                class="relative inline-flex items-center p-3 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                    viewBox="0 0 20 16">
+                    <path
+                        d="m10.036 8.278 9.258-7.79A1.979 1.979 0 0 0 18 0H2A1.987 1.987 0 0 0 .641.541l9.395 7.737Z" />
+                    <path
+                        d="M11.241 9.817c-.36.275-.801.425-1.255.427-.428 0-.845-.138-1.187-.395L0 2.6V14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2.5l-8.759 7.317Z" />
+                </svg>
+                <span class="sr-only">Notifications</span>
+                <div style="margin-left:17px" id="notificationCount"
+                    class="absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full -top-2 -end-2 dark:border-gray-900">
+                    </div>
+            </a>
+        </div>
         <div class="flex items-center">
             <select id="searchType"
                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
@@ -430,7 +510,7 @@
                 </div>
                 <input type="text" id="search"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    placeholder="Search" onkeyup="search()" autocomplete="off">
+                    placeholder="Search.." autocomplete="off" value="{{code}}">
             </div>
             <button id="dropdownDefaultButton" data-dropdown-toggle="dropdown" style="margin-left: 25px;"
                 class=" flex text-green-700 hover:text-white border border-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 p-2.5 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 dark:border-green-500 dark:text-green-500 dark:hover:text-white dark:hover:bg-green-600 dark:focus:ring-green-800"
@@ -445,7 +525,7 @@
                 <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownDefaultButton"
                     style="cursor: pointer;">
                     <li>
-                        <a onclick="window.open('/location/new', 
+                        <a onclick="window.open('/itemanem/new', 
                         'newwindow', 
                         'width=800,height=800'); 
              return false;" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"> Add
@@ -470,9 +550,6 @@
                 <thead
                     class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 sticky top-0"">
                     <tr>
-                        <th scope=" col" class="px-6 py-3">
-                    Item Catagory
-                    </th>
                     <th scope="col" class="px-6 py-3">
                         Main Catagory
                     </th>
@@ -500,12 +577,9 @@
                     {% for val in data %}
                     {% if val.id|divisibleby:"2" %}
                     <tr class="border-b bg-gray-50 dark:bg-gray-800 dark:border-gray-700">
-                        <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                            {{val.mc.Consumable_type}}
-                        </th>
-                        <td class="px-6 py-4">
+                        <th class="px-6 py-4">
                             {{val.mc.name}}
-                        </td>
+                        </th>
                         <td class="px-6 py-4">
                             {{val.sc.name}}
                         </td>
@@ -522,19 +596,17 @@
                             {{val.Last_Assigned_serial_Number}}
                         </td>
                         <td class="px-6 py-4">
-                            <a href="/itemanem/edit/{{val.id}}"
+                            <a href="/itemanem/edit?id={{val.id}}"
                                 class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
                         </td>
                     </tr>
 
                     {%else%}
                     <tr class="bg-white border-b dark:bg-gray-900 dark:border-gray-700">
-                        <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                            {{val.mc.Consumable_type}}
-                        </th>
-                        <td class="px-6 py-4">
+
+                        <th class="px-6 py-4">
                             {{val.mc.name}}
-                        </td>
+                        </th>
                         <td class="px-6 py-4">
                             {{val.sc.name}}
                         </td>
@@ -551,7 +623,7 @@
                             {{val.Last_Assigned_serial_Number}}
                         </td>
                         <td class="px-6 py-4">
-                            <a href="/itemanem/edit/{{val.id}}"
+                            <a href="/itemanem/edit?id={{val.id}}"
                                 class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
                         </td>
                     </tr>
@@ -685,33 +757,44 @@
 
         // Search bar 
 
-        function search() {
-            var input, filter, ul, li, a, i, txtValue;
-            let st = document.getElementById('searchType').value;
-            input = document.getElementById("search");
-            filter = input.value.toUpperCase();
-            ul = document.getElementById("vendorDetails");
-            li = ul.getElementsByTagName("tr");
-            console.log(li)
-            for (i = 0; i < li.length; i++) {
-                if (st == 'bc') {
-                    a = li[i].getElementsByTagName('th')[1];
-                }
-                else {
-                    a = li[i].getElementsByTagName('td')[2];
-                }
-                txtValue = a.textContent || a.innerText;
-                if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                    li[i].style.display = "";
-                } else {
-                    li[i].style.display = "none";
-                }
-            }
-        }
+        $(function () {
+            $("#search").autocomplete({
+                delay: 300,
+                source: function (request, response) {
+                    var itemName = request.term;
+                    var item = [];
+                    $.ajax({
+                        url: "/itemanem",
+                        data: {
+                          autocomplete: true,
+                          type: document.getElementById("searchType").value,
+                          item: document.getElementById("search").value
+                        },
+                        method: "POST",
+                        headers: {
+                            "X-CSRFToken": document.getElementsByName(
+                                "csrfmiddlewaretoken"
+                            )[0].value,
+                        },
+                        success: function (data) {
+                            response(data['Data']);
+                        },
+                    });
+                },
+            });
+        });
+        
+        document.getElementById("search").addEventListener("keypress", function(event) {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            window.location.href = `?item=${document.getElementById("search").value}&type=${document.getElementById("searchType").value}`;
+          }
+        });
     </script>
     <script src="/static/index.js"></script>
 
     <script src="/static/ajax.js"></script>
+    <script src="/static/notify.js"></script>
     <script src="/static/complaint.mjs"></script>
 </body>
 

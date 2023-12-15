@@ -8,13 +8,20 @@ urlpatterns = [
     path("entry", entry, name="entry"),
     path("vendors", vendor_details, name="vendor_details"),
     path("vendor/new", new_vendor, name="new_vendor"),
+
+    # location routes
     path("locationMaster", locationmaster, name="locationMaster"),
     path("location", locationCode, name="location"),
     path("location/new", new_location, name="new_location"),
+    path("location/edit", edit_location, name="edit_location"),
     path("departments", departments, name="departments"),
+
+    # Item Emumeration paths
     path("itemanem", itemAnem, name="itemAnem"),
-    path("itemanem/edit/<str:itemId>", itemAnem_edit, name="itemAnem_edit"),
     path("itemanem/download", itemAnem_download, name="itemAnem_download"),
+    path("itemanem/edit", itemanem_edit),
+    path("itemanem/new", itemanem_new),
+
     path("findVendor", findVendor, name="findVendor"),
     path("subcategory", sub_category, name="sub_category"),
     path("maincategory", main_category, name="main_category"),
@@ -83,12 +90,15 @@ urlpatterns = [
     path("alert/action", notificationAction),
     path("register",registerMap),
     path("register/new",new_entry_register),
+    
 
     # Item shifts
     path("shift",shift_item),
 
     # Report generation!
     path("reports", reports),
+    path("generate/grn",generate_grn),
+    path("grn",grn_fetch),
 
     # Register to ledger relationship
     path("registerentry",register_to_ledger),

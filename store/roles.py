@@ -22,7 +22,7 @@ def check_role_ajax(role='employee'):
         @login_required
         def inner1(*args, **kwargs):
             user = args[0].user
-            user_department = profile.objects.get(user = user).department.name
+            user_department = profile.objects.get(user = user).login_type
             if user_department == role:
                 return func(*args, **kwargs)
             else:

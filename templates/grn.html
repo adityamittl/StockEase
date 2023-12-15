@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>GRN Form</title>
+    <style>
+        table, th, td {
+          border: 1px solid black;
+          border-collapse: collapse;
+        }
+        table{
+            width: 98vw;
+            text-align: center;
+            font-weight: bold;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 12px;
+        }
+        </style>
+</head>
+<body>
+    <table style="border: 2px solid black;">
+        <tr>
+            <td colspan="10" style="font-size: 15px; background-color: rgba(75, 55, 55, 0.37);">THE LNM INSTITUTE OF INFORMATION TECHNOLOGY</td>
+        </tr>
+        <tr>
+            <td colspan="10">GOODS RECEIVED NOTE</td>
+        </tr>
+        <tr style="text-align: left;">
+            <td colspan="2">GRN NO :- {{grn_no}}</td>
+            <td colspan="10">Received on (Date) {%for i in pono.date%}{{i}}, {%endfor%}</td>
+        </tr>
+        <tr style="text-align: left;">
+            <td rowspan=3 colspan="2">From (Supplier) :- {%for i in pono.supplier%}{{i}}, {%endfor%}</td>
+            <td colspan="10">P.O. No. :- {{poNum}}</td>
+        </tr style="text-align: left;">
+        <tr style="text-align: left;"><td colspan="10">Delivery Note</td></tr>
+        <tr style="text-align: left;"><td colspan="10">Invoice Number {%for i in pono.invoice%}{{i}}{%endfor%}</td></tr>
+        <tr style="text-align: left;">
+            <td rowspan="3" colspan="2">To (Receiving):- THE LNM INSTITUTE OF INFORMATION TECHNOLOGY</td>
+            <!-- <td colspan="10">To (Receiving):- THE LNM INSTITUTE OF INFORMATION TECHNOLOGY</td> -->
+            <td colspan="10">Stock register Name:- {%for i in pono.stock_register%}{{i}}, {%endfor%}</td>
+        </tr>
+        <tr style="text-align: left;"><td colspan="10">Register Page number 12</td></tr>
+        <tr style="text-align: left;"><td colspan="10">Date</td></tr>
+        <tr>
+            <td>S.No</td>
+            <td>Item Specification</td>
+            <td>Register No.</td>
+            <td>Page No.</td>
+            <td>Unit Per.</td>
+            <td>Quantity</td>
+            <td>Cost</td>
+            <td>Discount</td>
+            <td>tax</td>
+            <td>Balance</td>
+        </tr>
+        {% for i in data.values %}
+        <tr>
+            <th>{{forloop.counter}}</th>
+            <th style="max-width: 30vw;">{{i.name}}</th>
+            <th>{{i.register}}</th>
+            <th>{{i.page}}</th>
+            <th>Nos.</th>
+            <th>{{i.quantity}}</th>
+            <th>{{i.cost}}</th>
+            <th>{{i.discount}}</th>
+            <th>{{i.discount}}</th>
+            <th>{{i.ammount}}</th>
+        </tr>
+        {%endfor%}
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>Freight</td>
+            <td></td>
+            <td></td>
+            <td></td>
+
+        </tr>
+        <tr>
+            <td rowspan="4" colspan="3"></td>
+            <td colspan="6"></td>
+            <td>{{total}}</td>
+        </tr>
+        <tr>
+            <td>Roundoff</td>
+            <td colspan="5"></td>
+            <td>{%if round < total%}-{%endif%}{{diff}}</td>
+        </tr>
+        <tr>
+            <td>Total</td>
+            <td colspan="5"></td>
+            <td>{{round}}</td>
+        </tr>
+        <tr>
+            <td style="padding-top: 30px; padding-bottom: 2px; text-align: left;" colspan="10"> Stores Incharge Name:-___________ Signature ____________ Designation ________ Date ______</td>
+        </tr>
+        <tr>
+            <td colspan="10" style="text-align: left;">Accepted/Rejected (Part Qty/Full Qty.) </td>
+        </tr>
+        <tr>
+            <td style="padding-top: 30px; padding-bottom: 2px;text-align: left;" colspan="10"> Indentor Acceptance Name:-___________ Signature ____________ Designation ________ Date ______</td>
+        </tr>
+        <tr>
+            <td colspan="3" style="text-align: left;">1. To be Stocked .................... </td>
+        </tr>
+        <tr>
+            <td colspan="3" style="text-align: left;">2. Rejected for replacement ......................</td>
+        </tr>
+        <tr>
+            <td colspan="3" style="text-align: left;">3. Rejected for return or cancel order ......................</td>
+            <td rowspan="1" colspan="4" style="border-top: none; text-align: left;"> Purchase and Store Manager</td>
+        </tr>
+        <tr>
+            <td colspan="10">Document No 04/PMS in Triplicate: 1. Account with document 2. Store Copy 3. Indenter Copy</td>
+        </tr>
+    </table>
+
+    <script>
+        print()
+    </script>
+</body>
+</html>

@@ -145,13 +145,19 @@ def hod_dash(request):
 def getfloors(request):
     if request.method == 'POST':
         a = json.loads(request.body.decode('utf-8'))['data']
-        locations = Location_Description.objects.filter(building = Building_Name.objects.get(code = a))
         floors = set()
         res = []
-        for location in locations:
-            floors.add(location.floor.code)
-        for i in floors:
-            res.append({i:Floor_Code.objects.get(code = i).name})
+        if a == "all":
+            locations = Floor_Code.objects.all()
+            for i in locations:
+                res.append({i.code:i.name})
+
+        else:
+            locations = Location_Description.objects.filter(building = Building_Name.objects.get(code = a))
+            for location in locations:
+                floors.add(location.floor.code)
+            for i in floors:
+                res.append({i:Floor_Code.objects.get(code = i).name})
             
         return JsonResponse({"data":res})
     
@@ -170,9 +176,9 @@ def getRooms(request):
         return JsonResponse({"data":res})
     
 def notifications(request):
-    data = assign.objects.filter(user = request.user, dumped_review = True)
-    print(data)
-    return render(request, "employee/notifications.html", context = {"data":data})
+    data = assign.objects.filter(user = request.user, dumped_review = True) 
+    notfs = employee_notifications.objects.filter(user = request.user).order_by("-notification_date")
+    return render(request, "employee/notifications.html", context = {"data":data, "notfs":notfs})
 
 @transaction.atomic
 def notificationAction(request):
@@ -183,13 +189,14 @@ def notificationAction(request):
             if data_received["action"] == 'approve':
                 # dump item successfully!
                 item = Ledger.objects.get(Item_Code = data_received["id"])
+                item.Purchase_Item.quantity -=1
                 item_assign = assign.objects.get(item = item)
                 Dump.objects.create(Item = item, Dump_Date = item_assign.action_date, Remark= item_assign.dumped_review)
                 item_assign.delete()
-                print("sdkfjagjf")
                 item.Is_Dump = True
                 if item.isIssued:
                     item.isIssued = False
+                item.Purchase_Item.save()
                 item.save()
 
                 # creating notification for the store admin
@@ -205,6 +212,17 @@ def notificationAction(request):
                 admin_notifications.objects.create(notification_date = datetime.now(), notification = f'item {item.Purchase_Item.name} with item number {item.Item_Code} has been rejected by the user on {date.today()}', notification_type = "warning")
 
                 return JsonResponse({"type":"success"})
+        
+        if data_received["type"] == "notification":
+            if data_received["action"] == "mark_as_read":
+                noti = employee_notifications.objects.get(id = data_received["id"])
+                noti.status = 'read'
+                noti.save()
+                return JsonResponse({"type":"success_button_rem"})
+            
+            elif data_received["action"] == 'delete':
+                employee_notifications.objects.get(id = data_received["id"]).delete()
+                return JsonResponse({"type":"success_rem"})
 
             else:
                 return JsonResponse({"type":"failure"})
@@ -213,3 +231,8 @@ def notificationAction(request):
     else:
         return redirect("NotFound")
         
+def notif_count(request):
+    if request.method == "GET":
+        return JsonResponse({"data":employee_notifications.objects.filter(user = request.user, status = "unread").count()})
+
+    return redirect("NotFound")

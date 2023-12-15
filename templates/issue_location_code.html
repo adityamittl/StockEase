@@ -246,6 +246,10 @@
                                 class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Item
                                 anem</a>
                         </li>
+                        <li>
+                            <a href="/register"
+                            class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Register Entry</a>
+                        </li>
                     </ul>
                 </li>
                 <li>
@@ -438,7 +442,7 @@
     <div style="padding-left: 5%; width: 84%; padding-right: 5%; padding-top: 70px;" class="dark:bg-gray-900">
         <form method="post">
             {%csrf_token%}
-            <div class="relative overflow-x-auto shadow-md sm:rounded-lg" style="max-height: 32vh;">
+            <div class="relative overflow-x-auto shadow-md sm:rounded-lg" style="max-height: 80vh;">
                 <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                     <thead
                         class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 sticky top-0">
@@ -464,7 +468,7 @@
 
                         </tr>
                     </thead>
-                    <tbody id="vendorDetails" class="overflow-y-scroll">
+                    <tbody class="overflow-y-scroll">
                         {%for i in data%}
                         <tr class="border-b bg-gray-50 dark:bg-gray-800 dark:border-gray-700 class=" bg-white border-b
                             dark:bg-gray-900 dark:border-gray-700">

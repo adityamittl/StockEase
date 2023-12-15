@@ -14,7 +14,6 @@ class Finantial_Year(models.Model):
 # ------------------ Item anem --------------------
 # specifing the asset super catagory (Main catagory)
 class Main_Catagory(models.Model):
-    Consumable_type = models.CharField(max_length=200)
     name = models.CharField(max_length=100)
     code = models.CharField(max_length=100)
 
@@ -37,7 +36,7 @@ class Asset_Type(models.Model):
     sc = models.ForeignKey(Sub_Catagory, on_delete=models.CASCADE, null=True)
     name = models.CharField(max_length=500)
     code = models.IntegerField()
-    Final_Code = models.CharField(max_length=200)
+    Final_Code = models.CharField(max_length=200, null=True, blank = True)
     remark = models.TextField(null=True, blank=True)
     Last_Assigned_serial_Number = models.IntegerField(default=0)
     quantity = models.IntegerField(default=0)

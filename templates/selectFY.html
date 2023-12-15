@@ -23,9 +23,6 @@
                             Item Number
                         </th>
                         <th scope="col" class="px-6 py-3">
-                            Location
-                        </th>
-                        <th scope="col" class="px-6 py-3">
                             Register Number
                         </th>
                         <th scope="col" class="px-6 py-3">
@@ -43,14 +40,11 @@
                             {{forloop.counter}}
                         </th>
                         <td class="px-6 py-4">
-                            {{i.item.Purchase_Item.name}}
+                            {{i.item.name}}
                         </td>
                         <th class="px-6 py-4">
-                            {{i.item.Item_Code}}
+                            {{i.item.Final_Code}}
                         </th>
-                        <td class="px-6 py-4">
-                            {{i.item.Location_Code.Final_Code}}
-                        </td>
                         <td class="px-6 py-4">
                             <input type="text" class="block w-full p-2 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 sm:text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" value='{% if i.register_number %}{{i.register_number}}{%endif%}'>
                         </td>
@@ -116,11 +110,11 @@
         console.log(event.srcElement)
         // performing check if the data in the required row is present or not! 
         console.log(item_row.children[4].children[0].value)
-        if(item_row.children[4].children[0].value =="" || item_row.children[5].children[0].value == ""){
-            alert(`item ${item_row.children[2].innerHTML.trim()} is empty, enter data to process it`);
+        if(item_row.children[3].children[0].value =="" || item_row.children[4].children[0].value == ""){
+            alert(`item ${item_row.children[1].innerHTML.trim()} is empty, enter data to process it`);
             return;
         }
-        ajaxPOST({"id":item_row.children[2].innerHTML.trim(), "fy":fy, "rno": item_row.children[4].children[0].value, "pno":item_row.children[5].children[0].value}, "/register/new").then(data =>{
+        ajaxPOST({"id":item_row.children[1].innerHTML.trim(), "fy":fy, "rno": item_row.children[3].children[0].value, "pno":item_row.children[4].children[0].value}, "/register/new").then(data =>{
             if(data["type"] == "success"){
                 item_row.setAttribute("class","bg-white border-b dark:bg-gray-800 dark:border-gray-700");
                 event.srcElement.disabled = true;
