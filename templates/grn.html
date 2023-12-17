@@ -34,13 +34,13 @@
             <td colspan="10">P.O. No. :- {{poNum}}</td>
         </tr style="text-align: left;">
         <tr style="text-align: left;"><td colspan="10">Delivery Note</td></tr>
-        <tr style="text-align: left;"><td colspan="10">Invoice Number {%for i in pono.invoice%}{{i}}{%endfor%}</td></tr>
+        <tr style="text-align: left;"><td colspan="10">Invoice Number {%for i in pono.invoice%}{{i}}, {%endfor%}</td></tr>
         <tr style="text-align: left;">
-            <td rowspan="3" colspan="2">To (Receiving):- THE LNM INSTITUTE OF INFORMATION TECHNOLOGY</td>
+            <td rowspan="2" colspan="2">To (Receiving):- THE LNM INSTITUTE OF INFORMATION TECHNOLOGY</td>
             <!-- <td colspan="10">To (Receiving):- THE LNM INSTITUTE OF INFORMATION TECHNOLOGY</td> -->
             <td colspan="10">Stock register Name:- {%for i in pono.stock_register%}{{i}}, {%endfor%}</td>
         </tr>
-        <tr style="text-align: left;"><td colspan="10">Register Page number 12</td></tr>
+        <!-- <tr style="text-align: left;"><td colspan="10">Register Page number 12</td></tr> -->
         <tr style="text-align: left;"><td colspan="10">Date</td></tr>
         <tr>
             <td>S.No</td>

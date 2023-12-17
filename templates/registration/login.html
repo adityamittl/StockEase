@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block main %}
-<div class="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700" style="min-width: 40%;">
+<div style="display: grid; place-content: center; height:80vh;">
+<div class="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700" style="width: 50vw;">
     <p class="mb-6 text-lg font-normal text-gray-500 lg:text-xl dark:text-gray-400" style="text-align: center;">Log in to your account</p>
     <form method="post">
         {% csrf_token %}
@@ -12,6 +13,12 @@
     </form>
     
   
+</div>
+<div style="position: absolute; bottom: 0; left:0; width: 100vw; display: grid; place-content: center; height:90px">
+    <p class="mb-4 text-lg font-light text-gray-500 dark:text-gray-400">
+        Developed by <a href="https://linkedin.com/in/adityamittl">Aditya Mittal</a>
+      </p>
+</div>
 </div>
 <script>
     document.getElementsByName("username")[0].className = "bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500";

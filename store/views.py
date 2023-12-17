@@ -126,6 +126,40 @@ def entry(request):
 
 @check_role(role = "STORE", redirect_to= "employee_home")
 def vendor_details(request):
+    if request.method == "POST":
+        vid = request.GET["id"]
+        vname = request.POST["vname"]
+        address = request.POST["address"]
+        gst = request.POST["gst"]
+        contactNo = request.POST["contactNo"]
+        Email = request.POST["Email"]
+        multies = dict(request.POST)
+        services = multies["services"]
+        # print(request.FILES['attachments'].errors)
+        attachments = request.FILES.getlist("attachments")
+        print(attachments)
+        print(request.POST)
+        vendor_object = Vendor.objects.get(id = vid)
+        vendor_object.name = vname
+        vendor_object.address = address 
+        vendor_object.GST_No = gst 
+        vendor_object.contact_No = contactNo
+        vendor_object.Email = Email
+        if len(services) >0:
+            for i in services:
+                a = Service_Type.objects.create(name = i)
+                vendor_object.services.add(a)
+
+        if attachments:
+            for x in attachments:
+                fs = FileSystemStorage(location="media/vendors/")
+                filename = fs.save(x.name, x)
+                attach = Vendor_Attachments.objects.create(File_Name=filename)
+                vendor_object.attach.add(attach)
+        vendor_object.save()
+        return redirect("/vendors")
+
+
     if "id" in request.GET.keys():
         if request.method == 'GET':
             return render(request, "vendor_view.html", context={"data": Vendor.objects.get(id = request.GET["id"])})
@@ -669,7 +703,10 @@ def edit_user(request, uname):
         # Updating location information
         if request.POST.get("room"):
             is_location_change = True
-            old_location = pfile.location.Final_Code
+            try:
+                old_location = pfile.location.Final_Code
+            except:
+                pass
             new_location = Location_Description.objects.get(
                 Final_Code=request.POST.get("room")
             )
@@ -1522,9 +1559,12 @@ def get_item_details(request):
 
         # Details of the responsible person of that item.
         print(item_details)
-        person = assign.objects.get(item=item_details)
+        try:
+            person = assign.objects.get(item=item_details)
+            res["Assigned to"] = person.user.first_name + " " + person.user.last_name
+        except:
+            person = res["Assigned to"] = "Not Existed"
 
-        res["Assigned to"] = person.user.first_name + " " + person.user.last_name
         hasloc = True
         if "user" in request.GET.keys():
             try:
@@ -1573,7 +1613,7 @@ def item_relocate(request):
         old_location = request.GET["old"]
         new_location = request.GET["new"]
         assignee_user = User.objects.get(username=request.GET["user"])
-        items = assign.objects.filter(user=assignee_user)
+        items = assign.objects.filter(user=assignee_user, item__item_type = "FIXED ASSET")
 
         return render(
             request,
@@ -1765,9 +1805,10 @@ def available_items(request):
 
     if "type" in request.GET.keys():
         item_name = request.GET["type"]
-
-        items_all = Ledger.objects.filter(Purchase_Item__name = item_name, Is_Dump = False)
-        
+        print(item_name)
+        print(Asset_Type.objects.get(name__icontains = item_name))
+        items_all = Ledger.objects.filter(Purchase_Item__name__icontains = item_name, Is_Dump = False)
+        print(items_all)
         return render(request, "available_items.html", context={"data":items_all,"type": "detailed"})
     
 
@@ -1812,7 +1853,16 @@ def getlocations(request):
 @check_role(role = "STORE", redirect_to="/employee")
 def available_details(request):
     if request.GET["item"]:
-        item = Ledger.objects.get(Item_Code = request.GET["item"])
+        if "type" in request.GET.keys():
+            if request.GET["type"] == "FIXED_ASSET":
+                item = Ledger.objects.get(Item_Code = request.GET["item"])
+            elif request.GET["type"] == "CONSUMABLE":
+                item = Ledger.objects.get(id = request.GET["item"])
+            else:
+                return redirect("NotFound")
+        else:
+            item = Ledger.objects.get(Item_Code = request.GET["item"])
+            
         try:
             assignee = assign.objects.get(item = item)
         except:
@@ -1826,6 +1876,8 @@ def available_details(request):
         if "sold" in request.GET.keys():
             sell = True
         return render(request, "item_details.html", context={"data":item, "assignee" : assignee, "dump":dump, "sell":sell})
+    elif request.method == "POST":
+        pass
     else:
         return render(request, "404.html")
 
@@ -2181,19 +2233,25 @@ def new_entry_register(request):
         return render(request, "catagories_register.html", context={"data":Main_Catagory.objects.all(), "type":"catagory"})
 
     if request.method == "POST":
-        try:
-            data = json.loads(request.body.decode())
-            print(data)
-            item_no = data["id"]
-            register_value = entry_to_register.objects.get(item__name = item_no, finantialYear = currFY)
-            register_value.register_number = data["rno"]
-            register_value.pageno = data["pno"]
-            register_value.save()
+        # try:
+        data = json.loads(request.body.decode())
+        print(data)
+        item_no = data["id"]
+        print(item_no)
+        print(Asset_Type.objects.get(name = item_no))
+        # if entry_to_register.objects.filter(item__name = item_no, finantialYear = currFY).count() == 0:
+        #     register_value = entry_to_register.objects.create(item = Asset_Type.objects.get(name = item_no), finantialYear = currFY)
+        # else:
+        register_value = entry_to_register.objects.get(item__name = item_no, finantialYear = currFY)
+        register_value.register_number = data["rno"]
+        register_value.pageno = data["pno"]
+        register_value.save()
+        # print(register_value)
 
-            return JsonResponse({"type" : "success"})
+        return JsonResponse({"type" : "success"})
         
-        except:
-            return JsonResponse({"type":"failure"})
+        # except:
+        #     return JsonResponse({"type":"failure"})
         
 def grn_fetch(request):
     if "pono" in request.GET.keys():
@@ -2250,6 +2308,42 @@ def generate_grn(request):
     data = Ledger.objects.filter(Is_Dump = False)
     res = {}
     for i in data:
-        res[i.pono] = 1
+        if i.pono:
+            res[i.pono] = 1
 
     return render(request, "grn_generate.html", context={"data":res})
+
+def viewStockEntry(request, id):
+    res = {}
+    total = 0
+    sr = stock_register.objects.get(id = id)
+    data = Ledger.objects.filter(stock_register = sr, Is_Dump = False)
+    for i in data:
+        if i.Purchase_Item.name not in res.keys():
+            res[i.Purchase_Item.name] = {
+                "name" : i.Purchase_Item.name,
+                "price" : i.Ammount,
+                "total" : float(i.Ammount),
+                "quantity" : 1,
+            }
+            total += float(i.Ammount)
+        else:
+            res[i.Purchase_Item.name] = {
+            "name" : i.Purchase_Item.name,
+            "price" : i.Ammount,
+            "total" : int((res[i.Purchase_Item.name]["total"] + float(i.Ammount))*100)/100,
+            "quantity" : res[i.Purchase_Item.name]["quantity"] + 1
+            }
+            total += float(i.Ammount)
+
+    return render(request, "viewStockEntries.html", context={"data":res, "total":(int(total*100))/100})
+
+def item_delete(request):
+    if request.method == "POST":
+        item_id = json.loads(request.body.decode())["data"]
+        item_object = Ledger.objects.get(id = item_id)
+        if item_object.isIssued == False:
+            item_object.delete()
+        return JsonResponse({"type":"success"})
+    
+    return redirect("NotFound")

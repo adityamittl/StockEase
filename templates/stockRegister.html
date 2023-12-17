@@ -466,9 +466,6 @@
                     <th scope="col" class="px-6 py-3">
                         View Entries
                     </th>
-                    <th scope=" col" class="px-6 py-3">
-                        Edit
-                    </th>
                     </tr>
                 </thead>
                 <tbody id="vendorDetails" class="overflow-y-scroll" style="max-height: 65vh;">
@@ -484,10 +481,6 @@
                         <td class="px-6 py-4">
                             <a href="/stockRegister/View/{{val.id}}"
                                 class="font-medium text-blue-600 dark:text-blue-500 hover:underline">View</a>
-                        </td>
-                        <td class="px-6 py-4">
-                            <a href="/stockRegister/edit/{{val.id}}"
-                                class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
                         </td>
                     </tr>
                     {%endfor%}

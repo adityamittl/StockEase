@@ -1147,6 +1147,7 @@
       }
 
       let tempdata;
+      let additionalEmails = [];
       // AJAX request to fetch all the member of that perticular department
       function getUsers(url, dpt) {
         return new Promise((resolve, reject) => {
@@ -1430,11 +1431,42 @@
           let inptValue = event.srcElement.value;
           let newEmail = document.createElement("span");
           newEmail.setAttribute("class","inline-flex items-center bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300")
-          newEmail.innerHTML = ` ${inptValue}
+          newEmail.innerHTML = ` ${inptValue}`
+          additionalEmails.push(inptValue.trim())
+          
+          let btn = document.createElement("div");
+          btn.style.padding= "0";
+          btn.style.marginLeft = "5px"
+          btn.setAttribute("onclick","removeEmail(event)");
+          btn.innerHTML = `
+            <span class="sr-only">Close</span>
+            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+            </svg>
           `
-          event.srcElement.parentElement.children[0].append(newEmail)
+          newEmail.append(btn)
+          event.srcElement.parentElement.children[0].append(newEmail);
           event.srcElement.value = "";
+          let t = JSON.parse(document.getElementsByName("selected_items_data")[0].value)
+          t["User_data"]["emails"] = additionalEmails;
+
+          document.getElementsByName("selected_items_data")[0].value = JSON.stringify(t);
+
         }
+      }
+      let valz;
+      function removeEmail(event){
+        valz = event.srcElement.parentElement.parentElement.parentElement.childNodes[0].nodeValue.trim();
+        event.srcElement.parentElement.parentElement.parentElement.remove()
+        const index = additionalEmails.indexOf(valz);
+        if (index > -1) { // only splice array when item is found
+          additionalEmails.splice(index, 1); // 2nd parameter means remove one item only
+        }
+        
+        let t = JSON.parse(document.getElementsByName("selected_items_data")[0].value)
+        t["User_data"]["emails"] = additionalEmails;
+
+        document.getElementsByName("selected_items_data")[0].value = JSON.stringify(t);
       }
     </script>
   <script src="/static/ajax.js"></script>

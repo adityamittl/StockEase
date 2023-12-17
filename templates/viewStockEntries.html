@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Done!!{% endblock %}
+
+{% block main %}
+<div class="relative overflow-x-auto shadow-md sm:rounded-lg" style="margin-top: 10px; max-height: 72vh;">
+    <p class="mb-6 text-lg font-normal text-gray-500 lg:text-xl sm:px-16 xl:px-48 dark:text-gray-400">Total Ammount = {{total}}</p>
+    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 sticky top-0">
+            <tr>
+              <th scope=" col" class="px-6 py-4">
+                S. No.
+              </th>
+              <th scope=" col" class="px-6 py-4">
+                Item Name
+              </th>
+              <th scope=" col" class="px-6 py-4">
+                Quantity
+              </th>
+              <th scope=" col" class="px-6 py-4">
+                Per item price
+              </th>
+              <th scope=" col" class="px-6 py-4">
+                Price
+              </th>
+        
+            </tr>
+          </thead>
+          <tbody class="overflow-y-scroll" style="max-height: 20vh;" id="item_details">
+            {% for i in data.values %}
+            <tr class="border-b bg-gray-50 dark:bg-gray-800 dark:border-gray-700 class=" bg-white border-b
+              dark:bg-gray-900 dark:border-gray-700">
+              <td class="px-6 py-4">
+                {{forloop.counter}}
+              </td>
+              <th class="px-6 py-4">
+                {{i.name}}
+              </th>
+              <th class="px-6 py-4">
+                {{i.quantity}}
+              </th>
+              <th class="px-6 py-4">
+                {{i.price}}
+              </th>
+              <th class="px-6 py-4">
+                {{i.total}}
+              </th>
+            </tr>
+            {%endfor%}
+          </tbody>
+    </table>
+  </div>
+{% endblock %}

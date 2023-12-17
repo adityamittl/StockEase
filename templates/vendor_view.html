@@ -4,64 +4,108 @@
 
 {% block main %}
 {%if error%}
-<div class="w-full p-4 text-center bg-white border border-gray-200 rounded-lg shadow sm:p-8 dark:bg-gray-800 dark:border-gray-700" style="border: 1px solid red; background-color: rgba(255, 0, 0, 0.363);">
-    <h5 class="mb-2 text-3xl font-bold text-gray-900 dark:text-white">{{msg}}</h5>
+<div
+  class="w-full p-4 text-center bg-white border border-gray-200 rounded-lg shadow sm:p-8 dark:bg-gray-800 dark:border-gray-700"
+  style="border: 1px solid red; background-color: rgba(255, 0, 0, 0.363);">
+  <h5 class="mb-2 text-3xl font-bold text-gray-900 dark:text-white">{{msg}}</h5>
 </div>
 {%endif%}
-<form method="post">
-    {%csrf_token%}
-<div class="grid gap-6 mb-6 md:grid-cols-2 p-4">
+<form method="post" enctype="multipart/form-data">
+  {%csrf_token%}
+  <div class="grid gap-6 mb-6 md:grid-cols-2 p-4">
     <div>
-      <label for="mc" {%if error%} class="block mb-2 text-sm font-medium text-red-700 dark:text-red-500" {%else%} class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" {%endif%}>Main Catagory</label>
-      <select name="mc" id="mc" {%if error %}  class="bg-red-50 border border-red-500 text-red-900 placeholder-red-700 text-sm rounded-lg focus:ring-red-500 dark:bg-gray-700 focus:border-red-500 block w-full p-2.5 dark:text-red-500 dark:placeholder-red-500 dark:border-red-500" {%else%}class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" {%endif%}>
-        {%for i in mc%}
-        <option value="{{i.code}}" {%if i.code == data.mc.code %} selected {%endif%} {%if i.code == data.mc %} selected {%endif%}>{{i.name}}</option>
-        {%endfor%}
-    </select>
-</div>
-<div>
-    
-    <label for="name" {%if error%} class="block mb-2 text-sm font-medium text-red-700 dark:text-red-500" {%else%} class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" {%endif%}>Sub Catagory</label>
-    <select name="name" id="name" {%if error %}  class="bg-red-50 border border-red-500 text-red-900 placeholder-red-700 text-sm rounded-lg focus:ring-red-500 dark:bg-gray-700 focus:border-red-500 block w-full p-2.5 dark:text-red-500 dark:placeholder-red-500 dark:border-red-500" {%else%}class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" {%endif%}>
-        {%for i in sc%}
-        <option value="{{i.name}}" {%if i.name == data.sc.name %} selected {%endif%} {%if i.name == data.sc %} selected {%endif%}>{{i.name}}</option>
-        {%endfor%}
-      </select>
-    </div>
-
-    <div>
-      <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Item Name</label>
-      <input type="text" name="name"
+      <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Vendor Name</label>
+      <input type="text" name="vname"
         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
         value="{{data.name}}">
     </div>
 
+
     <div>
-      <label for="code" {%if error%} class="block mb-2 text-sm font-medium text-red-700 dark:text-red-500" {%else%} class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" {%endif%}>Item Code </label>
-      <input type="text" name="code"
-      {%if error %}  class="bg-red-50 border border-red-500 text-red-900 placeholder-red-700 text-sm rounded-lg focus:ring-red-500 dark:bg-gray-700 focus:border-red-500 block w-full p-2.5 dark:text-red-500 dark:placeholder-red-500 dark:border-red-500" {%else%}class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" {%endif%} value="{{data.code}}">
+      <label for="add" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Vendor Address</label>
+      <textarea name="address" rows="4"
+        class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        placeholder="vendor address">{{data.address}}</textarea>
+    </div>
+
+    <div>
+      <label for="gst" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">GST Number</label>
+      <input type="text" name="gst"
+        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        value="{{data.GST_No}}">
+    </div>
+
+    <div>
+      <label for="contactNo" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Contact Number
+      </label>
+      <input type="text" name="contactNo"
+        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        value="{{data.contact_No}}">
     </div>
     <div>
-      <label for="remark"
-        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Remark</label>
-      <input type="text" id="remark" name="remark" value="{{data.remark}}" 
+      <label for="Email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email</label>
+      <input type="text" id="Email" name="Email" value="{{data.Email}}"
         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
     </div>
-    <div>
-      <label for="icode"
-        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Final Item Code</label>
-      <input type="text" value="{{data.Final_Code}}{{data.icode}}" disabled 
-        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+
+    <div class="mb-6">
+      <label for="default-input"
+        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white mt-3">Attachments</label>
+
+
+      <ul
+        class="text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+        {% for i in data.attach.all %}
+        <a href="/media/vendors/{{i.File_Name}}" class="w-full px-4 py-2 border-b border-gray-200 rounded-t-lg dark:border-gray-600">{{i.File_Name}}</a>
+        {%endfor%}
+        <input
+          class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+          name="attachments" type="file" multiple>
+      </ul>
+
     </div>
-    {%if not new%}
-    <div>
-        <label for="quantity" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Quantity in Institute</label>
-        <input type="number" id="quantity" name="quantity" value="{{data.quantity}}" disabled
-        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+    <div class="mb-6" id="services">
+      <label for="default-input"
+      class="block mb-2 text-sm font-medium text-gray-900 dark:text-white mt-3">Vendor Services</label>
+      
+      <ul
+      class="text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+      {%for i in data.services.all%}
+      <li class="w-full px-4 py-2 border-b border-gray-200 rounded-t-lg dark:border-gray-600">{{i.name}}</li>
+        {%endfor%}
+        <div class="flex">
+          <input type="text" name="services" style="height: 43px;"
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+              <button type="button" id="amButton" class="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-600 dark:focus:ring-blue-800" style="margin-left: 10px;" onclick="addMore()">more</button>
+      </div>
+      </ul>
+
+      
     </div>
     <div></div>
-    {%endif%}
-    <button style="margin-top: 20px;" type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
-</div>
+    <button style="margin-top: 20px;" type="submit"
+      class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
+  </div>
 </form>
+
+<script>
+  function addMore() {
+    let wrap = document.getElementById('services');
+    let divWrap = document.createElement('div');
+    divWrap.setAttribute('class', 'flex');
+    let inpt = document.createElement('input');
+    inpt.setAttribute('name', 'services');
+    inpt.setAttribute('style', 'height: 43px;');
+    inpt.setAttribute('class', 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500');
+    let btn = document.createElement('button');
+    btn.setAttribute('id', 'amButton');
+    btn.setAttribute('class', 'text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-600 dark:focus:ring-blue-800" style="margin-left: 10px;');
+    btn.setAttribute('onclick', 'addMore()');
+    btn.innerHTML = 'more';
+    divWrap.append(inpt);
+    document.getElementById('amButton').remove();
+    divWrap.append(btn);
+    wrap.append(divWrap)
+  }
+</script>
 {% endblock %}

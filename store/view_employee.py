@@ -11,10 +11,49 @@ from django.db import transaction
 
 @check_role()
 def employeeHome(request):
+    tdate = date.today()
+    tdate = str(tdate).split("-") #year-month-date
+    fy = None
+    if int(tdate[1]) >=4 and int(tdate[1])<=12:
+        fy = tdate[0] +"-"+str(int(tdate[0])+1)
+    else:
+        fy = str(int(tdate[0])-1) +"-"+tdate[0]
+    
+    fyyn = Finantial_Year.objects.filter(yearName = fy).count()
+    if fyyn == 0:
+        Finantial_Year.objects.create(yearName = fy)
+    
+    currFY = Finantial_Year.objects.get(yearName = fy)
+
+
     hod = False
     if profile.objects.get(user = request.user).designation.designation_id == 'HOD':
         hod = True
-    return render(request, "employee/dashboard.html", context={'data':assign.objects.filter(user = request.user, pickedUp = True, item__item_type = "FIXED ASSET"), 'hod':hod})
+    
+    # consumable items
+    con = {}
+    con_items = assign.objects.filter(user = request.user, pickedUp = True, item__item_type = "CONSUMABLE")
+    for i in con_items:
+        if i.item.Purchase_Item.name not in con.keys():
+            con[i.item.Purchase_Item.name] = {
+                "name": i.item.Purchase_Item.name,
+                "quantity" : 1,
+                "year_quantity": 1
+            }
+        else:
+            if currFY == i.item.Financial_Year:
+                con[i.item.Purchase_Item.name] = {
+                    "name": i.item.Purchase_Item.name,
+                    "quantity" : con[i.item.Purchase_Item.name]["quantity"]+1,
+                    "year_quantity" : con[i.item.Purchase_Item.name]["year_quantity"]+1,
+                }
+            else:
+                con[i.item.Purchase_Item.name] = {
+                    "name": i.item.Purchase_Item.name,
+                    "quantity" : con[i.item.Purchase_Item.name]["quantity"]+1,
+                    "year_quantity" : con[i.item.Purchase_Item.name]["year_quantity"],
+                }
+    return render(request, "employee/dashboard.html", context={'data':assign.objects.filter(user = request.user, pickedUp = True, item__item_type = "FIXED ASSET"), 'hod':hod, "consumable": con, "ccount":con_items.count()})
 
 @check_role(redirect_to="/")
 def pickup(request):
@@ -135,7 +174,7 @@ def hod_dash(request):
     if pfl.designation.designation_id == 'HOD':
         dpt = pfl.department
 
-        items = assign.objects.filter(item__current_department = dpt)
+        items = assign.objects.filter(item__current_department = dpt, item__item_type = "FIXED ASSET")
 
         return render(request, 'employee/hod_view.html', context={"data":items})
 

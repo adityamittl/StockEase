@@ -511,7 +511,7 @@
                 <span class="sr-only">Search</span>
             </button>
         </div>
-        <div class="relative overflow-x-auto shadow-md sm:rounded-lg" style="margin-top: 20px; max-height: 72vh;">
+        <div class="relative overflow-x-auto shadow-md sm:rounded-lg" style="margin-top: 20px; max-height: 60vh;">
             <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                 <thead
                     class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 sticky top-0"">
@@ -542,7 +542,7 @@
                 <tbody id="vendorDetails" class="overflow-y-scroll" style="max-height: 65vh;">
                     {% for val in data %}
                     {%if val.pageno or val.register_number %}
-                    <tr {% if val.id|divisibleby:"2" %} class="border-b bg-gray-50 dark:bg-gray-800 dark:border-gray-700" {%else%} class="bg-white border-b dark:bg-gray-900 dark:border-gray-700" {%endif%}>
+                    <tr {% if forloop.counter|divisibleby:"2" %} class="border-b bg-gray-50 dark:bg-gray-800 dark:border-gray-700" {%else%} class="bg-white border-b dark:bg-gray-900 dark:border-gray-700" {%endif%}>
                         <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                             {{forloop.counter}}
                         </th>
@@ -559,7 +559,7 @@
                             {{val.pageno}}
                         </th>
                         <td class="px-6 py-4">
-                            <a href="/availables/view?item={{val.item.Item_Code}}"
+                            <a href="/itemanem/edit?id={{val.item.id}}"
                                 class="font-medium text-blue-600 dark:text-blue-500 hover:underline">View</a>
                         </td>
                         <td class="px-6 py-4">

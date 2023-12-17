@@ -50,6 +50,7 @@ urlpatterns = [
     path("searchItems", searchItems),
     path("findDetailed", findDetailed),
     path("stockRegister", stockRegister, name="stockRegister"),
+    path("stockRegister/View/<str:id>", viewStockEntry,),
     # Item relocation
     path("items/relocate", item_relocate),
     path("relocateItem", relocateItem),
@@ -83,6 +84,8 @@ urlpatterns = [
     path("availables",available_items),
     path('getlocations',getlocations),
     path("availables/view", available_details),
+    path("item/delete",item_delete),
+
     path("dump/details", dump_details),
     path("sell/details", sold_details),
     path("sell", sell),

@@ -19,6 +19,12 @@
         Is Issued?
       </th>
       <th scope="col" class="px-6 py-4">
+        Entry Date
+      </th>
+      <th scope="col" class="px-6 py-4">
+        Item Type
+      </th>
+      <th scope="col" class="px-6 py-4">
         View
       </th>
     </tr>
@@ -45,13 +51,39 @@
       <td class="px-6 py-4">
         {{i.isIssued}}
       </td>
+      <td class="px-6 py-4">
+        {{i.Date_Of_Entry}}
+      </td>
+      <td class="px-6 py-4">
+        {{i.item_type}}
+      </td>
       <td class="px-7 py-4">
-        <a onclick="window.open('/availables/view?item={{i.Item_Code}}', 
+        <div style="display: flex; gap: 3px;">
+
+        
+        <a onclick="window.open({%if i.item_type == "CONSUMABLE"%}'/availables/view?item={{i.id}}&type=CONSUMABLE'{%else%}'/availables/view?item={{i.Item_Code}}&type=FIXED_ASSET'{%endif%}, 
               'newwindow', 
               'width=800,height=800'); 
    return false;"style="cursor:pointer"
           class="text-white bg-gradient-to-br from-green-400 to-blue-600 hover:bg-gradient-to-bl focus:outline-none focus:ring-4 focus:ring-green-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">View</a>
-      </td>
+        
+        {%if i.isIssued is not True %}
+          <button onclick="DeleteItem(event,'{{i.id}}')" style="cursor: pointer;"
+          class="text-white bg-gradient-to-br from-green-400 to-blue-600 hover:bg-gradient-to-bl focus:outline-none focus:ring-4 focus:ring-green-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">Delete</button>
+        {%endif%}
+      </div>
+        </td>
     </tr>
     {%endfor%}
   </tbody>
+
+  <script>
+    function DeleteItem(event,id){
+      ajaxPOST({"data":id},"/item/delete").then(data =>{
+        console.log(data)
+        if(data["type"] == "success"){
+          event.srcElement.parentNode.parentNode.parentNode.remove();
+        }
+      })
+    }
+  </script>

@@ -1,56 +1,103 @@
 {% extends 'base.html' %}
 
 {%block main%}
+{%if data.isIssued%}
+<form action="" method="post">
+{%endif%}
+  {%csrf_token%}
 <div class="grid gap-6 mb-6 md:grid-cols-2 p-4">
-    <div>
-      <label for="VN" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Vendor Name</label>
-      <input type="text" disabled
+  <div>
+    <label for="company" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Vendor Name</label>
+    <div class="flex">
+      <input id="vendorName" autofocus autocomplete="off" type="text" name="vendorName" tabindex="3"
         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-        value="{{data.Vendor.name}}">
+        placeholder="ABC Traders" required style="height: 43px" value="{{data.Vendor}}"{%if not data.isIssued%}disabled{%endif%}/>
     </div>
+  </div>
+  <div>
+    <label for="company" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Item
+      Particular/Make
+    </label>
+    <div class="flex">
+      <input autocomplete="off" tabindex="5" type="text" id="iName" name="iName" onchange="fetchDetail(event)"
+        tabindex="6"
+        class="iname bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        placeholder="Table" value="{{data.Purchase_Item.name}}" required {%if not data.isIssued%}disabled{%endif%}/>
+    </div>
+  </div>
+
     <div>
       <label for="BN" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Bill No.</label>
-      <input type="text" disabled
+      <input type="text" name="bill_no"
         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-        value="{{data.Purchase_Item.name}}">
+        value="{{data.bill_No}}" required>
     </div>
 
     <div>
-      <label for="DOE" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Date of
+      <label for="doe" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Date of
         Entry</label>
-      <input type="text" disabled
-        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-        value="{{data.Date_Of_Entry}}">
+      <div class="relative">
+        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+          <svg aria-hidden="true" class="w-5 h-5 text-gray-500 dark:text-gray-400" fill="currentColor"
+            viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd"
+              d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
+              clip-rule="evenodd"></path>
+          </svg>
+        </div>
+        <input autocomplete="off" datepicker datepicker-format="dd/mm/yyyy" tabindex="2" {%if not data.isIssued%}disabled{%endif%}
+          type="text" name="EntryDate" value="{{data.Date_Of_Entry|date:'d/m/Y'}}"
+          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          placeholder="Select date" id="entryDate" required/>
+      </div>
+    </div>
+    <div>
+      <label for="doi" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Date of
+        Entry</label>
+      <div class="relative">
+        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+          <svg aria-hidden="true" class="w-5 h-5 text-gray-500 dark:text-gray-400" fill="currentColor"
+            viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd"
+              d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
+              clip-rule="evenodd"></path>
+          </svg>
+        </div>
+        <input autocomplete="off" datepicker datepicker-format="dd/mm/yyyy" tabindex="2" {%if not data.isIssued%}disabled{%endif%}
+          type="text" name="doi" value="{{data.Date_Of_Invoice|date:'d/m/Y'}}"
+          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          placeholder="Select date" id="entryDate"required />
+      </div>
     </div>
 
     <div>
       <label for="Rate" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Rate </label>
-      <input type="text" value="{{data.Rate}}" disabled
+      <input type="text" value="{{data.Rate}}" name="rate" {%if not data.isIssued%}disabled{%endif%}
         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
     </div>
     <div>
       <label for="Discount"
         class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Discount</label>
-      <input type="text" id="Pickup_P" value="{{data.Discount}}" disabled
+      <input type="text" id="Pickup_P" value="{{data.Discount}}" name="discount" {%if not data.isIssued%}disabled{%endif%}
         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
     </div>
 
 
     <div>
       <label for="tax" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tax</label>
-      <input type="text" id="department" value="{{data.Tax}}" disabled
+      <input type="text" id="department" value="{{data.Tax}}" name="tax" {%if not data.isIssued%}disabled{%endif%}
         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
     </div>
     <div>
       <label for="b_department"
         class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Bought_for_Department</label>
-      <input type="text" id="department" value="{{data.buy_for.name}}" name="department" disabled
+      <input type="text" id="department" value="{{data.buy_for.name}}" name="department" {%if not data.isIssued%}disabled{%endif%}
         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
     </div>
     <div>
       <label for="c_department"
         class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Current_Department</label>
-      <input type="text" id="department" value="{{data.current_department.name}}" name="department" disabled
+      <input type="text" id="department" value="{{data.current_department.name}}" name="department" {%if not data.isIssued%}disabled{%endif%}
         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
     </div>
     <div>
@@ -112,4 +159,66 @@
         {% endfor %}
     </ul>
 </div>
+</form>
+
+<script>
+  $(function () {
+      $("#vendorName").autocomplete({
+        delay: 300,
+        source: function (request, response) {
+          var vendorSearch = request.term;
+          var vendor = [];
+          $.ajax({
+            url: "/findVendor",
+            data: {
+              vendor: vendorSearch,
+            },
+            method: "POST",
+            headers: {
+              "X-CSRFToken": document.getElementsByName(
+                "csrfmiddlewaretoken"
+              )[0].value,
+            },
+            success: function (data) {
+              $.each(data, function (key, value) {
+                console.log(data);
+                for (let x = 0; x < value.length; x++) {
+                  vendor.push(value[x]);
+                }
+              });
+              response(vendor);
+            },
+          });
+        },
+      });
+    });
+
+    $("#iName").autocomplete({
+          delay: 300,
+          source: function (request, response) {
+            var itemName = request.term;
+            var items = [];
+            $.ajax({
+              url: "/findItem",
+              data: {
+                vendor: itemName,
+              },
+              method: "POST",
+              headers: {
+                "X-CSRFToken": document.getElementsByName(
+                  "csrfmiddlewaretoken"
+                )[0].value,
+              },
+              success: function (data) {
+                $.each(data, function (key, value) {
+                  for (let x = 0; x < value.length && x < 10; x++) {
+                    items.push(value[x]);
+                  }
+                });
+                response(items);
+              },
+            });
+          },
+        });
+</script>
 {%endblock%}

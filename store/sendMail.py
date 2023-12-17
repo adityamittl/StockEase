@@ -49,10 +49,12 @@ def assign(to, hod, data, alt):
     subject = '[Action Required] Item has been Issued!'
     html_content = mail_template.render(data)
     text_content = plaintext.render(data)
+    emails = [to, hod]
     if alt:
-        msg = EmailMultiAlternatives(subject, text_content, from_email, [to, hod, alt])
+        emails.extend(alt)
+        msg = EmailMultiAlternatives(subject, text_content, from_email, emails)
     else:
-        msg = EmailMultiAlternatives(subject, text_content, from_email, [to, hod])
+        msg = EmailMultiAlternatives(subject, text_content, from_email, emails)
     msg.attach_alternative(html_content, "text/html")
     msg.send()
 

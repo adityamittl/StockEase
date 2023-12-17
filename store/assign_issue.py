@@ -26,6 +26,10 @@ def assign_func(request):
         )  # Items is a JSON that has selected items to assign and user's information such as username and department id
         uname = items["User_data"]["name"]
         department_id = items["User_data"]["department"]
+        try:
+            additional_emails = items["User_data"]["emails"]
+        except:
+            additional_emails = []
         del items[
             "User_data"
         ]  # Removing the user's information object from the items dictionary such that only selected items is present!
@@ -39,9 +43,11 @@ def assign_func(request):
         for i in items:
             # print(items[i]["item_id"])
             item_vals = dict()
-
-            temp = Ledger.objects.filter(Purchase_Item__name=items[i]["item_name"], isIssued = False, Is_Dump = False) #got all the ledger of that name
-
+            try:
+                temp = Ledger.objects.filter(Purchase_Item__name=items[i]["item_name"], isIssued = False, Is_Dump = False) #got all the ledger of that name
+            except:
+                temp = Ledger.objects.filter(Purchase_Item__name__icontains=items[i]["item_name"], isIssued = False, Is_Dump = False) #got all the ledger of that name
+            print(temp)
             # quantity requested by the user
             qty = int(items[i]["quantity"])
             for j in range(qty):
@@ -74,7 +80,7 @@ def assign_func(request):
         # 1. Department HOD
         # 2. Respective assigning person.
         alt_email = request.POST["alt_email"]
-        threading.Thread(target=email_send, args=(user_profile,data, False, "assign", alt_email)).start()
+        threading.Thread(target=email_send, args=(user_profile,data, False, "assign", additional_emails)).start()
         # email_send(user_profile,data, False, "assign") # sending email!
         messages.success(request, f"/issue/item?type=user&uname={uname}")
         return redirect("assign")
