@@ -1,27 +1,24 @@
 # Inventory management system
 
-## Remaining Task-
+Installation guide
 
-1. Front End pages
-    - [x] Entry Module
-    - [ ] Dump Entry Module
-    - [ ] Sell Entry Module
-    - [ ] Issue Module
-        - [x] Assign
-        - [ ] Issue
-            - [x] Issue by item code
-    - [ ] Shift Items
-    - [ ] Complaint Module
-    - [x] User
-        - [x] Edit user
-        - [x] Shift item when location or department changes
-    - [x] Backup make zip files
-    - [ ] Backup populate data by backup
+- create .env file
+```shell
+# SQL Configurations
+SQL_ENGINE=django.db.backends.postgresql
+SQL_DATABASE=DB
+SQL_USER=USERNAME
+SQL_PASSWORD=PASSWORD
+SQL_HOST=localhost
 
 
-2. User Side
+ADMIN_USERNAME = "username"
+ADMIN_EMAIL = "email@address.domain"
+ADMIN_PASSWORD = "password"
+```
 
-    - [x] Dashboard
-    - [x] Available items
-    - [x] complaint
-    - [ ] Complaint status
+- run
+    ```shell
+    sh entrypoint.sh
+    sh run.sh
+    ```
