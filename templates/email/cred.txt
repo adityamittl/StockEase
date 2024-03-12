@@ -1,4 +1,11 @@
-Your login credentials for LNMIIT Store manger is following
+Your login credentials for LNMIIT Store manager is following
+
+Follow the steps to get into the system-
+1. Click on forgot password to generate a new password for yourself
+2. After successful login in to the system, visit profile tab and update your information there
+3. You are ready to use the application
+
+
 Username	{{username}}
 Password	{{password}}
 

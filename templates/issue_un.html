@@ -873,9 +873,9 @@
                   <th scope=" col" class="px-6 py-3">S. No.</th>
                   <th scope=" col" class="px-6 py-3">Item Name</th>
                   <th scope=" col" class="px-6 py-3">Quantity in Store</th>
-                  <th scope=" col" class="px-6 py-3">Issue Quantity</th>
                   <th scope=" col" class="px-6 py-3">Register</th>
                   <th scope=" col" class="px-6 py-3">Page No</th>
+                  <th scope=" col" class="px-6 py-3">Issue Quantity</th>
                   <th scope="col" class="px-6 py-3">Issue</th>
                 </tr>
               </thead>
@@ -1182,7 +1182,7 @@
     };
     function issue_consumable(id, event) {
       let qty_selected =
-        event.srcElement.parentElement.parentElement.children[3].children[0]
+        event.srcElement.parentElement.parentElement.children[5].children[0]
           .value;
       let max_qty =
         event.srcElement.parentElement.parentElement.children[2].innerHTML.trim();

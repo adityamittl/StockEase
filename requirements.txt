@@ -10,3 +10,4 @@ six
 sqlparse
 tzdata
 gunicorn
+psycopg2-binary
