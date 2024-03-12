@@ -2261,7 +2261,7 @@ def grn_fetch(request):
         except:
             grn_search = grn.objects.create(poid = request.GET["pono"])
             grn_value = grn_search.id
-        data = Ledger.objects.filter(pono = request.GET["pono"])
+        data = Ledger.objects.filter(pono = request.GET["pono"]).distinct("Purchase_Item__name")
         res = {} #resultant items dictionary
         srn = {
             "invoice": set(),
@@ -2270,36 +2270,33 @@ def grn_fetch(request):
             "supplier":set()
         }
         total_price = 0
+        print(data)
         for i in data:
-            if i.Purchase_Item.name not in res.keys():
+            try:
                 reg_mapping = entry_to_register.objects.get(item = i.Purchase_Item)
-                res[i.Purchase_Item.name] = {
-                    "name" : i.Purchase_Item.name,
-                    "cost": i.Rate,
-                    "discount": i.Discount,
-                    "ammount": i.Ammount,
-                    "quantity": 1,
-                    "page" : reg_mapping.pageno,
-                    "register" : reg_mapping.register_number
-                }
-                total_price+= float(i.Ammount)
-            else:
-                res[i.Purchase_Item.name] = {
-                    "name" : i.Purchase_Item.name,
-                    "cost": i.Rate,
-                    "discount": i.Discount,
-                    "ammount": i.Ammount,
-                    "quantity": res[i.Purchase_Item.name]["quantity"] + 1,
-                    "page" : res[i.Purchase_Item.name],
-                    "register": res[i.Purchase_Item.name]
-                }
-                total_price+= float(i.Ammount)
+            except:
+                reg_mapping = {"pageno":"NA", "register_number":"NA"}
+            
+            item_qty = Ledger.objects.filter(pono = request.GET["pono"], Purchase_Item__name = i.Purchase_Item.name).count()
+            
+            res[i.Purchase_Item.name] = {
+                "name" : i.Purchase_Item.name,
+                "cost": i.Rate,
+                "discount": i.Discount,
+                "ammount": i.Ammount,
+                "quantity": item_qty,
+                "page" : reg_mapping["pageno"],
+                "register" : reg_mapping["register_number"]
+            }
+            
+            total_price = item_qty * float(i.Ammount)
+
+
             srn["invoice"].add(i.bill_No)
             srn["stock_register"].add(i.stock_register.name)
             srn["date"].add("-".join(i.Date_Of_Entry.isoformat().split("-")[::-1]))
             srn["supplier"].add(i.Vendor.name)
-        print(int(round(total_price))-int(total_price*100)/100)
-        print(total_price - round(total_price))
+            # print(res )
         return render(request, "grn.html", context={"data":res, "pono":srn, "poNum":request.GET["pono"], "total": total_price, "round" : round(total_price), "diff" : (round(total_price)*100-int(total_price*100))/100, "grn_no" : grn_value})
     else:
         return redirect("NotFound")
