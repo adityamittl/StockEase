@@ -43,32 +43,34 @@ def assign_func(request):
         for i in items:
             # print(items[i]["item_id"])
             item_vals = dict()
+            qty = int(items[i]["quantity"])
             try:
-                temp = Ledger.objects.filter(Purchase_Item__name=items[i]["item_name"], isIssued = False, Is_Dump = False) #got all the ledger of that name
+                temp = Ledger.objects.filter(Purchase_Item__name=items[i]["item_name"], isIssued = False, Is_Dump = False)[:qty] #got all the ledger of that name
             except:
-                temp = Ledger.objects.filter(Purchase_Item__name__icontains=items[i]["item_name"], isIssued = False, Is_Dump = False) #got all the ledger of that name
+                temp = Ledger.objects.filter(Purchase_Item__name__icontains=items[i]["item_name"], isIssued = False, Is_Dump = False)[:qty] #got all the ledger of that name
+            print("lol,lamao-----------------------------------")
             print(temp)
             # quantity requested by the user
-            qty = int(items[i]["quantity"])
-            for j in range(qty):
+            print(qty)
+            for j in temp:
 
-                ao = assign.objects.create(item=temp[j], user=user_profile)
-
-                item_vals["name"] = temp[j].Purchase_Item.name
-                item_vals["item_code"] = temp[j].Item_Code
+                ao = assign.objects.create(item=j, user=user_profile)
+                print(ao,"----------", j)
+                item_vals["name"] = j.Purchase_Item.name
+                item_vals["item_code"] = j.Item_Code
                 item_vals["department"] = department_id
                 # creating user notification
                 employee_notifications.objects.create(
                     user = user_profile, 
                     notification_date = date.today(),
-                    notification = f"Item with item number {temp[j].Item_Code} has been succesfully assigned to you, pick it up from the store!",
+                    notification = f"Item with item number {j.Item_Code} has been succesfully assigned to you, pick it up from the store!",
                     notification_type = "success",
                     action_url = f"/pickup/action/{ao.id}"
                 )
                 temp_container.append(item_vals)
 
 
-                update_query = Ledger.objects.get(id = temp[j].id)
+                update_query = Ledger.objects.get(id = j.id)
                 update_query.isIssued = True
                 update_query.save()
         
@@ -327,17 +329,17 @@ def issueItem(request):
                 try:
                     etr = entry_to_register.objects.get(item = i.item.Purchase_Item)
                 except:
-                    etr = {"page":"NA", "register":"NA"}
-                fa[i.item.Purchase_Item.name] = {
-                    "page" : etr.pageno,
-                    "register": etr.register_number,
+                    etr = {"pageno":"NA", "register_number":"NA"}
+                fa[i.item.Item_Code] = {
+                    "page" : etr["pageno"],
+                    "register": etr["register_number"],
                     "code":i.item.Item_Code,
                     "name":i.item.Purchase_Item.name,
                     "catagory": i.item.Purchase_Item.mc.name
                 }
 
             buildings = Building_Name.objects.all()
-            print(fa)
+            # print(fa)
             return render(request, "issue_un.html", context={"data": items_fixed, "consumable":ca, 'uname':uname, 'buildings':buildings, "ccounts":items_consumable.count(), "fr" : fa})
         # except:
         #     return redirect("NotFound")
