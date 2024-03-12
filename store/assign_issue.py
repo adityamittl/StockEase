@@ -314,13 +314,20 @@ def issueItem(request):
 
             # appending stock register names in it
             for i in ca.keys():
-                srValue = entry_to_register.objects.get(item__name = i)
-                ca[i]["regno"] = srValue.register_number
-                ca[i]["pageno"] = srValue.pageno
+                try:
+                    srValue = entry_to_register.objects.get(item__name = i)
+                    ca[i]["regno"] = srValue.register_number
+                    ca[i]["pageno"] = srValue.pageno
+                except:
+                    ca[i]["regno"] = "NA"
+                    ca[i]["pageno"] = "NA"
             
             fa = {}
             for i in items_fixed:
-                etr = entry_to_register.objects.get(item = i.item.Purchase_Item)
+                try:
+                    etr = entry_to_register.objects.get(item = i.item.Purchase_Item)
+                except:
+                    etr = {"page":"NA", "register":"NA"}
                 fa[i.item.Purchase_Item.name] = {
                     "page" : etr.pageno,
                     "register": etr.register_number,

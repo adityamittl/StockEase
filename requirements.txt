@@ -11,3 +11,4 @@ sqlparse
 tzdata
 gunicorn
 psycopg2-binary
+python-dotenv
