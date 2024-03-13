@@ -2022,6 +2022,8 @@ def shift_item(request):
             return redirect("NotFound;")
     return render(request, "shift_items.html")
 
+
+@check_role_ajax(role = "STORE", redirect_to= "employee_home")
 def search_user(request):
     uname = request.POST.get("item")
     users_auto = profile.objects.filter(user__username__icontains = uname)
@@ -2077,7 +2079,7 @@ def new_user(request):
 
 
 # report generation!
-
+@check_role(role = "STORE", redirect_to= "employee_home")
 def reports(request):
     if request.method == "POST":
         sdate = request.POST["start"]
@@ -2109,6 +2111,7 @@ def reports(request):
             
     return render(request, "report_generate.html")
 
+@check_role(role = "STORE", redirect_to= "employee_home")
 def register_to_ledger(request):
     if "finantial_year" in request.GET.keys():
         fyear = request.GET.get("finantial_year")
@@ -2123,7 +2126,7 @@ def register_to_ledger(request):
     fy = Finantial_Year.objects.all()
     return render(request, "register_to_ledger.html", context={"fy":fy, "is_view":True})
 
-
+@check_role_ajax(role = "STORE", redirect_to= "employee_home")
 def item_search_autocomplete(request):
     item_code = request.POST.get("item_code")
     fy = request.POST.get("fy")
@@ -2138,6 +2141,7 @@ def item_search_autocomplete(request):
 
     return JsonResponse({"data":res})
 
+@check_role(role = "STORE", redirect_to= "employee_home")
 def notifications(request):
     if request.method == "POST":
         return JsonResponse({"count":admin_notifications.objects.filter(status = "unread").count()})
@@ -2145,6 +2149,8 @@ def notifications(request):
     data = admin_notifications.objects.all().order_by("-notification_date","-id")
     return render(request, "notification.html", context={"data":data, "count":data.filter(status="unread")})
 
+
+@check_role_ajax(role = "STORE", redirect_to= "employee_home")
 def notificationAction(request):
     if request.method == "POST":
         data = json.loads(request.body.decode())
@@ -2165,6 +2171,7 @@ def notificationAction(request):
     else:
         return redirect("NotFound")
     
+@check_role(role = "STORE", redirect_to= "employee_home")
 def registerMap(request):
     tdate = date.today()
     tdate = str(tdate).split("-") #year-month-date
@@ -2204,6 +2211,7 @@ def registerMap(request):
 
     return render(request, "register_entry.html", context={"data":page_obj, "fy":fy, "allYears":uniques})
 
+@check_role(role = "STORE", redirect_to= "employee_home")
 @transaction.atomic
 def new_entry_register(request):
     tdate = date.today()
@@ -2263,7 +2271,8 @@ def new_entry_register(request):
         
         # except:
         #     return JsonResponse({"type":"failure"})
-        
+
+@check_role(role = "STORE", redirect_to= "employee_home")   
 def grn_fetch(request):
     if "pono" in request.GET.keys():
         try:
@@ -2312,6 +2321,7 @@ def grn_fetch(request):
     else:
         return redirect("NotFound")
 
+@check_role(role = "STORE", redirect_to= "employee_home")
 def generate_grn(request):
     data = Ledger.objects.filter(Is_Dump = False)
     res = {}
@@ -2321,6 +2331,7 @@ def generate_grn(request):
 
     return render(request, "grn_generate.html", context={"data":res})
 
+@check_role(role = "STORE", redirect_to= "employee_home")
 def viewStockEntry(request, id):
     res = {}
     total = 0
@@ -2346,6 +2357,7 @@ def viewStockEntry(request, id):
 
     return render(request, "viewStockEntries.html", context={"data":res, "total":(int(total*100))/100})
 
+@check_role(role = "STORE", redirect_to= "employee_home")
 def item_delete(request):
     if request.method == "POST":
         item_id = json.loads(request.body.decode())["data"]
