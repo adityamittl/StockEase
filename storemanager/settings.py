@@ -140,21 +140,6 @@ LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/login/'
 
 
-# EMAIL_BACKEND = 'django_imap_backend.ImapBackend'
-# EMAIL_IMAP_SECRETS = [
-#     {
-#         'HOST': 'imap.gmail.com',
-#         'PORT': 993,  # default 143 and for SSL 993
-#         'USER': "20ucs010@lnmiit.ac.in",
-#         'PASSWORD': "xbhctzqplsppqcch",
-#         'MAILBOX': 'store',  # Created if not exists
-#         'SSL': True  # Default
-#     }
-# ]
-
-
-
-
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = os.getenv("EMAIL")

@@ -2179,6 +2179,7 @@ def registerMap(request):
         Finantial_Year.objects.create(yearName = fy)
     
     currFY = Finantial_Year.objects.get(yearName = fy)
+    print(currFY)
     if "year" in request.GET.keys():
         try:
             currFY = Finantial_Year.objects.get(yearName = request.GET["year"])
@@ -2201,7 +2202,6 @@ def registerMap(request):
         if entry_to_register.objects.filter(finantialYear = fy).count() !=0:
             uniques.append(fy.yearName)
 
-    print(uniques)
     return render(request, "register_entry.html", context={"data":page_obj, "fy":fy, "allYears":uniques})
 
 @transaction.atomic
@@ -2219,12 +2219,23 @@ def new_entry_register(request):
         Finantial_Year.objects.create(yearName = fy)
     
     currFY = Finantial_Year.objects.get(yearName = fy)
+
     if request.method == "GET":
         if "catagory" in request.GET.keys():
             cat = request.GET["catagory"]
             if cat == "":
                 return HttpResponse("No catagory selected")
             
+            registerItems = entry_to_register.objects.filter(finantialYear = currFY, pageno__isnull = True, register_number__isnull = True, item__mc__code = cat)
+            # in the above query, we've got the number of items in the current fy and not yet entered
+            all_items_mc = Asset_Type.objects.filter(mc__code = cat) # list of all the items that are in that main catagory, this may take time sine data can be of scale of hundreds to thousands, but cannot impact much significant lag in the overall application
+
+            
+            # create the entry for that fy in the entry_to_register table if that item is not available
+            for new_item in all_items_mc:
+                if entry_to_register.objects.filter(item = new_item, finantialYear = currFY).count() == 0:
+                    entry_to_register.objects.create(item = new_item, finantialYear = currFY)
+
             registerItems = entry_to_register.objects.filter(finantialYear = currFY, pageno__isnull = True, register_number__isnull = True, item__mc__code = cat)
 
             return render(request, "selectFY.html", context={"fy":fy, "data":registerItems})
