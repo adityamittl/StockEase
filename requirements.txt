@@ -12,3 +12,4 @@ tzdata
 gunicorn
 psycopg2-binary
 python-dotenv
+pylabels

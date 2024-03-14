@@ -1,2 +1,3 @@
-EXPORT IP_ADD = "140.238.166.248" #IP to bind to
-gunicorn --bind ${IP_ADD} storemanager.wsgi
+sudo gunicorn3 storemanager.wsgi:application --name storemanager --workers 3 --bind=0.0.0.0:8080 --daemon
+
+sudo systenctl restart nginx

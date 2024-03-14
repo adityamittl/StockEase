@@ -27,7 +27,7 @@ from django.db.models import Count
 from django.core.paginator import Paginator
 import os
 from .sendMail import email_send
-
+from types import SimpleNamespace
 
 
 password_length = 8
@@ -2295,7 +2295,7 @@ def grn_fetch(request):
             try:
                 reg_mapping = entry_to_register.objects.get(item = i.Purchase_Item)
             except:
-                reg_mapping = {"pageno":"NA", "register_number":"NA"}
+                reg_mapping = SimpleNamespace(pageno = "NA", register_number = "NA")
             
             item_qty = Ledger.objects.filter(pono = request.GET["pono"], Purchase_Item__name = i.Purchase_Item.name).count()
             
@@ -2305,8 +2305,8 @@ def grn_fetch(request):
                 "discount": i.Discount,
                 "ammount": i.Ammount,
                 "quantity": item_qty,
-                "page" : reg_mapping["pageno"],
-                "register" : reg_mapping["register_number"]
+                "page" : reg_mapping.pageno,
+                "register" : reg_mapping.register_number
             }
             
             total_price = item_qty * float(i.Ammount)

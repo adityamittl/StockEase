@@ -9,7 +9,7 @@ from assetsData.models import *
 from .models import *
 from django.contrib.auth.models import User
 from django.contrib import messages
-
+from types import SimpleNamespace
 from .roles import check_role, check_role_ajax
 import threading
 
@@ -329,10 +329,10 @@ def issueItem(request):
                 try:
                     etr = entry_to_register.objects.get(item = i.item.Purchase_Item)
                 except:
-                    etr = {"pageno":"NA", "register_number":"NA"}
+                    etr = SimpleNamespace(pagenon = "NA",register_number = "NA")
                 fa[i.item.Item_Code] = {
-                    "page" : etr["pageno"],
-                    "register": etr["register_number"],
+                    "page" : etr.pageno,
+                    "register": etr.register_number,
                     "code":i.item.Item_Code,
                     "name":i.item.Purchase_Item.name,
                     "catagory": i.item.Purchase_Item.mc.name
