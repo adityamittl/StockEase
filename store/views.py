@@ -2023,7 +2023,7 @@ def shift_item(request):
     return render(request, "shift_items.html")
 
 
-@check_role_ajax(role = "STORE", redirect_to= "employee_home")
+@check_role_ajax(role = "STORE")
 def search_user(request):
     uname = request.POST.get("item")
     users_auto = profile.objects.filter(user__username__icontains = uname)
@@ -2126,7 +2126,7 @@ def register_to_ledger(request):
     fy = Finantial_Year.objects.all()
     return render(request, "register_to_ledger.html", context={"fy":fy, "is_view":True})
 
-@check_role_ajax(role = "STORE", redirect_to= "employee_home")
+@check_role_ajax(role = "STORE")
 def item_search_autocomplete(request):
     item_code = request.POST.get("item_code")
     fy = request.POST.get("fy")
@@ -2150,7 +2150,7 @@ def notifications(request):
     return render(request, "notification.html", context={"data":data, "count":data.filter(status="unread")})
 
 
-@check_role_ajax(role = "STORE", redirect_to= "employee_home")
+@check_role_ajax(role = "STORE")
 def notificationAction(request):
     if request.method == "POST":
         data = json.loads(request.body.decode())
