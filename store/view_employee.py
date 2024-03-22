@@ -4,7 +4,7 @@ from .models import assign,complaints,Ledger
 from datetime import datetime
 from assetsData.models import *
 import json
-from .roles import check_role
+from .roles import check_role, check_role_ajax
 from .models import *
 from datetime import date
 from django.db import transaction
@@ -169,6 +169,7 @@ def profile_dash(request):
     prof = profile.objects.get(user = request.user)
     return render(request,"employee/profile.html", context={"data":data, 'prof':prof, 'hod':hod})
 
+@check_role()
 def hod_dash(request):
     pfl = profile.objects.get(user = request.user)
     if pfl.designation.designation_id == 'HOD':
@@ -181,6 +182,7 @@ def hod_dash(request):
     else:
         return redirect("NotFound")
 
+@check_role_ajax()
 def getfloors(request):
     if request.method == 'POST':
         a = json.loads(request.body.decode('utf-8'))['data']
@@ -201,6 +203,7 @@ def getfloors(request):
         return JsonResponse({"data":res})
     
 
+@check_role_ajax()
 def getRooms(request):
     if request.method == 'POST':
         building = json.loads(request.body.decode('utf-8'))['building']
@@ -214,12 +217,14 @@ def getRooms(request):
             res.append({i:i.split(" ")[2]})
         return JsonResponse({"data":res})
     
+@check_role()
 def notifications(request):
     data = assign.objects.filter(user = request.user, dumped_review = True) 
     notfs = employee_notifications.objects.filter(user = request.user).order_by("-notification_date")
     return render(request, "employee/notifications.html", context = {"data":data, "notfs":notfs})
 
 @transaction.atomic
+@check_role_ajax()
 def notificationAction(request):
     if request.method == 'POST':
         data_received = json.loads(request.body.decode())
@@ -269,7 +274,8 @@ def notificationAction(request):
             return JsonResponse({"type":"failure"})
     else:
         return redirect("NotFound")
-        
+
+@check_role()
 def notif_count(request):
     if request.method == "GET":
         return JsonResponse({"data":employee_notifications.objects.filter(user = request.user, status = "unread").count()})
