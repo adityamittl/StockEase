@@ -219,7 +219,9 @@ def getRooms(request):
     
 @check_role()
 def notifications(request):
-    data = assign.objects.filter(user = request.user, dumped_review = True) 
+    data = []
+    if profile.objects.get(user = request.user).is_director:
+        data = assign.objects.filter(user = request.user, dumped_review = True) 
     notfs = employee_notifications.objects.filter(user = request.user).order_by("-notification_date")
     return render(request, "employee/notifications.html", context = {"data":data, "notfs":notfs})
 

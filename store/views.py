@@ -658,12 +658,22 @@ def users(request):
                     password=pswd,
                     first_name=name,
                 )
-                profile.objects.create(
-                    department=Departments.objects.get(code=department),
-                    designation=designation,
-                    user=usr,
-                    login_type = ltype.upper()
-                )
+                if email.split("@")[0] == "director":
+
+                    profile.objects.create(
+                        department=Departments.objects.get(code=department),
+                        designation=designation,
+                        user=usr,
+                        login_type = ltype.upper(),
+                        is_director = True
+                    )
+                else:
+                    profile.objects.create(
+                        department=Departments.objects.get(code=department),
+                        designation=designation,
+                        user=usr,
+                        login_type = ltype.upper()
+                    )
 
                 # Send mail
                 threading.Thread(target=email_send, args=(new_user, {"username":usr.username, "password":pswd}, False, "credentials")).start()

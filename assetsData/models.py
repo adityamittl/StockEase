@@ -135,7 +135,7 @@ class profile(models.Model):
     department = models.ForeignKey(Departments, on_delete=models.CASCADE, blank=True)
     designation = models.ForeignKey(designation, on_delete=models.CASCADE)
     location = models.ForeignKey(Location_Description, on_delete=models.CASCADE, null=True, blank=True) # Location of the employee cabin, so that the item can be easily assigned to them! Filled by the user itself
-    
+    is_director = models.BooleanField(default = False)
     def __str__(self):
         return self.user.username
 
