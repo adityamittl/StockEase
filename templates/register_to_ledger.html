@@ -214,7 +214,7 @@
                                 d="M3,1 C3,0.44772 3.44772,0 4,0 L6,0 C6.55228,0 7,0.44772 7,1 L7,2 C7,2.55228 6.55228,3 6,3 L4,3 C3.44772,3 3,2.55228 3,2 L3,1 Z M2,1 L0,1 L0,14 L10,14 L10,1 L8,1 L8,2.4 L8.6,2.4 L8.6,12.6 L1.4,12.6 L1.4,2.4 L2,2.4 L2,1 Z M4.57808,10.0212 L7.9899,6.6094 L6.99996,5.61945 L4.57808,8.04132 L3.36715,6.83038 L2.3772,7.82033 L4.57808,10.0212 Z"
                                 transform="translate(3 1)" />
                         </svg>
-                        <span class="flex-1 ml-3 text-left whitespace-nowrap" sidebar-toggle-item>Issue/Assign</span>
+                        <span class="flex-1 ml-3 text-left whitespace-nowrap" sidebar-toggle-item>Assign/Issue</span>
                         <svg sidebar-toggle-item class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"
                             xmlns="http://www.w3.org/2000/svg">
                             <path fill-rule="evenodd"
@@ -384,12 +384,12 @@
                         <li>
                             <a href="/maincategory"
                                 class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Main
-                                Catagory</a>
+                                Category</a>
                         </li>
                         <li>
                             <a href="/subcategory"
                                 class="flex items-center w-full p-2 text-base font-normal text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Sub
-                                Catagory</a>
+                                Category</a>
                         </li>
 
                         <li>
@@ -548,9 +548,9 @@
         <div class="relative overflow-x-auto shadow-md sm:rounded-lg" style="margin-top: 70px; max-height: 72vh;">
             {%if is_view%}
             <form method="get">
-                <label for="finantial_year" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select
+                <label for="Financial_year" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select
                     financial year</label>
-                <select name="finantial_year" style="width: 60%;"
+                <select name="Financial_year" style="width: 60%;"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                     <option selected>Select financial year</option>
                     {%for i in fy%}
@@ -714,7 +714,7 @@
                             url: "/itemsearch",
                             data: {
                                 item_code: itemsearch,
-                                fy : urlParams.get("finantial_year")
+                                fy : urlParams.get("Financial_year")
                             },
                             method: "POST",
                             headers: {

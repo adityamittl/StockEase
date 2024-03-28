@@ -425,7 +425,7 @@
 <script src="/static/complaint_employee.js"></script>
 
 <script>
-    const action = (id, type, catagory, event) =>{
+    const action = (id, type, Category, event) =>{
         let validate;
         if(type == "notification"){
             validate = true;
@@ -448,7 +448,7 @@
         </div>`
 
         if(validate){
-            ajaxPOST({"id":id, "type":type, "action":catagory}, "notification/action").then(data =>{
+            ajaxPOST({"id":id, "type":type, "action":Category}, "notification/action").then(data =>{
                 if(data["type"] == "success"){
                     event.srcElement.parentElement.remove();
                     setTimeout(function(){
