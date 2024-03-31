@@ -17,7 +17,7 @@ def check_role(role='EMPLOYEE', redirect_to = 'NotFound'):
     return wrap
 
 
-def check_role_ajax(role='employee'):
+def check_role_ajax(role='EMPLOYEE'):
     def wrap(func):
         @login_required
         def inner1(*args, **kwargs):

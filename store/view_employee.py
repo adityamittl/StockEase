@@ -157,13 +157,13 @@ def profile_dash(request):
     hod = False
     if profile.objects.get(user = request.user).designation.designation_id == 'HOD':
         hod = True
-    if(request.method == 'POST'):
+    if request.method == 'POST':
         if not request.POST.get('room'):
             return redirect('profile')
         
         usr = profile.objects.get(user = request.user)
         usr.location = Location_Description.objects.get(Final_Code = request.POST.get('room'))
-        # usr.save()
+        usr.save()
         return redirect('profile')
     data = Building_Name.objects.all()
     prof = profile.objects.get(user = request.user)
@@ -219,11 +219,14 @@ def getRooms(request):
     
 @check_role()
 def notifications(request):
+    hod = False
+    if profile.objects.get(user = request.user).designation.designation_id == 'HOD':
+        hod = True
     data = []
     if profile.objects.get(user = request.user).is_director:
         data = assign.objects.filter(user = request.user, dumped_review = True) 
     notfs = employee_notifications.objects.filter(user = request.user).order_by("-notification_date")
-    return render(request, "employee/notifications.html", context = {"data":data, "notfs":notfs})
+    return render(request, "employee/notifications.html", context = {"data":data, "notfs":notfs, "hod":hod})
 
 @transaction.atomic
 @check_role_ajax()

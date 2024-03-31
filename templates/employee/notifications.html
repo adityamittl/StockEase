@@ -449,6 +449,7 @@
 
         if(validate){
             ajaxPOST({"id":id, "type":type, "action":Category}, "notification/action").then(data =>{
+            // console.log(data)
                 if(data["type"] == "success"){
                     event.srcElement.parentElement.remove();
                     setTimeout(function(){
