@@ -22,6 +22,7 @@ urlpatterns = [
     path("itemanem/edit", itemanem_edit),
     path("itemanem/new", itemanem_new),
 
+    # codes
     path("findVendor", findVendor, name="findVendor"),
     path("subcategory", sub_category, name="sub_category"),
     path("maincategory", main_category, name="main_category"),
@@ -30,6 +31,8 @@ urlpatterns = [
     path("users", users, name="users"),
     path("users/new", new_user),
     path("user/<str:uname>", edit_user, name="editusers"),
+    path("subcategory/new", new_subcatagory),
+    path("maincategory/new", new_maincatagory),
 
     # Assign and issue module
     path("assign", assign_func, name="assign"), #mig

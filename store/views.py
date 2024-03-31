@@ -546,6 +546,41 @@ def sub_category(request):
     data = Sub_Catagory.objects.all()
     return render(request, "subcatagory.html", context={"data": data})
 
+@transaction.atomic
+@check_role(role="STORE")
+def new_subcatagory(request):
+    if request.method == "POST":
+        sname = request.POST.get("sname").upper()
+        try:
+            scode = int(request.POST.get("scode"))
+        except:
+            return HttpResponse("Sub Catagory code must be a number")
+
+        # check if the subcatagory name already exists
+        if Sub_Catagory.objects.filter(code = scode).count() == 1:
+            return render(request, "sub_catagory_new.html", context={"error1":True, "error2":True})
+        else:
+            Sub_Catagory.objects.create(name = sname, code = scode)
+            return render(request, "sub_catagory_new.html", context={"close":True})
+
+    return render(request, "sub_catagory_new.html")
+
+
+@transaction.atomic
+@check_role(role="STORE")
+def new_maincatagory(request):
+    if request.method == "POST":
+        sname = request.POST.get("sname").upper()
+        scode = request.POST.get("scode").upper()
+
+        # check if the subcatagory name already exists
+        if Main_Catagory.objects.filter(code = scode).count() == 1:
+            return render(request, "main_catagory_new.html", context={"error1":True, "error2":True})
+        else:
+            Main_Catagory.objects.create(name = sname, code = scode)
+            return render(request, "main_catagory_new.html", context={"close":True})
+    return render(request, "main_catagory_new.html")
+
 
 @transaction.atomic
 @check_role(role = "STORE", redirect_to= "employee_home")
