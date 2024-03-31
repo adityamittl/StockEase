@@ -59,6 +59,8 @@ def assign_func(request):
                 item_vals["name"] = j.Purchase_Item.name
                 item_vals["item_code"] = j.Item_Code
                 item_vals["department"] = department_id
+                item_vals["id"] = ao.id
+
                 # creating user notification
                 employee_notifications.objects.create(
                     user = user_profile, 
@@ -73,6 +75,7 @@ def assign_func(request):
                 update_query = Ledger.objects.get(id = j.id)
                 update_query.isIssued = True
                 update_query.save()
+
         
         data["items"] = temp_container
         data["comment"] = comment
@@ -465,6 +468,7 @@ def bulkAssign(request):
             final_codes.append("LNM "+i["location"]+" "+i["item_code"])
         
         data["items"] = temp_container
+        data["name"] = User.objects.get(username = usr)
 
         threading.Thread(target=email_send, args=(usr, data, False, "issue")).start()
         # email_send(usr, data, False, "issue")

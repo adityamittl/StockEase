@@ -1528,7 +1528,8 @@ def dump(request):
         assign_object.action_date = datetime.strptime(dump_date, "%d/%m/%Y").strftime("%Y-%m-%d")
         assign_object.save()
         # send an approval mail for the same!
-
+        # Approval mail is sent to director
+        threading.Thread(target=email_send, args=("director@lnmiit.ac.in",{"name":item.Purchase_Item.name, "item_code":item.Item_Code, "date":dump_date, "remark":remark, "loc":item.Location_Code})).start()
         messages.success(request, f"Successfully send dump request of item {item_code}")
         return redirect("dump")
     return render(request, "dump.html")
@@ -1664,7 +1665,9 @@ def relocateFunction(item_id, old_loc, new_loc):
     # Finally saving everything
 
     item.item.save()
-
+    # Send email 
+    threading.Thread(target=email_send, args=(item.user, {"name":item.item.Purchase_Item.name, "item_code":item.item.Item_Code, "old":old_loc, "new":new_loc}, False, "relocate")).start()
+    # email_send(item.user.email, {"name":item.item.Purchase_Item.name, "item_code":item.item.Item_Code, "old":old_loc, "new":new_loc}, False, "relocate")
     return new_code
 
 @check_role_ajax(role='STORE')
@@ -1966,6 +1969,7 @@ def shift_item(request):
                         return HttpResponse("Old and the new user are the same!")
                     new_shift = Shift_History.objects.create(from_User = assign.objects.get(item = item).user, to_User = usr, remarks="item is assigned to the new user")
                     assigning_to_new = assign.objects.get(item = item)
+                    old_usr = assigning_to_new.user
                     assigning_to_new.user = usr
                     assigning_to_new.save()
 
@@ -1974,15 +1978,19 @@ def shift_item(request):
                     # change item department to the new user's department
                     item.current_department = profile.objects.get(user = usr).department
                     item.save()
+                    # Send an assign email to the user
+                    threading.Thread(target=email_send, args=(usr, {"items": [{"name": item.Purchase_Item.name, "item_code":item.Item_Code, "location": item.Location_Code}], "name": usr.first_name, "pickedup":"Shifted from "+old_usr.first_name},False, "issue")).start()
+                    # email_send(usr, {"items": [{"name": item.Purchase_Item.name, "item_code":item.Item_Code, "location": item.Location_Code}], "name": usr.first_name, "pickedup":"Shifted from "+assign.objects.get(item = item).user.first_name},False, "issue")
             
                 if type == "user_location":
                     if assign.objects.get(item = item).user == usr:
                         return HttpResponse("Old and the new user are the same!")
-                    # only user is shifted, the location is still the same
-                    # send mail to the new user, nwe user's department HOD, old user
+                    # only user is shifted, the location is still the same wrt new user
+                    # send mail to the new user, new user's department HOD, old user
                     new_loc = profile.objects.get(user = usr).location
                     new_shift = Shift_History.objects.create(from_User = assign.objects.get(item = item).user, to_User = usr, remarks="item is assigned to the new user", From = item.Location_Code.Final_Code, To = new_loc.Final_Code)
                     assigning_to_new = assign.objects.get(item = item)
+                    old_user = assigning_to_new.user
                     assigning_to_new.user = usr
                     assigning_to_new.save()
 
@@ -1996,7 +2004,10 @@ def shift_item(request):
 
                     # create new final code
                     item.Final_Code = "LNM "+ new_loc.Final_Code + " "+item.Item_Code
-
+                    
+                    # mail of assign and relocate
+                    threading.Thread(target=email_send, args=(usr, {"items": [{"name": item.Purchase_Item.name, "item_code":item.Item_Code, "location": new_loc.Final_Code}], "name": usr.first_name, "pickedup":"Shifted from "+old_user.first_name},False, "issue")).start()
+                    # threading.Thread(target=email_send, args=(usr, {"name": item.Purchase_Item.name, "item_code":item.Item_Code, "old": item.Location_Code, "new":new_loc.Final_Code},False, "relocate")).start()
                     item.save()
 
                 messages.success(request, "Item has been successfully reassigned")
@@ -2014,6 +2025,8 @@ def shift_item(request):
                 # creating new shift history
                 new_shift = Shift_History.objects.create(From = item_object.Location_Code.Final_Code, To = location_code)
 
+                old_loc = item_object.Location_Code.Final_Code
+
                 # Changing location and code of the item ledger
                 item_object.Location_Code = Location_Description.objects.get(Final_Code = location_code)
                 item_final_code = "LNM "+location_code+" "+ item_object.Item_Code
@@ -2023,7 +2036,7 @@ def shift_item(request):
 
                 # sending a success message
                 messages.success(request, f"Item {item_final_code} has been successfully relocated! ")
-
+                threading.Thread(target=email_send, args=(usr, {"name": item.Purchase_Item.name, "item_code":item.Item_Code, "old": old_loc, "new":location_code},False, "relocate")).start()
                 return redirect("/shift")
 
             bd = Building_Name.objects.all()

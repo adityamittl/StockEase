@@ -27,7 +27,7 @@ def credentials(username, password, to):
 
 def relocate_department(old_hod, new_hod, to, data):
     mail_template = get_template('email/relocate.html')
-    plaintext = get_template('email/relocate.txt')
+    plaintext = get_template('email/assign.txt')
 
     d = data
 
@@ -41,7 +41,7 @@ def relocate_department(old_hod, new_hod, to, data):
     msg.send()
 
 def assign(to, hod, data, alt):
-    mail_template = get_template('email/assign.html')
+    mail_template = get_template('email/assign_new.html')
     plaintext = get_template('email/assign.txt')
 
     data["location"] = False
@@ -60,7 +60,7 @@ def assign(to, hod, data, alt):
 
 
 def issue(to, data):
-    mail_template = get_template('email/assign.html')
+    mail_template = get_template('email/issue.html')
     plaintext = get_template('email/assign.txt')
 
     data["location"] = True
@@ -76,7 +76,7 @@ def issue(to, data):
 
 def relocate(to, hod, data):
     mail_template = get_template('email/relocate.html')
-    plaintext = get_template('email/relocate.txt')
+    plaintext = get_template('email/assign.txt')
 
     d = data
 
@@ -89,6 +89,20 @@ def relocate(to, hod, data):
     msg.attach_alternative(html_content, "text/html")
     msg.send()
 
+def dump(to_user, data):
+    mail_template = get_template('email/dump.html')
+    plaintext = get_template('email/assign.txt')
+
+    d = data
+
+    # Sending email to all three parties
+    subject = 'Items require dump approval'
+    html_content = mail_template.render(d)
+    text_content = plaintext.render(d)
+
+    msg = EmailMultiAlternatives(subject, text_content, from_email, [to_user])
+    msg.attach_alternative(html_content, "text/html")
+    msg.send()
 
 def email_send(to_user, data, old_department = False, type = "genaral", alt=None):
     # to_user is the user class
@@ -108,7 +122,8 @@ def email_send(to_user, data, old_department = False, type = "genaral", alt=None
         
         elif type == 'relocate':
             relocate(user_email, hod_email, data)
-
+        elif type == "dump":
+            dump(to_user, data)
         else:
             send_mail(
             subject="Your location has been updated!",
@@ -120,4 +135,3 @@ def email_send(to_user, data, old_department = False, type = "genaral", alt=None
     else:
         credentials(data["username"], data["password"], user_email)
 
-    
