@@ -2303,11 +2303,11 @@ def new_entry_register(request):
                     entry_to_register.objects.create(item = new_item, finantialYear = currFY)
 
             registerItems = entry_to_register.objects.filter(finantialYear = currFY, pageno__isnull = True, register_number__isnull = True, item__mc__code = cat)
-
+    
             return render(request, "selectFY.html", context={"fy":fy, "data":registerItems})
             # return render(request,"selectFY.html")
 
-        return render(request, "catagories_register.html", context={"data":Main_Catagory.objects.all(), "type":"catagory"})
+        return render(request, "catagories_register.html", context={"data":Main_Catagory.objects.all(), "type":"category"})
 
     if request.method == "POST":
         # try:
