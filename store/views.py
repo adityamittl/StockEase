@@ -467,6 +467,15 @@ def itemanem_new(request):
     mc = Main_Catagory.objects.all()
     sc = Sub_Catagory.objects.all()
     if request.method == "POST":
+        try:
+            int(request.POST.get("lasn"))
+        except:
+            return HttpResponse("Last assign serial number must conatin only numbers")
+        
+        try:
+            int(request.POST["code"])
+        except:
+            return HttpResponse("Item code must conatin only numbers")
         fc = Main_Catagory.objects.get(code = request.POST["mc"]).code+"{:02d}".format(Sub_Catagory.objects.get(name = request.POST["sc"]).code)+"{:03d}".format(int(request.POST["code"]))
         # check if that item number already exists or not, else throw an error on screen! 
         if Asset_Type.objects.filter(Final_Code = fc).count() >0 :
@@ -477,8 +486,8 @@ def itemanem_new(request):
             name = request.POST["name"],
             code = request.POST["code"],
             remark = request.POST["remark"],
-            Last_Assigned_serial_Number = 0,
-            quantity = 0,
+            Last_Assigned_serial_Number = int(request.POST.get("lasn")),
+            quantity = int(request.POST.get("lasn")),
             Final_Code = fc
         )
         return render(request, "close.html")
@@ -711,7 +720,7 @@ def users(request):
                     )
 
                 # Send mail
-                threading.Thread(target=email_send, args=(new_user, {"username":usr.username, "password":pswd}, False, "credentials")).start()
+                threading.Thread(target=email_send, args=(new_user, {"username":usr.username, "password":pswd, "name":usr.first_name}, False, "credentials")).start()
                 # threading.Thread(target=email_send, args(usr, pswd, ))
 
             return redirect("users")
@@ -1853,10 +1862,10 @@ def available_items(request):
 
     if "type" in request.GET.keys():
         item_name = request.GET["type"]
-        print(item_name)
-        print(Asset_Type.objects.get(name__icontains = item_name))
+        # print(item_name)
+        # print(Asset_Type.objects.get(name__icontains = item_name))
         items_all = Ledger.objects.filter(Purchase_Item__name__icontains = item_name, Is_Dump = False)
-        print(items_all)
+        # print(items_all)
         return render(request, "available_items.html", context={"data":items_all,"type": "detailed"})
     
 
@@ -2348,7 +2357,7 @@ def grn_fetch(request):
             "supplier":set()
         }
         total_price = 0
-        print(data)
+        # print(data)
         for i in data:
             try:
                 reg_mapping = entry_to_register.objects.get(item = i.Purchase_Item)
@@ -2384,7 +2393,7 @@ def generate_grn(request):
     data = Ledger.objects.filter(Is_Dump = False)
     res = {}
     for i in data:
-        if i.pono:
+        if i.pono and i.pono!="-":
             res[i.pono] = 1
 
     return render(request, "grn_generate.html", context={"data":res})
@@ -2425,3 +2434,100 @@ def item_delete(request):
         return JsonResponse({"type":"success"})
     
     return redirect("NotFound")
+
+@transaction.atomic
+def bulk_entry(request):
+    if request.method == "POST":
+        return HttpResponse("Under construction")
+        file = request.FILES.get("dataCSV")
+        data = file.read().decode("utf-8")
+        newData = data.split("\r\n")
+        x = csv.DictReader(newData)
+        fields = x.fieldnames
+        for row in x:
+            main_cat = row["Main_catagory"]
+            sub_cat = row["Sub_Catagory"]
+            fy = row["Purchase_year"]
+            vend_name = row["Vendor"]
+            bno = row["Bill_no"]
+            edate = row["Entry_date"]
+            bdate = row["Bill_date"]
+            item = row["Item"]
+            rate = row["Rate"]
+            tax = row["Tax"]
+            amm = row["Ammount"]
+            make = row["make"]
+            sno = row["sno"]
+            loc = row["location"]
+            icode = row["item_code"]
+            fcode = row["final_code"]
+            remark = row["Remark"]
+
+            mccode = icode[0]
+            subcat = int(icode[1:3])
+            num = int(icode.split(" ")[0][3:])
+            item_num = int(icode.split(" ")[1])
+            
+            fy_obj = None
+            vend_name_obj = None
+            subcat_obj = None
+
+
+            # check and create finantial year
+            if Finantial_Year.objects.filter(yearName = fy).count() == 0:
+                fy_obj = Finantial_Year.objects.create(yearName = fy)
+            else:
+                fy_obj = Finantial_Year.objects.get(yearName = fy)
+
+            # check for vendoe
+            if Vendor.objects.filter(name = vend_name).count() == 0:
+                vend_name_obj = Vendor.objects.create(name = vend_name)
+            else:
+                vend_name_obj = Vendor.objects.get(name = vend_name)
+
+            # check for subcatagory
+            # check for vendoe
+            if Sub_Catagory.objects.filter(code = subcat).count() == 0:
+                subcat_obj = Sub_Catagory.objects.create(code = subcat, name = sub_cat.upper())
+            else:
+                subcat_obj = Sub_Catagory.objects.get(code = subcat)
+
+            doe = datetime.strptime(bdate, "%d/%m/%Y").strftime("%d.%m.%Y")
+            
+            # create an asset item if exists
+            asset_item = None
+            if Asset_Type.objects.filter(Final_Code = icode.split(" ")[0]).count() == 0:
+                asset_item = Asset_Type.objects.create(
+                    mc = Main_Catagory.objects.get(code = mccode),
+                    sc = subcat_obj,
+                    code = num,
+                    quantity = 1,
+                    name = item,
+                    Final_Code = icode.split(" ")[0]
+                )
+            else:
+                asset_item = Asset_Type.objects.get(Final_Code = icode.split(" ")[0])
+            
+            loc_obj = Location_Description.objects.get(Final_Code = loc)
+
+            # Creating Ledger
+            Ledger.objects.create(
+                Finantial_Year = fy_obj,
+                Vendor = vend_name_obj,
+                bill_No = bno,
+                Date_Of_Invoice = doe,
+                Date_Of_Entry = doe,
+                Purchase_Item = asset_item,
+                Rate = rate,
+                Discount = 0,
+                tax = tax,
+                Ammount = amm,
+                make = make,
+                sno = sno,
+                Location_Code = loc_obj,
+                Item_Code = icode.split(" ")[0],
+                Final_Code = fcode,
+                pono = "-"
+        
+            )
+    return render(request,"bulk.html")

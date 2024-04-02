@@ -497,9 +497,9 @@
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg" style="margin-top: 10px; max-height: 72vh;">
       <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
         {% if type == 'all' %}
-        {% include "available_item/Category.html" %}
-        {%elif type == 'Category'%}
-        {% include "available_item/sub_Category.html" %}
+        {% include "available_item/catagory.html" %}
+        {%elif type == 'catagory'%}
+        {% include "available_item/sub_catagory.html" %}
         {%elif type == 'detailed' %}
         {% include "available_item/item_details.html" %}
         {%endif%}

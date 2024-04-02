@@ -108,4 +108,6 @@ urlpatterns = [
 
     # Register to ledger relationship
     path("registerentry",register_to_ledger),
+
+    path("bulk",bulk_entry),
 ]
