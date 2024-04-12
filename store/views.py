@@ -696,32 +696,34 @@ def users(request):
                 pswd = secrets.token_urlsafe(password_length)[0:password_length]
                 print(pswd)
                 # try:
-                usr = User.objects.create(
-                    username=email.split("@")[0],
-                    email=email,
-                    password=pswd,
-                    first_name=name,
-                )
-                if email.split("@")[0] == "director":
-
-                    profile.objects.create(
-                        department=Departments.objects.get(code=department),
-                        designation=designation,
-                        user=usr,
-                        login_type = ltype.upper(),
-                        is_director = True
+                # check if the user exists or not
+                if User.objects.filter(email = email).count() == 0:
+                    usr = User.objects.create(
+                        username=email.split("@")[0],
+                        email=email,
+                        password=pswd,
+                        first_name=name,
                     )
-                else:
-                    profile.objects.create(
-                        department=Departments.objects.get(code=department),
-                        designation=designation,
-                        user=usr,
-                        login_type = ltype.upper()
-                    )
+                    if email.split("@")[0] == "director":
 
-                # Send mail
-                threading.Thread(target=email_send, args=(new_user, {"username":usr.username, "password":pswd, "name":usr.first_name}, False, "credentials")).start()
-                # threading.Thread(target=email_send, args(usr, pswd, ))
+                        profile.objects.create(
+                            department=Departments.objects.get(code=department),
+                            designation=designation,
+                            user=usr,
+                            login_type = ltype.upper(),
+                            is_director = True
+                        )
+                    else:
+                        profile.objects.create(
+                            department=Departments.objects.get(code=department),
+                            designation=designation,
+                            user=usr,
+                            login_type = ltype.upper()
+                        )
+
+                    # Send mail
+                    threading.Thread(target=email_send, args=(new_user, {"username":usr.username, "password":pswd, "name":usr.first_name}, False, "credentials")).start()
+                    # threading.Thread(target=email_send, args(usr, pswd, ))
 
             return redirect("users")
 
