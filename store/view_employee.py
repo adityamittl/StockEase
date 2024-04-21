@@ -136,7 +136,7 @@ def new_complaint(request):
     if profile.objects.get(user = request.user).designation.designation_id == 'HOD':
         hod = True
     if request.method == "POST":
-        print(request.POST)
+        # print(request.POST)
         complaints.objects.create(user = request.user, complaint_item = assign.objects.get(id = request.POST.get('item')), description = request.POST.get("comment"), complaint_status = "SUBMITTED")
         return redirect("complaint status")
     
@@ -233,7 +233,7 @@ def notifications(request):
 def notificationAction(request):
     if request.method == 'POST':
         data_received = json.loads(request.body.decode())
-        print(data_received)
+        # print(data_received)
         if data_received["type"] == "dump":
             if data_received["action"] == 'approve':
                 # dump item successfully!

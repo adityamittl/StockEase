@@ -48,14 +48,14 @@ def assign_func(request):
                 temp = Ledger.objects.filter(Purchase_Item__name=items[i]["item_name"], isIssued = False, Is_Dump = False)[:qty] #got all the ledger of that name
             except:
                 temp = Ledger.objects.filter(Purchase_Item__name__icontains=items[i]["item_name"], isIssued = False, Is_Dump = False)[:qty] #got all the ledger of that name
-            print("lol,lamao-----------------------------------")
-            print(temp)
+            # print("lol,lamao-----------------------------------")
+            # print(temp)
             # quantity requested by the user
-            print(qty)
+            # print(qty)
             for j in temp:
 
                 ao = assign.objects.create(item=j, user=user_profile)
-                print(ao,"----------", j)
+                # print(ao,"----------", j)
                 item_vals["name"] = j.Purchase_Item.name
                 item_vals["item_code"] = j.Item_Code
                 item_vals["department"] = department_id
@@ -296,10 +296,14 @@ def issueItem(request):
             if uname == "":
                 return HttpResponse('No user is selected')
             ca = dict()
-            items_fixed = assign.objects.filter(
-                user=User.objects.get(username=uname), pickedUp=False, item__item_type = "FIXED ASSET"
-            )
-
+            if User.objects.filter(username = uname).count() ==0:
+                return HttpResponse("User does not exists")
+            try:
+                items_fixed = assign.objects.filter(
+                    user=User.objects.get(username=uname), pickedUp=False, item__item_type = "FIXED ASSET"
+                )
+            except:
+                return redirect("NotFound")
             items_consumable = assign.objects.filter(
                 user=User.objects.get(username=uname), pickedUp=False, item__item_type = "CONSUMABLE"
             )
@@ -483,12 +487,12 @@ def bulkAssign(request):
 def issueConsumeable(request):
     if request.method == 'POST':
         data = json.loads(request.body.decode())
-        print(data)
+        # print(data)
         assign_name = data["name"]
         quantity = int(data["quantity"])
         # assign consmable item to the user!
         assign_object = assign.objects.filter(item__Purchase_Item__name = assign_name, pickedUp = False, item__item_type = "CONSUMABLE")
-        print(assign_func)
+        # print(assign_func)
         for i in range(quantity):
             temp_view = assign.objects.get(id = assign_object[i].id)
             temp_view.pickedUp = True

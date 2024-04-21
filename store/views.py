@@ -83,7 +83,7 @@ def entry(request):
                         + "{:04d}".format(int(j["item_number"]))
                     )
                 dept = j["purchase_for"].upper().replace("&AMP;","&")
-                print("---------------------> ",dept)
+                # print("---------------------> ",dept)
                 item_ledger = Ledger.objects.create(
                 Vendor=vendor,
                 bill_No=billNO,
@@ -137,8 +137,8 @@ def vendor_details(request):
         services = multies["services"]
         # print(request.FILES['attachments'].errors)
         attachments = request.FILES.getlist("attachments")
-        print(attachments)
-        print(request.POST)
+        # print(attachments)
+        # print(request.POST)
         vendor_object = Vendor.objects.get(id = vid)
         vendor_object.name = vname
         vendor_object.address = address 
@@ -424,7 +424,7 @@ def itemAnem(request):
                     )
                     new_s +=1
                 las = row["last serial no assigned"]
-                print(las, sc, mc)
+                # print(las, sc, mc)
                 if las == "":
                     las = 0
                 else:
@@ -596,7 +596,7 @@ def new_maincatagory(request):
 def main_category(request):
     if request.method == "POST":
         file = request.FILES.get("dataCSV")
-        print(str(file))
+        # print(str(file))
         data = file.read().decode("utf-8").split("\r\n")
         newData = data
         x = csv.DictReader(data)
@@ -694,7 +694,7 @@ def users(request):
                 designation = row["Designation"]
                 ltype = row['Auth']
                 pswd = secrets.token_urlsafe(password_length)[0:password_length]
-                print(pswd)
+                # print(pswd)
                 # try:
                 # check if the user exists or not
                 if User.objects.filter(email = email).count() == 0:
@@ -779,7 +779,7 @@ def edit_user(request, uname):
                 code=request.POST.get("department")
             )
             for i in items_user:
-                print(i.item)
+                # print(i.item)
                 new_shift = Shift_History.objects.create(
                     From=pfile.department.name,
                     To=department_new.name,
@@ -1194,7 +1194,7 @@ class backup(View):
         with zipfile.ZipFile(s, "w", zipfile.ZIP_DEFLATED) as zf:
             for data, filename in files:
                 zf.writestr(filename, data.getvalue())
-        print(os.getcwd()+ "\\media")
+        # print(os.getcwd()+ "\\media")
         file_size = s.tell()
         s.seek(0)
 
@@ -1615,7 +1615,7 @@ def get_item_details(request):
         res["Code with Location"] = item_details.Final_Code
 
         # Details of the responsible person of that item.
-        print(item_details)
+        # print(item_details)
         try:
             person = assign.objects.get(item=item_details)
             res["Assigned to"] = person.user.first_name + " " + person.user.last_name
@@ -1804,7 +1804,7 @@ def complaint_list(request):
 @check_role(role="STORE")
 def complaint_view(request):
     if request.method == 'POST':
-        print(request.POST)
+        # print(request.POST)
         code = request.GET['code']
         data = complaints.objects.get(id = code)
         data.complaint_status = 'REPLIED'
@@ -1828,7 +1828,7 @@ def complaint_view(request):
 @check_role_ajax(role="STORE")
 def number_complaints(request):
     val = complaints.objects.filter(store_replied = False).count()
-    print(val)
+    # print(val)
     return JsonResponse({'data':f"{val}"})
 
 
@@ -1949,7 +1949,7 @@ def dump_details(request):
         for i in item:
             res.append(i.Item.Item_Code)
 
-        print(res)
+        # print(res)
         return JsonResponse({"Data":res})
 
     if request.method == "GET" and "item" in request.GET.keys():
@@ -1968,7 +1968,7 @@ def sold_details(request):
 @check_role(role = "STORE", redirect_to="/employee")
 def sell(request):
     if request.method == "POST":
-        print(request.POST)
+        # print(request.POST)
         # setting that item is dumped in ledger, updating details in the dump table
 
         temp = Ledger.objects.get(Item_Code = request.POST["itemcode_final"])
@@ -2005,7 +2005,7 @@ def shift_item(request):
         if request.GET["type"] == "user":
             if request.method == "POST":
                 type = request.POST.get("type_of_change")
-                print(request.POST)
+                # print(request.POST)
                 usr = User.objects.get(username = request.POST.get("user"))
                 item = Ledger.objects.get(Item_Code = request.POST.get("itemcode_final"))
                 if type == "user":
@@ -2107,7 +2107,7 @@ def search_user(request):
 def new_user(request):
     if request.method == 'POST':
 
-        print(request.POST)
+        # print(request.POST)
         email = request.POST.get("email")
         is_found = User.objects.filter(username = email.split("@")[0]).count()
         
@@ -2115,7 +2115,7 @@ def new_user(request):
             return HttpResponse("This user is already existed !")
 
         pwd = secrets.token_urlsafe(password_length)[0:password_length]
-        print(pwd)
+        # print(pwd)
         new_user = User.objects.create(username = email.split("@")[0], email = email, password = pwd, first_name = request.POST.get("first_name"), last_name = request.POST.get("last_name"))
         # new_user.password = pwd
         new_user.set_password(pwd)
@@ -2172,7 +2172,7 @@ def reports(request):
             sdate = datetime.strptime(sdate, "%m/%d/%Y").strftime("%Y-%m-%d")
             edate = datetime.strptime(edate, "%m/%d/%Y").strftime("%Y-%m-%d")
         # generating query
-        print(sdate, edate)
+        # # print(sdate, edate)
         unassigned_items = Ledger.objects.filter(Date_Of_Entry__range = (sdate, edate), isIssued = False, Is_Dump = False).order_by("-Date_Of_Invoice")
         assigned_items = assign.objects.filter(item__Date_Of_Entry__range = (sdate, edate)).order_by("-item__Date_Of_Invoice")
         return render(request, "report_show.html", context={"data":unassigned_items, "assigned":assigned_items, "sdate":sdate,"edate":edate,"today":date.today()})
@@ -2200,7 +2200,7 @@ def item_search_autocomplete(request):
     item_code = request.POST.get("item_code")
     fy = request.POST.get("fy")
     item_code = request.POST.get("item_code")
-    print(item_code, fy)
+    # print(item_code, fy)
     items = entry_to_register.objects.filter(item__Item_Code__icontains = item_code, finantialYear__yearName = fy)[:10]
 
     res = list()
@@ -2223,7 +2223,7 @@ def notifications(request):
 def notificationAction(request):
     if request.method == "POST":
         data = json.loads(request.body.decode())
-        print(data)
+        # print(data)
         if data["type"] == "read":
             id = data["id"]
             notify = admin_notifications.objects.get(id = id)
@@ -2255,7 +2255,7 @@ def registerMap(request):
         Finantial_Year.objects.create(yearName = fy)
     
     currFY = Finantial_Year.objects.get(yearName = fy)
-    print(currFY)
+    # print(currFY)
     if "year" in request.GET.keys():
         try:
             currFY = Finantial_Year.objects.get(yearName = request.GET["year"])
@@ -2323,10 +2323,10 @@ def new_entry_register(request):
     if request.method == "POST":
         # try:
         data = json.loads(request.body.decode())
-        print(data)
+        # print(data)
         item_no = data["id"]
-        print(item_no)
-        print(Asset_Type.objects.get(name = item_no))
+        # print(item_no)
+        # print(Asset_Type.objects.get(name = item_no))
         # if entry_to_register.objects.filter(item__name = item_no, finantialYear = currFY).count() == 0:
         #     register_value = entry_to_register.objects.create(item = Asset_Type.objects.get(name = item_no), finantialYear = currFY)
         # else:
